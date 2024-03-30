@@ -10,6 +10,9 @@
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
     --container-padding: 0;

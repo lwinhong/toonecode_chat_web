@@ -1,9 +1,59 @@
 <script setup>
+import { reactive, computed, onMounted, toRefs, ref } from 'vue';
+import { marked } from 'marked';
+import hljs from 'highlight.js';
+import util from "../util/index"
 
+import IconUserSvg from "./icons/IconUserSvg.vue";
+import IconPencilSvg from "./icons/IconPencilSvg.vue";
+import IconSendSvg from "./icons/IconSendSvg.vue";
+import IconCancelSvg from "./icons/IconCancelSvg.vue";
+import IconAiSvg from "./icons/IconAiSvg.vue";
+
+marked.setOptions({
+    renderer: new marked.Renderer(),
+    highlight: function (code, _lang) {
+        return hljs.highlightAuto(code).value;
+    },
+    langPrefix: 'hljs language-',
+    pedantic: false,
+    gfm: true,
+    breaks: true,
+    sanitize: false,
+    smartypants: false,
+    xhtml: false
+});
+const viewType = { introduction: "introduction", qa: "qa" }
+let currentViewType = reactive("qa");
+let isInProgress = reactive(false);
+const isIntroduction = computed(() => currentViewType == viewType.introduction);
+onMounted(() => {
+    //util.postMessageToVsCode("postmessage");
+});
+
+//问答列表
+let test = {
+    question: util.escapeHtml("你好"),
+    id: "1",
+    anser: "你好我是属性信息寻 ```\r\n<button title='Cancel' class='cancel-element-ext p-1 pr-2 flex items-center'><IconCancelSvg />&nbsp;取消</button>\n\n```\n\n",
+    done: false
+};
+const markedResponse = marked.parse(test.anser);
+test.anser = markedResponse;
+let qaList = reactive([test]);
+
+const onClearClick = () => {
+    this.qaList = [];
+    this.currentViewType = viewType.qa;
+}
+setTimeout(() => {
+    test.done = true
+}, 3000);
 </script>
 <template>
     <div class="flex flex-col h-screen">
-        <div id="introduction"
+        <!--介绍 / 简介 / 引言 / 概述 -->
+        <div id="introduction" v-if="isIntroduction"
             class="flex flex-col justify-between h-full justify-center px-6 w-full relative login-screen overflow-auto">
             <div data-license="isc-gnc-hi-there" class="flex items-start text-center features-block my-5">
                 <div class="flex flex-col gap-3.5 flex-1">
@@ -37,13 +87,50 @@
                         id="settings-prompt-button" href="#">Update prompts</a>
                 </p>
             </div>
+
         </div>
 
-        <div class="flex-1 overflow-y-auto" id="qa-list" data-license="isc-gnc"></div>
+        <!--问答list-->
+        <div class="flex-1 overflow-y-auto" id="qa-list" data-license="isc-gnc" v-for="(message, index) in qaList"
+            :key="index">
+            <!-- 问题 -->
+            <div class="chat-card-bg">
+                <div class="p-4 self-end question-element-ext relative chat-card-content-bg rounded-lg">
+                    <h2 class="mb-5 flex" data-license="isc-gnc">
+                        <IconUserSvg />你
+                    </h2>
+                    <no-export class="mb-2 flex items-center" data-license="isc-gnc">
+                        <button title="编辑并重新提问"
+                            class="resend-element-ext p-1.5 flex items-center rounded-lg absolute right-6 top-6">
+                            <IconPencilSvg />
+                        </button>
+                        <div class="hidden send-cancel-elements-ext flex gap-2">
+                            <button title="Send this prompt" class="send-element-ext p-1 pr-2 flex items-center">
+                                <IconSendSvg />&nbsp;发送
+                            </button>
+                            <button title="Cancel" class="cancel-element-ext p-1 pr-2 flex items-center">
+                                <IconCancelSvg />&nbsp;取消
+                            </button>
+                        </div>
+                    </no-export>
+                    <div class="overflow-y-auto">{{ message.question }}</div>
+                </div>
+            </div>
+            <!--回答-->
+            <div class="chat-card-bg" v-if="message.anser">
+                <div data-license="isc-gnc" class="p-4 self-end answer-element-ext chat-card-content-bg">
+                    <h2 class="mb-5 flex">
+                        <IconAiSvg />TooneCode
+                    </h2>
+                    <div :class="{ 'result-streaming': !message.done }" @id="message.id" v-html="message.anser"></div>
+                </div>
+            </div>
+        </div>
 
         <div class="flex-1 overflow-y-auto hidden" id="conversation-list" data-license="isc-gnc"></div>
 
-        <div id="in-progress" class="pl-4 pt-2 flex items-center hidden" data-license="isc-gnc">
+        <!-- 正式思考动画 -->
+        <div id="in-progress" class="pl-4 pt-2 flex items-center hidden" data-license="isc-gnc" v-show="isInProgress">
             <div class="typing">正在思考</div>
             <div class="spinner">
                 <div class="bounce1"></div>
@@ -59,19 +146,20 @@
                 </svg>停止</button>
         </div>
 
+        <!-- 提问框 -->
         <div class="p-4 flex items-center pt-2" data-license="isc-gnc">
             <div class="flex-1 textarea-wrapper">
                 <!-- <textarea type="text" rows="1" data-license="isc-gnc" id="question-input" placeholder="输入一个问题..."
                     onInput="this.parentNode.dataset.replicatedValue = this.value"></textarea> -->
-                <textarea type="text" rows="1" data-license="isc-gnc" id="question-input" placeholder="输入一个问题..."
-                    ></textarea>
+                <textarea type="text" rows="1" data-license="isc-gnc" id="question-input"
+                    placeholder="输入一个问题..."></textarea>
             </div>
             <div id="chat-button-wrapper"
                 class="absolute bottom-14 items-center more-menu right-8 border border-gray-200 shadow-xl hidden text-xs"
                 data-license="isc-gnc">
-                <button class="flex gap-2 items-center justify-start p-2 w-full" id="clear-button"><svg
-                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="w-4 h-4">
+                <button class="flex gap-2 items-center justify-start p-2 w-full" id="clear-button"
+                    @click="onClearClick"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>&nbsp;新的聊天</button>
                 <button class="flex gap-2 items-center justify-start p-2 w-full" id="settings-button"><svg
@@ -108,6 +196,4 @@
         </div>
     </div>
 </template>
-<style>
-
-</style>
+<style></style>

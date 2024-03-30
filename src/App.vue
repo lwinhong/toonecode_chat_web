@@ -1,7 +1,13 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-</script>
+import { RouterView } from 'vue-router';
+import { onMounted } from 'vue';
+import { useStore } from './stores/useStore';
 
+onMounted(() => {
+  if (!window.vscodeInstance)
+    useStore().setVsCodeMode(false);
+})
+</script>
 <template>
   <RouterView />
 </template>

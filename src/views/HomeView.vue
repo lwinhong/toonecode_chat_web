@@ -1,9 +1,7 @@
 <script setup>
-import Chat from '../components/Chat.vue'
+import ChatView from '../components/ChatView.vue'
 </script>
 
 <template>
-  <main>
-    <Chat />
-  </main>
+  <ChatView />
 </template>

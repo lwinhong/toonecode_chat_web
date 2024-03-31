@@ -11,7 +11,9 @@ export const useStore = defineStore('useStore', {
       console.log(data);
       if (this.isVsCodeMode && window.vscodeInstance) {
         window.vscodeInstance.postMessage(data);
+        return true;
       }
+      return false;
     }
   }
 })

@@ -27,6 +27,16 @@ export default defineConfig(({mode})=>{
       outDir: "dist",
       assetsDir: "assets", //指定静态资源存放路径
       sourcemap: false, //是否构建source map 文件
+    },
+    server: {
+      proxy: {
+        '/api': {
+          target: 'http://codeserver.t.vtoone.com',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, '')
+        }
+      }
     }
+
   }
 })

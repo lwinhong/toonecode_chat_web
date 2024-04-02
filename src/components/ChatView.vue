@@ -212,7 +212,7 @@ export default {
                     //本地模式
                     this.showInProgress({ showStopButton: true, inProgress: true });
                     this.addQuestion({ value: input })
-                    chatUtil.sendApiRequest(input, {},
+                    await chatUtil.sendApiRequest(input, { questionId: this.lastQuestionId },
                         (progress) => {
                             this.addResponse(progress);
                         },
@@ -224,21 +224,21 @@ export default {
             }
         },
         test() {
-            //问答列表
-            let test = {
-                question: util.escapeHtml("你好"),
-                id: "1",
-                anser: "你好我是属性信息寻 ```\r\n<button title='Cancel' class='cancel-element-ext p-1 pr-2 flex items-center'><IconCancelSvg />&nbsp;取消</button>\n\n```\n\n",
-                done: false
-            };
-            const markedResponse = util.markedParser(test.anser);
-            test.anser = markedResponse;
+            // //问答列表
+            // let test = {
+            //     question: util.escapeHtml("你好"),
+            //     id: "1",
+            //     anser: "你好我是属性信息寻 ```\r\n<button title='Cancel' class='cancel-element-ext p-1 pr-2 flex items-center'><IconCancelSvg />&nbsp;取消</button>\n\n```\n\n",
+            //     done: false
+            // };
+            // const markedResponse = util.markedParser(test.anser);
+            // test.anser = markedResponse;
 
-            this.qaData.list.push(test);
+            // this.qaData.list.push(test);
 
-            setTimeout(() => {
-                test.done = true
-            }, 3000);
+            // setTimeout(() => {
+            //     test.done = true
+            // }, 3000);
         },
         showInProgress(message) {
             this.showStopButton = message.showStopButton ? true : false;
@@ -259,9 +259,9 @@ export default {
                 question: util.escapeHtml(message.value),
                 id: this.lastQuestionId,
                 messageId: "",
-                anser: "" ,
+                anser: "",
                 done: false
-            })
+            });
         },
         addResponse(message) {
             const list = document.getElementById("qa-list");

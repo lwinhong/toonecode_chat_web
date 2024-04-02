@@ -30,10 +30,11 @@ export const chatUtil = {
                     chatType: "chat",
                     onProgress: (message) => {
                         this.response = message.text;
-                        onProgress?.({ type: 'addResponse', value: this.response, id: this.conversationId, autoScroll: this.autoScroll, responseInMarkdown });
+                        onProgress?.({ type: 'addResponse', value: this.response, questionId: options.questionId, id: this.conversationId, autoScroll: this.autoScroll, responseInMarkdown });
                     },
                     onDone: () => {
-                        onDone?.({ type: 'addResponse', value: this.response, done: true, id: this.conversationId, autoScroll: this.autoScroll, responseInMarkdown });
+                        this.response = message.text;
+                        onDone?.({ type: 'addResponse', value: this.response, done: true, id: this.conversationId, questionId: options.questionId, autoScroll: this.autoScroll, responseInMarkdown });
                         this.inProgress = false;
                     }
                 });
@@ -54,19 +55,19 @@ export const chatUtil = {
         onDone?.({ type: 'addResponse', value: this.response, done: true, id: this.conversationId, autoScroll: this.autoScroll, responseInMarkdown });
     },
     processQuestion(question, code, language) {
-		if (code) {
-			// Add prompt prefix to the code if there was a code block selected
-			// question = `${question}${language ? ` (The following code is in ${language} programming language)` : ''}: ${code}`;
-			question = `${question}${language ? ` (当前编程语言是${language})` : ''}: ${code}`;
-		}
-		return question + "\r\n";
-	},
+        if (code) {
+            // Add prompt prefix to the code if there was a code block selected
+            // question = `${question}${language ? ` (The following code is in ${language} programming language)` : ''}: ${code}`;
+            question = `${question}${language ? ` (当前编程语言是${language})` : ''}: ${code}`;
+        }
+        return question + "\r\n";
+    },
     getRandomId() {
-		let text = '';
-		const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-		for (let i = 0; i < 32; i++) {
-			text += possible.charAt(Math.floor(Math.random() * possible.length));
-		}
-		return text;
-	}
+        let text = '';
+        const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        for (let i = 0; i < 32; i++) {
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+        }
+        return text;
+    }
 }

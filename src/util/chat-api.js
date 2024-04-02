@@ -11,9 +11,9 @@ export default class ChatApi {
     constructor(opt) {
         const { apiBaseUrl } = opt;
         this._cacheChatMessage = new Array();
-        axios.defaults.withCredentials = true;
-        axios.defaults.baseURL = apiBaseUrl ?? 'http://codeserver.t.vtoone.com';
-        axios.defaults.headers["Content-Type"] = "application/json";
+        // axios.defaults.withCredentials = true;
+        // axios.defaults.baseURL = apiBaseUrl ?? '/api';
+        // axios.defaults.headers["Content-Type"] = "application/json";
         this._cacheChatMessage = [];
     }
 
@@ -64,33 +64,38 @@ export default class ChatApi {
             cacheHistory && await this._updateMessages(message);
 
             const requestMsg = await this.buildMessages(text, opts);
+            config.data = requestMsg;
+
             await this.doRequestPost(config, requestMsg).then((response) => {
+                // if (onProgress) {
+                //     response.data.on('data', (chunk) => {
+                //         // 处理流数据的逻辑
+                //         result.text = chunk.toString();
+                //         onProgress == null ? void 0 : onProgress(result);
+                //     });
+                // }
                 if (onProgress) {
-                    response.data.on('data', (chunk) => {
-                        // 处理流数据的逻辑
-                        result.text = chunk.toString();
-                        onProgress == null ? void 0 : onProgress(result);
-                    });
+                    result.text = response.data;
+                    onProgress(result);
                 }
                 if (onDone) {
-                    response.data.on('end', async () => {
-                        // 数据接收完成的逻辑
-                        let rs = onDone == null ? void 0 : onDone(result);
-                        if (rs === false) { return; }
-                        cacheHistory && await this._updateMessages(result);
-                    });
+                    result.text = response.data;
+                    onDone(result);
+                    //     response.data.on('end', async () => {
+                    //         // 数据接收完成的逻辑
+                    //         let rs = onDone == null ? void 0 : onDone(result);
+                    //         if (rs === false) { return; }
+                    //         cacheHistory && await this._updateMessages(result);
+                    //     });
                 }
-                response.data.on('error', (error) => {
-                    if (axios.isCancel(error)) {
-                        console.log('请求被取消', error.message);
-                    } else {
-                        console.log('请求出错', error.message);
-                    }
-                    result.error = "服务异常，请稍后再试 " + error;
-                    onDone == null ? void 0 : onDone(result);
-                });
+
             }).catch(err => {
-                result.error = "服务异常，请稍后再试. " + err;
+                if (axios.isCancel(error)) {
+                    console.log('请求被取消', error.message);
+                } else {
+                    console.log('请求出错', error.message);
+                }
+                result.error = "服务异常，请稍后再试 " + error;
                 onDone == null ? void 0 : onDone(result);
             });
         }

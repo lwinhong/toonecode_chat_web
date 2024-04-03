@@ -39,46 +39,49 @@
         </div>
 
         <!--问答list-->
-        <div class="flex-1 overflow-y-auto" id="qa-list" data-license="isc-gnc" v-for="(message, index) in qaData.list"
-            :key="index" v-show="isQAMode">
-            <!-- 问题 -->
-            <div class="chat-card-bg">
-                <div class="p-4 self-end question-element-ext relative chat-card-content-bg rounded-lg">
-                    <h2 class="mb-5 flex" data-license="isc-gnc">
-                        <IconUserSvg />你
-                    </h2>
-                    <no-export class="mb-2 flex items-center" data-license="isc-gnc">
-                        <button title="编辑并重新提问"
-                            class="resend-element-ext p-1.5 flex items-center rounded-lg absolute right-6 top-6">
-                            <IconPencilSvg />
-                        </button>
-                        <div class="hidden send-cancel-elements-ext flex gap-2">
-                            <button title="Send this prompt" class="send-element-ext p-1 pr-2 flex items-center">
-                                <IconSendSvg />&nbsp;发送
+        <div class="flex-1 overflow-y-auto" ref="qaElementList" id="qa-list" data-license="isc-gnc" v-show="isQAMode">
+            <template v-for="(message, index) in qaData.list" :key="index">
+                <!-- 问题 -->
+                <div class="chat-card-bg">
+                    <div class="p-4 self-end question-element-ext relative chat-card-content-bg rounded-lg">
+                        <h2 class="mb-5 flex" data-license="isc-gnc">
+                            <IconUserSvg />你
+                        </h2>
+                        <no-export class="mb-2 flex items-center" data-license="isc-gnc">
+                            <button title="编辑并重新提问"
+                                class="resend-element-ext p-1.5 flex items-center rounded-lg absolute right-6 top-6">
+                                <IconPencilSvg />
                             </button>
-                            <button title="Cancel" class="cancel-element-ext p-1 pr-2 flex items-center">
-                                <IconCancelSvg />&nbsp;取消
-                            </button>
-                        </div>
-                    </no-export>
-                    <div class="overflow-y-auto">{{ message.question }}</div>
-                </div>
-            </div>
-            <!--回答-->
-            <div class="chat-card-bg" v-if="message.anser">
-                <div data-license="isc-gnc" class="p-4 self-end answer-element-ext chat-card-content-bg">
-                    <h2 class="mb-5 flex">
-                        <IconAiSvg />TooneCode
-                    </h2>
-                    <div :class="{ 'result-streaming': message.done !== true }" @id="message.messageId"
-                        v-html="message.anser">
+                            <div class="hidden send-cancel-elements-ext flex gap-2">
+                                <button title="Send this prompt" class="send-element-ext p-1 pr-2 flex items-center">
+                                    <IconSendSvg />&nbsp;发送
+                                </button>
+                                <button title="Cancel" class="cancel-element-ext p-1 pr-2 flex items-center">
+                                    <IconCancelSvg />&nbsp;取消
+                                </button>
+                            </div>
+                        </no-export>
+                        <div class="overflow-y-auto">{{ message.question }}</div>
                     </div>
-                    <div></div>
                 </div>
-            </div>
+                <!--回答-->
+                <div class="chat-card-bg" v-if="message.anser">
+                    <div data-license="isc-gnc" class="p-4 self-end answer-element-ext chat-card-content-bg">
+                        <h2 class="mb-5 flex">
+                            <IconAiSvg />TooneCode
+                        </h2>
+                        <div :class="{ 'result-streaming': message.done !== true }" @id="message.id"
+                            v-html="message.anser">
+                        </div>
+                        <div></div>
+                    </div>
+                </div>
+            </template>
+
         </div>
 
-        <div class="flex-1 overflow-y-auto" id="conversation-list" data-license="isc-gnc" v-show="isQAMode"></div>
+        <div class="flex-1 overflow-y-auto hidden" id="conversation-list" data-license="isc-gnc" v-show="isQAMode">
+        </div>
 
         <!-- 正式思考动画 -->
         <div id="in-progress" class="pl-4 pt-2 flex items-center" data-license="isc-gnc" v-show="isInProgress">
@@ -90,7 +93,7 @@
             </div>
 
             <button id="stop-button" class="btn btn-primary flex items-end p-1 pr-2 rounded-md ml-5"
-                v-show="showStopButton">
+                v-show="showStopButton" @click="onStopClick">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="w-5 h-5 mr-2">
                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -108,30 +111,32 @@
                     :disabled="questionInputDisabled"></textarea>
             </div>
             <div id="chat-button-wrapper"
-                class="absolute bottom-14 items-center more-menu right-8 border border-gray-200 shadow-xl hidden text-xs"
-                data-license="isc-gnc">
+                class="absolute bottom-14 items-center more-menu right-8 border border-gray-200 shadow-xl text-xs"
+                data-license="isc-gnc" v-show="questionInputButtonsMoreVisible"
+                @click="questionInputButtonsMoreVisible = false">
                 <button class="flex gap-2 items-center justify-start p-2 w-full" id="clear-button"
                     @click="onClearClick"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                         stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>&nbsp;新的聊天</button>
-                <button class="flex gap-2 items-center justify-start p-2 w-full" id="settings-button"><svg
-                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="w-4 h-4">
+                <button v-if="isVsCodeMode" class="flex gap-2 items-center justify-start p-2 w-full"
+                    id="settings-button"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>&nbsp;更新设置</button>
-                <button class="flex gap-2 items-center justify-start p-2 w-full" id="export-button"><svg
-                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="w-4 h-4">
+                <button v-if="isVsCodeMode" class="flex gap-2 items-center justify-start p-2 w-full"
+                    id="export-button"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                     </svg>&nbsp;导出markdown</button>
             </div>
             <div id="question-input-buttons" class="right-6 absolute p-0.5 ml-5 flex items-center gap-2"
                 v-show="questionInputButtonsVisible">
-                <button id="more-button" title="More actions" class="rounded-lg p-0.5" data-license="isc-gnc">
+                <button id="more-button" title="More actions" class="rounded-lg p-0.5" data-license="isc-gnc"
+                    @click="questionInputButtonsMoreVisible = true">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="w-5 h-5">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -139,7 +144,7 @@
                     </svg>
                 </button>
 
-                <button id="ask-button" title="提交提示" class="ask-button rounded-lg p-0.5">
+                <button id="ask-button" title="提交提示" class="ask-button rounded-lg p-0.5" @click="">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="w-5 h-5">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -159,6 +164,9 @@ import IconPencilSvg from "./icons/IconPencilSvg.vue";
 import IconSendSvg from "./icons/IconSendSvg.vue";
 import IconCancelSvg from "./icons/IconCancelSvg.vue";
 import IconAiSvg from "./icons/IconAiSvg.vue";
+import { useStore } from '@/stores/useStore'
+import { mapState } from 'pinia'
+import { ref } from "vue";
 
 const viewType = { introduction: "introduction", qa: "qa" }
 
@@ -174,10 +182,14 @@ export default {
             questionInputDisabled: false,
             showStopButton: false,
             questionInputButtonsVisible: true,
-            lastQuestionId: ""
+            lastQuestionId: "",
+            questionInputButtonsMoreVisible: false,
         }
     },
     computed: {
+        ...mapState(useStore, [
+            "isVsCodeMode"
+        ]),
         isIntroduction() {
             return this.currentViewType == viewType.introduction
         },
@@ -185,17 +197,42 @@ export default {
             return this.currentViewType == viewType.qa;
         }
     },
+    setup() {
+        let qaElementList = ref();
+        return { qaElementList }
+    },
     methods: {
         onClearClick() {
             this.qaData.list = [];
-            this.currentViewType = viewType.qa;
+            this.currentViewType = viewType.introduction;
+        },
+        onStopClick(e) {
+            e.preventDefault();
+            const result = util.postMessageToVsCode({
+                type: "stopGenerating",
+            });
+            if (result !== true) {
+                //本地模式
+                this.showInProgress({ inProgress: false });
+                let existingMessageData = this.qaData.list.find(f => f.id === this.lastQuestionId);
+                if (!existingMessageData && this.qaData.list.length > 0) {
+                    existingMessageData = this.qaData.list[this.qaData.list.length - 1]
+                }
+                this.addResponse({
+                    value: existingMessageData.anser,
+                    done: true, id: existingMessageData?.id ?? this.lastQuestionId, autoScroll: true, responseInMarkdown: true
+                });
+            }
         },
         onQuestionKeyEnter(e) {
             e.preventDefault();
             this.addFreeTextQuestion();
         },
         onExportConversation() {
-            util.exportConversation(document.getElementById("qa-list"));
+            util.exportConversation(this.qaElementList);
+        },
+        onAskButtonClick(e) {
+            this.addFreeTextQuestion();
         },
         /**
          * 添加聊天
@@ -223,23 +260,6 @@ export default {
                 }
             }
         },
-        test() {
-            // //问答列表
-            // let test = {
-            //     question: util.escapeHtml("你好"),
-            //     id: "1",
-            //     anser: "你好我是属性信息寻 ```\r\n<button title='Cancel' class='cancel-element-ext p-1 pr-2 flex items-center'><IconCancelSvg />&nbsp;取消</button>\n\n```\n\n",
-            //     done: false
-            // };
-            // const markedResponse = util.markedParser(test.anser);
-            // test.anser = markedResponse;
-
-            // this.qaData.list.push(test);
-
-            // setTimeout(() => {
-            //     test.done = true
-            // }, 3000);
-        },
         showInProgress(message) {
             this.showStopButton = message.showStopButton ? true : false;
             if (message.inProgress) {
@@ -250,11 +270,12 @@ export default {
                 this.isInProgress = false;
                 this.questionInputDisabled = false;
                 this.questionInputButtonsVisible = true;
+                this.lastQuestionId = ""
             }
         },
         addQuestion(message) {
             this.currentViewType = viewType.qa;
-            this.lastQuestionId = uuidv4();
+            this.lastQuestionId = message.messageId ?? uuidv4();
             this.qaData.list.push({
                 question: util.escapeHtml(message.value),
                 id: this.lastQuestionId,
@@ -262,12 +283,14 @@ export default {
                 anser: "",
                 done: false
             });
+            util.autoScrollToBottom(this.qaElementList);
         },
         addResponse(message) {
-            const list = document.getElementById("qa-list");
-            let existingMessage = document.getElementById(message.id);
-            let existingMessageData = this.qaData.list.find(f => f.id === this.lastQuestionId);
-            if (existingMessageData || existingMessage) {
+            const questionId = message.messageId;
+            const list = this.qaElementList;
+            //let existingMessage = document.getElementById(message.id);
+            let existingMessageData = this.qaData.list.find(f => f.id === questionId);
+            if (!existingMessageData) {
                 return;
             }
 
@@ -282,8 +305,8 @@ export default {
             existingMessageData.anser = markedResponse
             if (message.done) {
                 existingMessageData.done = true;
-                this.lastQuestionId = ""
-                const preCodeList = list.lastChild.querySelectorAll("pre > code");
+                this.showInProgress({ inProgress: false })
+                const preCodeList = list.children[list.children.length - 1].querySelectorAll("pre > code");
                 preCodeList.forEach((preCode) => {
                     preCode.classList.add("input-background", "p-4", "pb-2", "block", "whitespace-pre", "overflow-x-scroll");
                     preCode.parentElement.classList.add("pre-code-element", "relative");
@@ -297,32 +320,23 @@ export default {
                     copyButton.innerHTML = `${clipboardSvg} 复制`;
 
                     copyButton.classList.add("code-element-ext", "p-1", "pr-2", "flex", "items-center", "rounded-lg");
+                    buttonWrapper.append(copyButton);
 
-                    const insert = document.createElement("button");
-                    insert.title = "将以上内容插入到当前文件";
-                    insert.innerHTML = `${insertSvg} 插入`;
+                    if (this.isVsCodeMode) {
+                        const insert = document.createElement("button");
+                        insert.title = "将以上内容插入到当前文件";
+                        insert.innerHTML = `${insertSvg} 插入`;
 
-                    insert.classList.add("edit-element-ext", "p-1", "pr-2", "flex", "items-center", "rounded-lg");
+                        insert.classList.add("edit-element-ext", "p-1", "pr-2", "flex", "items-center", "rounded-lg");
 
-                    const newTab = document.createElement("button");
-                    newTab.title = "新建文件并将以上代码置入";
-                    newTab.innerHTML = `${plusSvg} 新建`;
+                        const newTab = document.createElement("button");
+                        newTab.title = "新建文件并将以上代码置入";
+                        newTab.innerHTML = `${plusSvg} 新建`;
 
-                    newTab.classList.add("new-code-element-ext", "p-1", "pr-2", "flex", "items-center", "rounded-lg");
-
-                    buttonWrapper.append(copyButton, insert, newTab);
-
-                    // if (preCode.parentNode.previousSibling) {
-                    //     const after = preCode.parentNode.parentElement?.insertAfter;
-                    //     if (after) {
-                    //         after(buttonWrapper, preCode.parentElement.previousSibling);
-                    //     }
-                    // } else {
-                    //        preCode.parentNode.parentElement.append(buttonWrapper);
-                    //}
-
+                        newTab.classList.add("new-code-element-ext", "p-1", "pr-2", "flex", "items-center", "rounded-lg");
+                        buttonWrapper.append(insert, newTab);
+                    }
                     preCode.parentNode.append(buttonWrapper);
-
                 });
             }
             if (message.autoScroll && (message.done || markedResponse.endsWith("\n"))) {
@@ -338,11 +352,13 @@ export default {
                 case "addResponse":
                     this.addResponse(message);
                     break;
+                case "addQuestion":
+                    this.addQuestion(message);
+                    break;
             }
         }
     },
     mounted() {
-        this.test();
         window.addEventListener("message", this.messageHandler);
     }
 }

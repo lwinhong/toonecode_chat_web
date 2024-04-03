@@ -66,6 +66,94 @@ export default class ChatApi {
             const requestMsg = await this.buildMessages(text, opts);
             config.data = requestMsg;
 
+            try {
+                let response = await fetch("/api" + config.url,
+                {
+                    method: "post",
+                    body: JSON.stringify(requestMsg),
+                    headers: { 'Content-Type': 'application/json' },
+                    abortSignal: abortSignal
+                });
+
+                const reader = response.body.getReader();
+                const textDecoder = new TextDecoder();
+                let readEnd = true;
+
+                while (readEnd) {
+                    const { done, value } = await reader.read();
+
+                    if (done) {
+                        onDone?.(result);
+                        readEnd = false;
+                        break;
+                    }
+
+                    const chunkText = textDecoder.decode(value);
+                    //output += chunkText;
+                    result.text = chunkText;
+                    onProgress?.(result);
+                }
+            } catch (error) {
+                result.error = "服务异常，请稍后再试 " + error;
+                 onDone?.(result);
+            }
+        }
+        else {
+            const response = await this.doRequestPost(config, {});
+            result.text = response.data;
+            onDone == null ? void 0 : onDone(result);
+        }
+        return result;
+    }
+    async sendMessagebak(text, opts) {
+        const {
+            stream,
+            onProgress,
+            onDone,
+            //conversationId = uuidv4(),
+            //parentMessageId,
+            messageId = uuidv4(),
+            timeoutMs = 40 * 1000,
+            //chatType = "chat",
+            historyCount = 3,
+            cacheHistory = true
+        } = opts;
+        this._historyCount = historyCount;
+        let { abortSignal } = opts;
+        let abortController = null;
+        if (timeoutMs && !abortSignal) {
+            abortController = new AbortController();
+            abortSignal = abortController.signal;
+        }
+        const message = {
+            role: "user",
+            id: messageId,
+            parentMessageId: messageId,
+            text
+        };
+        const result = {
+            role: "assistant",
+            id: uuidv4(),
+            parentMessageId: messageId,
+            text: "",
+            error: ""
+        };
+
+        let config = {
+            method: 'post',
+            url: '/chat',
+            timeout: timeoutMs,
+            signal: abortSignal,
+        };
+        if (stream) {
+            config.responseType = "stream";
+            config.url += "_stream_v1";
+
+            cacheHistory && await this._updateMessages(message);
+
+            const requestMsg = await this.buildMessages(text, opts);
+            config.data = requestMsg;
+
             await this.doRequestPost(config, requestMsg).then((response) => {
                 // if (onProgress) {
                 //     response.data.on('data', (chunk) => {
@@ -89,7 +177,7 @@ export default class ChatApi {
                     //     });
                 }
 
-            }).catch(err => {
+            }).catch(error => {
                 if (axios.isCancel(error)) {
                     console.log('请求被取消', error.message);
                 } else {
@@ -106,7 +194,6 @@ export default class ChatApi {
         }
         return result;
     }
-
     async buildMessages(text, opts) {
         const { chatType = "chat", lang } = opts;
 

@@ -4,13 +4,14 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 
+// import 'highlight.js/styles/atom-one-dark.css'
 /*********** axios ************* */
 
 import axios from "axios";
 
 axios.defaults.timeout = 30 * 1000;//30s
 axios.defaults.withCredentials = true;
-axios.defaults.baseURL ='/api'; 
+axios.defaults.baseURL ='/api'; //'http://codeserver.t.vtoone.com'
 // axios.interceptors.response.use(
 //     config => {
 //         //debugger
@@ -21,10 +22,9 @@ axios.defaults.baseURL ='/api';
 // );
 /************************ */
 
-let vscode;
 try {
-    if (window.acquireVsCodeApi()) {
-        vscode = window.acquireVsCodeApi();
+    const vscode = window.acquireVsCodeApi();
+    if (vscode) {
         window.vscodeInstance = vscode;
     }
 } catch (error) {

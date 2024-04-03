@@ -1,11 +1,11 @@
 import { fileURLToPath, URL } from 'node:url'
 
-import { defineConfig, loadEnv  } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import legacy from '@vitejs/plugin-legacy'
 import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
-export default defineConfig(({mode})=>{
+export default defineConfig(({ mode }) => {
 
   const env = loadEnv(mode, __dirname)
   return {
@@ -22,11 +22,20 @@ export default defineConfig(({mode})=>{
         '@': fileURLToPath(new URL('./src', import.meta.url))
       }
     },
-    base:'./',
+    base: './',
     build: {
       outDir: "dist",
       assetsDir: "assets", //指定静态资源存放路径
       sourcemap: false, //是否构建source map 文件
+      rollupOptions: {
+        output: {
+          entryFileNames: 'assets/[name].js',
+          // 块文件名
+          chunkFileNames: 'assets/[name]-[hash].js',
+          // 资源文件名（例如 CSS、图片等）
+          assetFileNames: 'assets/[name].[ext]'
+        }
+      }
     },
     server: {
       proxy: {

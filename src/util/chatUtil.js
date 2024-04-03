@@ -7,7 +7,7 @@ export const chatUtil = {
             // The AI is still thinking... Do not accept more questions.
             return;
         }
-
+        let { questionId } = options || {};
         this.questionCounter++;
         const responseInMarkdown = true;
 
@@ -18,7 +18,7 @@ export const chatUtil = {
         this.abortController = new AbortController();
 
         this.currentMessageId = chatUtil.getRandomId();
-
+        let err;
         if (chatApi) {
             try {
                 const chatResponse = await chatApi.sendMessage(question, {
@@ -30,11 +30,17 @@ export const chatUtil = {
                     chatType: "chat",
                     onProgress: (message) => {
                         this.response = message.text;
-                        onProgress?.({ type: 'addResponse', value: this.response, questionId: options.questionId, id: this.conversationId, autoScroll: this.autoScroll, responseInMarkdown });
+                        onProgress?.({
+                            type: 'addResponse', value: this.response, messageId: questionId,
+                            id: this.conversationId, autoScroll: true, responseInMarkdown
+                        });
                     },
-                    onDone: () => {
+                    onDone: (message) => {
                         this.response = message.text;
-                        onDone?.({ type: 'addResponse', value: this.response, done: true, id: this.conversationId, questionId: options.questionId, autoScroll: this.autoScroll, responseInMarkdown });
+                        onDone?.({
+                            type: 'addResponse', value: this.response, done: true,
+                            id: this.conversationId, messageId: questionId, autoScroll: true, responseInMarkdown
+                        });
                         this.inProgress = false;
                     }
                 });
@@ -42,16 +48,15 @@ export const chatUtil = {
 
                 return;
             } catch (error) {
+                err = error;
                 //出错了干点什么
-                onError?.(error);
-                return;
             }
         }
 
         //没有接口，这里也可以发送一下消息过去
         // ****
         this.inProgress = false;
-        onError?.("没有api");
+        onError?.(err ?? "没有api");
         onDone?.({ type: 'addResponse', value: this.response, done: true, id: this.conversationId, autoScroll: this.autoScroll, responseInMarkdown });
     },
     processQuestion(question, code, language) {

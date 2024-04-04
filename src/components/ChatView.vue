@@ -144,7 +144,8 @@
                     </svg>
                 </button>
 
-                <button id="ask-button" title="提交提示" class="ask-button rounded-lg p-0.5" @click="">
+                <button id="ask-button" title="提交提示" class="ask-button rounded-lg p-0.5" @click="onAskButtonClick"
+                    :disabled="!questionInput || questionInput.length === 0">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="w-5 h-5">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -156,8 +157,9 @@
     </div>
 </template>
 <script>
+
 import { v4 as uuidv4 } from "uuid";
-import { util, clipboardSvg, plusSvg, insertSvg } from "../util/index"
+import { util, clipboardSvg, plusSvg, insertSvg, checkSvg } from "../util/index"
 import { chatUtil } from "../util/chatUtil"
 import IconUserSvg from "./icons/IconUserSvg.vue";
 import IconPencilSvg from "./icons/IconPencilSvg.vue";
@@ -213,6 +215,7 @@ export default {
             });
             if (result !== true) {
                 //本地模式
+                this.abortController?.abort();
                 this.showInProgress({ inProgress: false });
                 let existingMessageData = this.qaData.list.find(f => f.id === this.lastQuestionId);
                 if (!existingMessageData && this.qaData.list.length > 0) {
@@ -231,8 +234,11 @@ export default {
         onExportConversation() {
             util.exportConversation(this.qaElementList);
         },
-        onAskButtonClick(e) {
+        onAskButtonClick() {
             this.addFreeTextQuestion();
+        },
+        onCodeCopy() {
+            alert("ddddd")
         },
         /**
          * 添加聊天
@@ -249,7 +255,9 @@ export default {
                     //本地模式
                     this.showInProgress({ showStopButton: true, inProgress: true });
                     this.addQuestion({ value: input })
-                    await chatUtil.sendApiRequest(input, { questionId: this.lastQuestionId },
+                    this.abortController?.abort();
+                    this.abortController = new AbortController();
+                    await chatUtil.sendApiRequest(input, { questionId: this.lastQuestionId, abortController: this.abortController },
                         (progress) => {
                             this.addResponse(progress);
                         },
@@ -262,14 +270,10 @@ export default {
         },
         showInProgress(message) {
             this.showStopButton = message.showStopButton ? true : false;
-            if (message.inProgress) {
-                this.isInProgress = true;
-                this.questionInputDisabled = true;
-                this.questionInputButtonsVisible = false;
-            } else {
-                this.isInProgress = false;
-                this.questionInputDisabled = false;
-                this.questionInputButtonsVisible = true;
+            this.isInProgress = message.inProgress;
+            this.questionInputDisabled = message.inProgress;
+            this.questionInputButtonsVisible = !message.inProgress;
+            if (!message.inProgress) {
                 this.lastQuestionId = ""
             }
         },
@@ -314,6 +318,15 @@ export default {
                     const buttonWrapper = document.createElement("no-export");
                     buttonWrapper.classList.add("code-actions-wrapper", "flex", /*"gap-3",*/ "pr-2", "pt-1", "pb-1", "flex-wrap", "items-center", "justify-end", /*"rounded-t-lg",*/ "input-background");
 
+                    // let buttonsHtml = `<button title="复制到剪切板" class="code-element-ext p-1 pr-2 flex items-center rounded-lg">${clipboardSvg} 复制</button>`;
+
+                    // if (this.isVsCodeMode) {
+                    //     buttonsHtml += `<button title="将以上内容插入到当前文件"
+                    //              class="edit-element-ext p-1 pr-2 flex items-center rounded-lg">${insertSvg} 插入</button>
+                    //         <button title="新建文件并将以上代码置入" class="new-code-element-ext p-1 pr-2 flex items-center rounded-lg">${plusSvg} 新建</button> `;
+                    // }
+                    // buttonWrapper.innerHTML = buttonsHtml;
+
                     // Create copy to clipboard button
                     const copyButton = document.createElement("button");
                     copyButton.title = "复制到剪切板";
@@ -336,6 +349,7 @@ export default {
                         newTab.classList.add("new-code-element-ext", "p-1", "pr-2", "flex", "items-center", "rounded-lg");
                         buttonWrapper.append(insert, newTab);
                     }
+
                     preCode.parentNode.append(buttonWrapper);
                 });
             }
@@ -356,11 +370,39 @@ export default {
                     this.addQuestion(message);
                     break;
             }
+        },
+        documnetClickHandler(e) {
+            const targetButton = e.target.closest('button');
+            if (targetButton?.classList?.contains("resend-element-ext")) {
+                // e.preventDefault();
+                // const question = targetButton.closest(".question-element-ext");
+                // const elements = targetButton.nextElementSibling;
+                // elements.classList.remove("hidden");
+                // question.lastElementChild?.setAttribute("contenteditable", true);
+
+                // targetButton.classList.add("hidden");
+                return;
+            }
+            if (targetButton?.classList?.contains("code-element-ext")) {
+                e.preventDefault();
+                navigator.clipboard.writeText(targetButton.parentElement.parentElement?.firstElementChild?.textContent).then(() => {
+                    targetButton.innerHTML = `${checkSvg} 已复制`;
+
+                    setTimeout(() => {
+                        targetButton.innerHTML = `${clipboardSvg} 复制`;
+                    }, 1500);
+                });
+
+                return;
+            }
+
         }
     },
     mounted() {
         window.addEventListener("message", this.messageHandler);
+        document.addEventListener("click", this.documnetClickHandler);
     }
+
 }
 
 </script>

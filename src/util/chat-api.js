@@ -9,7 +9,7 @@ const BOT_ROLE_START_TAG = "<s>bot\n";
 export default class ChatApi {
 
     constructor(opt) {
-        const { apiBaseUrl } = opt;
+        // const { apiBaseUrl } = opt;
         this._cacheChatMessage = new Array();
         // axios.defaults.withCredentials = true;
         // axios.defaults.baseURL = apiBaseUrl ?? '/api';
@@ -68,12 +68,12 @@ export default class ChatApi {
 
             try {
                 let response = await fetch("/api" + config.url,
-                {
-                    method: "post",
-                    body: JSON.stringify(requestMsg),
-                    headers: { 'Content-Type': 'application/json' },
-                    abortSignal: abortSignal
-                });
+                    {
+                        method: "post",
+                        body: JSON.stringify(requestMsg),
+                        headers: { 'Content-Type': 'application/json' },
+                        signal: abortSignal
+                    });
 
                 const reader = response.body.getReader();
                 const textDecoder = new TextDecoder();
@@ -91,17 +91,18 @@ export default class ChatApi {
                     const chunkText = textDecoder.decode(value);
                     //output += chunkText;
                     result.text = chunkText;
+                    console.log(chunkText)
                     onProgress?.(result);
                 }
             } catch (error) {
                 result.error = "服务异常，请稍后再试 " + error;
-                 onDone?.(result);
+                onDone?.(result);
             }
         }
         else {
             const response = await this.doRequestPost(config, {});
             result.text = response.data;
-            onDone == null ? void 0 : onDone(result);
+            onDone?.(result);
         }
         return result;
     }

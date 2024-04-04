@@ -7,7 +7,7 @@ export const chatUtil = {
             // The AI is still thinking... Do not accept more questions.
             return;
         }
-        let { questionId } = options || {};
+        let { questionId, abortController } = options || {};
         this.questionCounter++;
         const responseInMarkdown = true;
 
@@ -15,7 +15,8 @@ export const chatUtil = {
         let question = chatUtil.processQuestion(prompt);
 
         this.inProgress = true;
-        this.abortController = new AbortController();
+        if (!abortController)
+            abortController = new AbortController();
 
         this.currentMessageId = chatUtil.getRandomId();
         let err;
@@ -25,7 +26,7 @@ export const chatUtil = {
                     systemMessage: this.systemContext,
                     messageId: this.conversationId,
                     parentMessageId: this.messageId,
-                    abortSignal: this.abortController.signal,
+                    abortSignal: abortController.signal,
                     stream: true,
                     chatType: "chat",
                     onProgress: (message) => {
@@ -36,6 +37,7 @@ export const chatUtil = {
                         });
                     },
                     onDone: (message) => {
+                        this.inProgress = false;
                         this.response = message.text;
                         onDone?.({
                             type: 'addResponse', value: this.response, done: true,

@@ -48,18 +48,20 @@
                             <IconUserSvg />你
                         </h2>
                         <no-export class="mb-2 flex items-center" data-license="isc-gnc">
-                            <button title="编辑并重新提问"
+                            <button title="编辑并重新提问" @click="onResendClick(message)"
                                 class="resend-element-ext p-1.5 flex items-center rounded-lg absolute right-6 top-6">
                                 <IconPencilSvg />
                             </button>
-                            <div class="hidden send-cancel-elements-ext flex gap-2">
-                                <button title="Send this prompt" class="send-element-ext p-1 pr-2 flex items-center">
+                            <!-- <div class="send-cancel-elements-ext flex gap-2" v-show="resenEditdVisible">
+                                <button title="发送这个提示" class="send-element-ext p-1 pr-2 flex items-center"
+                                    @click="onResendSendClick(message.question)">
                                     <IconSendSvg />&nbsp;发送
                                 </button>
-                                <button title="Cancel" class="cancel-element-ext p-1 pr-2 flex items-center">
+                                <button title="取消" @click="onResendCancelClick"
+                                    class="cancel-element-ext p-1 pr-2 flex items-center">
                                     <IconCancelSvg />&nbsp;取消
                                 </button>
-                            </div>
+                            </div> -->
                         </no-export>
                         <div class="overflow-y-auto">{{ message.question }}</div>
                     </div>
@@ -106,8 +108,8 @@
             <div class="flex-1 textarea-wrapper">
                 <!-- <textarea type="text" rows="1" data-license="isc-gnc" id="question-input" placeholder="输入一个问题..."
                     onInput="this.parentNode.dataset.replicatedValue = this.value"></textarea> -->
-                <textarea type="text" rows="1" data-license="isc-gnc" id="question-input" placeholder="输入一个问题..."
-                    @keydown.enter.prevent="onQuestionKeyEnter" v-model="questionInput"
+                <textarea ref="questionInputRef" type="text" rows="1" data-license="isc-gnc" id="question-input"
+                    placeholder="输入一个问题..." @keydown.enter.prevent="onQuestionKeyEnter" v-model="questionInput"
                     :disabled="questionInputDisabled"></textarea>
             </div>
             <div id="chat-button-wrapper"
@@ -169,7 +171,7 @@ import IconAiSvg from "./icons/IconAiSvg.vue";
 import { useStore } from '@/stores/useStore'
 import { mapState } from 'pinia'
 import { ref } from "vue";
-
+import { } from 'lodash'
 const viewType = { introduction: "introduction", qa: "qa" }
 
 export default {
@@ -201,12 +203,16 @@ export default {
     },
     setup() {
         let qaElementList = ref();
-        return { qaElementList }
+        let questionInputRef = ref();
+        return { qaElementList, questionInputRef }
     },
     methods: {
         onClearClick() {
             this.qaData.list = [];
             this.currentViewType = viewType.introduction;
+            util.postMessageToVsCode({
+                type: "clearConversation"
+            })
         },
         onStopClick(e) {
             e.preventDefault();
@@ -226,6 +232,11 @@ export default {
                     done: true, id: existingMessageData?.id ?? this.lastQuestionId, autoScroll: true, responseInMarkdown: true
                 });
             }
+        },
+        onResendClick(message) {
+            this.resenEditdVisible = true;
+            this.questionInput = message.question;
+            this.questionInputRef?.focus();
         },
         onQuestionKeyEnter(e) {
             e.preventDefault();
@@ -290,6 +301,10 @@ export default {
             util.autoScrollToBottom(this.qaElementList);
         },
         addResponse(message) {
+            this.message = message;
+            util.throttle(() => this.addResponseCore(this.message), 300)
+        },
+        addResponseCore(message) {
             const questionId = message.messageId;
             const list = this.qaElementList;
             //let existingMessage = document.getElementById(message.id);
@@ -308,6 +323,7 @@ export default {
             const markedResponse = util.markedParser(updatedValue);
             existingMessageData.anser = markedResponse
             if (message.done) {
+                this.message = null;
                 existingMessageData.done = true;
                 this.showInProgress({ inProgress: false })
                 const preCodeList = list.children[list.children.length - 1].querySelectorAll("pre > code");

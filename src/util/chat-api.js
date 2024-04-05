@@ -91,8 +91,8 @@ export default class ChatApi {
                     const chunkText = textDecoder.decode(value);
                     //output += chunkText;
                     result.text = chunkText;
-                    console.log(chunkText)
-                    onProgress?.(result);
+                    //console.log(chunkText)
+                    onProgress(result);
                 }
             } catch (error) {
                 result.error = "服务异常，请稍后再试 " + error;

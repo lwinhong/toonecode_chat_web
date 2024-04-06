@@ -67,8 +67,9 @@
                     </div>
                 </div>
                 <!--回答-->
-                <div class="chat-card-bg" v-if="message.anser">
-                    <div data-license="isc-gnc" class="p-4 self-end answer-element-ext chat-card-content-bg">
+                <div class="chat-card-bg">
+                    <div v-if="message.anser" data-license="isc-gnc"
+                        class="p-4 self-end answer-element-ext chat-card-content-bg">
                         <h2 class="mb-5 flex">
                             <IconAiSvg />TooneCode
                         </h2>
@@ -76,6 +77,12 @@
                             v-html="message.anser">
                         </div>
                         <div></div>
+                    </div>
+                    <div v-if="message.error" class="p-4 self-end mt-4 pb-8 error-element-ext" data-license="isc-gnc">
+                        <h2 class="mb-5 flex">
+                            <IconAiSvg />TooneCode
+                        </h2>
+                        <div class="text-red-400">{{ message.error }}</div>
                     </div>
                 </div>
             </template>
@@ -165,8 +172,8 @@ import { util, clipboardSvg, plusSvg, insertSvg, checkSvg } from "../util/index"
 import { chatUtil } from "../util/chatUtil"
 import IconUserSvg from "./icons/IconUserSvg.vue";
 import IconPencilSvg from "./icons/IconPencilSvg.vue";
-import IconSendSvg from "./icons/IconSendSvg.vue";
-import IconCancelSvg from "./icons/IconCancelSvg.vue";
+// import IconSendSvg from "./icons/IconSendSvg.vue";
+// import IconCancelSvg from "./icons/IconCancelSvg.vue";
 import IconAiSvg from "./icons/IconAiSvg.vue";
 import { useStore } from '@/stores/useStore'
 import { mapState } from 'pinia'
@@ -176,10 +183,10 @@ const viewType = { introduction: "introduction", qa: "qa" }
 
 export default {
     name: "ChatView",
-    components: { IconUserSvg, IconPencilSvg, IconSendSvg, IconCancelSvg, IconAiSvg },
+    components: { IconUserSvg, IconPencilSvg, IconAiSvg, /*IconSendSvg, IconCancelSvg*/ },
     data() {
         return {
-            currentViewType: viewType.qa,
+            currentViewType: viewType.introduction,
             isInProgress: false,
             qaData: { list: [] },
             questionInput: "",
@@ -265,7 +272,7 @@ export default {
                 if (result !== true) {
                     //本地模式
                     this.showInProgress({ showStopButton: true, inProgress: true });
-                    this.addQuestion({ value: input })
+                    this.addQuestion({ value: input, messageId: uuidv4() })
                     this.abortController?.abort();
                     this.abortController = new AbortController();
                     await chatUtil.sendApiRequest(input, { questionId: this.lastQuestionId, abortController: this.abortController },
@@ -296,16 +303,21 @@ export default {
                 id: this.lastQuestionId,
                 messageId: "",
                 anser: "",
+                error: "",
                 done: false
             });
             util.autoScrollToBottom(this.qaElementList);
         },
         addResponse(message) {
-            this.message = message;
-            util.throttle(() => this.addResponseCore(this.message), 300)
+            if (this.isVsCodeMode)
+                this.addResponseCore(message)
+            else {
+                this.message = message;
+                util.throttle(() => this.addResponseCore(this.message), 300)
+            }
         },
         addResponseCore(message) {
-            const questionId = message.messageId;
+            const questionId = message.messageId ?? this.lastQuestionId;
             const list = this.qaElementList;
             //let existingMessage = document.getElementById(message.id);
             let existingMessageData = this.qaData.list.find(f => f.id === questionId);
@@ -373,6 +385,19 @@ export default {
                 util.autoScrollToBottom(list);
             }
         },
+        addError(message) {
+            const questionId = message.messageId ?? this.lastQuestionId;
+            let existingMessageData = this.qaData.list.find(f => f.id === questionId);
+            if (!existingMessageData) {
+                return;
+            }
+            const messageValue = message.value || "An error occurred. If this issue persists please clear your session token with `ChatGPT: Reset session` command and/or restart your Visual Studio Code. If you still experience issues, it may be due to outage on https://openai.com services.";
+            existingMessageData.anser = "";
+            existingMessageData.error = util.markedParser(messageValue)
+            if (message.autoScroll) {
+                util.autoScrollToBottom(this.qaElementList);
+            }
+        },
         messageHandler(event) {
             const message = event.data;
             switch (message.type) {
@@ -384,6 +409,21 @@ export default {
                     break;
                 case "addQuestion":
                     this.addQuestion(message);
+                    break;
+                case "loginSuccessful":
+                    break;
+                case "addError":
+                    this.addError(message)
+                    break;
+                case "clearConversation":
+                    this.onClearClick();
+                    break;
+                case "exportConversation":
+                    this.onExportConversation();
+                    break;
+                case "textSelectionChanged":
+                    // const input = document.getElementById("question-input");
+                    // input.value = message.text;
                     break;
             }
         },
@@ -403,7 +443,6 @@ export default {
                 e.preventDefault();
                 navigator.clipboard.writeText(targetButton.parentElement.parentElement?.firstElementChild?.textContent).then(() => {
                     targetButton.innerHTML = `${checkSvg} 已复制`;
-
                     setTimeout(() => {
                         targetButton.innerHTML = `${clipboardSvg} 复制`;
                     }, 1500);
@@ -411,7 +450,36 @@ export default {
 
                 return;
             }
+            if (targetButton?.classList?.contains("edit-element-ext")) {
+                e.preventDefault();
+                util.postMessageToVsCode({
+                    type: "editCode",
+                    value: targetButton.parentElement.parentElement?.firstElementChild?.textContent,
+                });
+                return;
+            }
+            if (targetButton?.classList?.contains("new-code-element-ext")) {
+                e.preventDefault();
+                let first = targetButton.parentElement.parentElement?.firstElementChild;
+                let value = first?.textContent;
+                let language;
+                if (first) {
+                    for (let i = 0; i < first.classList.length; i++) {
+                        const c = first.classList[i];
+                        if (c.startsWith("language-")) {
+                            language = c.substring(c.indexOf('-') + 1);
+                            break;
+                        }
+                    }
+                }
+                util.postMessageToVsCode({
+                    type: "openNew",
+                    value: value,
+                    language
+                });
 
+                return;
+            }
         }
     },
     mounted() {

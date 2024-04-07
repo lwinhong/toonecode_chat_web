@@ -67,20 +67,25 @@ export default class ChatApi {
             config.data = requestMsg;
 
             try {
-                let response = await fetch("/api" + config.url,
+                let url = "/api" + config.url
+                if (import.meta.env.MODE === 'production') {
+                    url = import.meta.env.VITE_API_BASE_URL + config.url; //
+                }
+                let response = await fetch(url,
                     {
                         method: "post",
                         body: JSON.stringify(requestMsg),
                         headers: { 'Content-Type': 'application/json' },
-                        signal: abortSignal
+                        signal: abortSignal,
+                        //mode: 'no-cors'
                     });
 
-                const reader = response.body.getReader();
-                const textDecoder = new TextDecoder();
+                // const reader = response.body.getReader();
+                const textDecoder = response.body.pipeThrough(new TextDecoderStream()).getReader();
                 let readEnd = true;
 
                 while (readEnd) {
-                    const { done, value } = await reader.read();
+                    const { done, value } = await textDecoder.read();
 
                     if (done) {
                         onDone?.(result);
@@ -88,14 +93,15 @@ export default class ChatApi {
                         break;
                     }
 
-                    const chunkText = textDecoder.decode(value);
+                    //const chunkText = textDecoder.decode(value);
                     //output += chunkText;
-                    result.text = chunkText;
+                    result.text = value;
                     //console.log(chunkText)
                     onProgress(result);
                 }
             } catch (error) {
                 result.error = "服务异常，请稍后再试 " + error;
+                console.log(error)
                 onDone?.(result);
             }
         }

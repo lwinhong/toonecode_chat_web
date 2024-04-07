@@ -1,6 +1,6 @@
 import { fileURLToPath, URL } from 'node:url'
 
-import { defineConfig/*, loadEnv */} from 'vite'
+import { defineConfig/*, loadEnv */ } from 'vite'
 // import legacy from '@vitejs/plugin-legacy'
 import vue from '@vitejs/plugin-vue'
 
@@ -39,6 +39,8 @@ export default defineConfig((/*{ mode }*/) => {
       }
     },
     server: {
+      host: '0.0.0.0',
+      port: 5173, //这里的端口跟配置开发环境文件# .env.development的端口要一致
       proxy: {
         '/api': {
           target: 'http://codeserver.t.vtoone.com',

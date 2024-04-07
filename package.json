@@ -1,6 +1,6 @@
 {
   "name": "toonecode-chat-web",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -27,7 +27,6 @@
     "eslint": "^8.49.0",
     "eslint-plugin-vue": "^9.17.0",
     "postcss": "^8.4.38",
-    "tailwindcss": "^3.2.4",
     "vite": "^5.1.6"
   }
 }

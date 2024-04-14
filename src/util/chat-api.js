@@ -59,7 +59,7 @@ export default class ChatApi {
         };
         if (stream) {
             config.responseType = "stream";
-            config.url += "_stream_v1";
+            config.url += "_stream";
 
             cacheHistory && await this._updateMessages(message);
 

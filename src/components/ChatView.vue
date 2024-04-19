@@ -68,19 +68,19 @@
                 </div>
                 <!--回答-->
                 <div class="chat-card-bg">
-                    <div v-if="message.anser" data-license="isc-gnc"
+                    <div v-if="message.answer" data-license="isc-gnc"
                         class="p-4 self-end answer-element-ext chat-card-content-bg">
                         <h2 class="mb-5 flex">
-                            <IconAiSvg />TooneCode
+                            <IconAiSvg />AI
                         </h2>
                         <div :class="{ 'result-streaming': message.done !== true }" @id="message.id"
-                            v-html="message.anser">
+                            v-html="message.answer">
                         </div>
                         <div></div>
                     </div>
                     <div v-if="message.error" class="p-4 self-end mt-4 pb-8 error-element-ext" data-license="isc-gnc">
                         <h2 class="mb-5 flex">
-                            <IconAiSvg />TooneCode
+                            <IconAiSvg />AI
                         </h2>
                         <div class="text-red-400">{{ message.error }}</div>
                     </div>
@@ -234,7 +234,7 @@ export default {
                     existingMessageData = this.qaData.list[this.qaData.list.length - 1]
                 }
                 this.addResponse({
-                    value: existingMessageData.anser,
+                    value: existingMessageData.answer,
                     done: true, id: existingMessageData?.id ?? this.lastQuestionId, autoScroll: true, responseInMarkdown: true
                 });
             }
@@ -298,7 +298,7 @@ export default {
                 question: util.escapeHtml(message.value),
                 id: this.lastQuestionId,
                 messageId: "",
-                anser: "",
+                answer: "",
                 error: "",
                 done: false
             });
@@ -329,7 +329,7 @@ export default {
             }
 
             const markedResponse = util.markedParser(updatedValue);
-            existingMessageData.anser = markedResponse
+            existingMessageData.answer = markedResponse
             if (message.done) {
                 this.message = null;
                 existingMessageData.done = true;
@@ -388,7 +388,7 @@ export default {
                 return;
             }
             const messageValue = message.value || "An error occurred. If this issue persists please clear your session token with `ChatGPT: Reset session` command and/or restart your Visual Studio Code. If you still experience issues, it may be due to outage on https://openai.com services.";
-            existingMessageData.anser = "";
+            existingMessageData.answer = "";
             existingMessageData.error = util.markedParser(messageValue)
             if (message.autoScroll) {
                 util.autoScrollToBottom(this.qaElementList);

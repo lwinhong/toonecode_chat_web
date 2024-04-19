@@ -31,8 +31,8 @@ export const chatUtil = {
                     chatType: "chat",
                     onProgress: (message) => {
                         //this.response = message.text;
-                        const { anser } = JSON.parse( message.text);
-                        this.response =  anser;
+                        const { answer } = JSON.parse(message.text);
+                        this.response = answer;
                         onProgress?.({
                             type: 'addResponse', value: this.response, messageId: questionId,
                             id: this.conversationId, autoScroll: true, responseInMarkdown
@@ -40,7 +40,7 @@ export const chatUtil = {
                     },
                     onDone: (message) => {
                         this.inProgress = false;
-                       // this.response = message.text;
+                        // this.response = message.text;
                         onDone?.({
                             type: 'addResponse', value: this.response, done: true,
                             id: this.conversationId, messageId: questionId, autoScroll: true, responseInMarkdown

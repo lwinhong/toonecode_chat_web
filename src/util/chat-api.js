@@ -26,7 +26,7 @@ export default class ChatApi {
             //parentMessageId,
             messageId = uuidv4(),
             timeoutMs = 40 * 1000,
-            //chatType = "chat",
+            chatType = "chat",
             historyCount = 3,
             cacheHistory = true
         } = opts;
@@ -50,16 +50,18 @@ export default class ChatApi {
             text: "",
             error: ""
         };
-
+        let url = '/chat';
+        if (chatType === "code") {
+            url = '/code_generate';
+        }
         let config = {
             method: 'post',
-            url: '/chat',
+            url,
             timeout: timeoutMs,
             signal: abortSignal,
         };
         if (stream) {
             config.responseType = "stream";
-            config.url += "_stream";
 
             cacheHistory && await this._updateMessages(message);
 
@@ -120,7 +122,7 @@ export default class ChatApi {
             //conversationId = uuidv4(),
             //parentMessageId,
             messageId = uuidv4(),
-            timeoutMs = 40 * 1000,
+            timeoutMs = 60 * 1000,
             //chatType = "chat",
             historyCount = 3,
             cacheHistory = true
@@ -204,10 +206,10 @@ export default class ChatApi {
     async buildMessages(text, opts) {
         const { chatType = "chat", lang } = opts;
 
-        if (chatType === "chat") {
-            text = this.combineMessageWithTAG(text);
-        }
-        return { lang, chatType, "prompt": text, };
+        // if (chatType === "chat") {
+        //     text = this.combineMessageWithTAG(text);
+        // }
+        return { lang, chatType, "prompt": text, stream: true };
     }
     combineMessageWithTAG(text) {
         /**下面这拼接，可以根据历史上下文来不断地回答问题 */

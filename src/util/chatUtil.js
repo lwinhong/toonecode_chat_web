@@ -30,13 +30,18 @@ export const chatUtil = {
                     stream: true,
                     chatType: "chat",
                     onProgress: (message) => {
+
                         //this.response = message.text;
-                        const { answer } = JSON.parse(message.text);
-                        this.response = answer;
-                        onProgress?.({
-                            type: 'addResponse', value: this.response, messageId: questionId,
-                            id: this.conversationId, autoScroll: true, responseInMarkdown
-                        });
+                        try {
+                            const { answer } = JSON.parse(message.text);
+                            this.response = answer;
+                            onProgress?.({
+                                type: 'addResponse', value: this.response, messageId: questionId,
+                                id: this.conversationId, autoScroll: true, responseInMarkdown
+                            });
+                        } catch (error) {
+                            console.error(error);
+                        }
                     },
                     onDone: (message) => {
                         this.inProgress = false;

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 
-let _historyCount = 3;
+// let _historyCount = 3;
 const HUMAN_ROLE_START_TAG = "<s>human\n";
 const BOT_ROLE_START_TAG = "<s>bot\n";
 // const ENDOFTEXT = "<|endoftext|>";
@@ -10,11 +10,11 @@ export default class ChatApi {
 
     constructor(opt) {
         // const { apiBaseUrl } = opt;
-        this._cacheChatMessage = new Array();
+        //this._cacheChatMessage = new Array();
         // axios.defaults.withCredentials = true;
         // axios.defaults.baseURL = apiBaseUrl ?? '/api';
         // axios.defaults.headers["Content-Type"] = "application/json";
-        this._cacheChatMessage = [];
+        //this._cacheChatMessage = [];
     }
 
     async sendMessage(text, opts) {
@@ -22,13 +22,11 @@ export default class ChatApi {
             stream,
             onProgress,
             onDone,
-            //conversationId = uuidv4(),
-            //parentMessageId,
-            messageId = uuidv4(),
+            //messageId = uuidv4(),
             timeoutMs = 40 * 1000,
             chatType = "chat",
             historyCount = 3,
-            cacheHistory = true
+            //cacheHistory = true
         } = opts;
         this._historyCount = historyCount;
         let { abortSignal } = opts;
@@ -37,16 +35,15 @@ export default class ChatApi {
             abortController = new AbortController();
             abortSignal = abortController.signal;
         }
-        const message = {
-            role: "user",
-            id: messageId,
-            parentMessageId: messageId,
-            text
-        };
+        // const message = {
+        //     role: "user",
+        //     id: messageId,
+        //     parentMessageId: messageId,
+        //     text
+        // };
         const result = {
             role: "assistant",
             id: uuidv4(),
-            parentMessageId: messageId,
             text: "",
             error: ""
         };
@@ -63,7 +60,7 @@ export default class ChatApi {
         if (stream) {
             config.responseType = "stream";
 
-            cacheHistory && await this._updateMessages(message);
+            //cacheHistory && await this._updateMessages(message);
 
             const requestMsg = await this.buildMessages(text, opts);
             config.data = requestMsg;
@@ -94,11 +91,7 @@ export default class ChatApi {
                         readEnd = false;
                         break;
                     }
-
-                    //const chunkText = textDecoder.decode(value);
-                    //output += chunkText;
                     result.text = value;
-                    //console.log(chunkText)
                     onProgress(result);
                 }
             } catch (error) {
@@ -114,95 +107,7 @@ export default class ChatApi {
         }
         return result;
     }
-    async sendMessagebak(text, opts) {
-        const {
-            stream,
-            onProgress,
-            onDone,
-            //conversationId = uuidv4(),
-            //parentMessageId,
-            messageId = uuidv4(),
-            timeoutMs = 60 * 1000,
-            //chatType = "chat",
-            historyCount = 3,
-            cacheHistory = true
-        } = opts;
-        this._historyCount = historyCount;
-        let { abortSignal } = opts;
-        let abortController = null;
-        if (timeoutMs && !abortSignal) {
-            abortController = new AbortController();
-            abortSignal = abortController.signal;
-        }
-        const message = {
-            role: "user",
-            id: messageId,
-            parentMessageId: messageId,
-            text
-        };
-        const result = {
-            role: "assistant",
-            id: uuidv4(),
-            parentMessageId: messageId,
-            text: "",
-            error: ""
-        };
 
-        let config = {
-            method: 'post',
-            url: '/chat',
-            timeout: timeoutMs,
-            signal: abortSignal,
-        };
-        if (stream) {
-            config.responseType = "stream";
-            config.url += "_stream_v1";
-
-            cacheHistory && await this._updateMessages(message);
-
-            const requestMsg = await this.buildMessages(text, opts);
-            config.data = requestMsg;
-
-            await this.doRequestPost(config, requestMsg).then((response) => {
-                // if (onProgress) {
-                //     response.data.on('data', (chunk) => {
-                //         // 处理流数据的逻辑
-                //         result.text = chunk.toString();
-                //         onProgress == null ? void 0 : onProgress(result);
-                //     });
-                // }
-                if (onProgress) {
-                    result.text = response.data;
-                    onProgress(result);
-                }
-                if (onDone) {
-                    result.text = response.data;
-                    onDone(result);
-                    //     response.data.on('end', async () => {
-                    //         // 数据接收完成的逻辑
-                    //         let rs = onDone == null ? void 0 : onDone(result);
-                    //         if (rs === false) { return; }
-                    //         cacheHistory && await this._updateMessages(result);
-                    //     });
-                }
-
-            }).catch(error => {
-                if (axios.isCancel(error)) {
-                    console.log('请求被取消', error.message);
-                } else {
-                    console.log('请求出错', error.message);
-                }
-                result.error = "服务异常，请稍后再试 " + error;
-                onDone == null ? void 0 : onDone(result);
-            });
-        }
-        else {
-            const response = await this.doRequestPost(config, {});
-            result.text = response.data;
-            onDone == null ? void 0 : onDone(result);
-        }
-        return result;
-    }
     async buildMessages(text, opts) {
         const { chatType = "chat", lang } = opts;
 
@@ -250,41 +155,41 @@ export default class ChatApi {
         text = `${HUMAN_ROLE_START_TAG}${text}\n${BOT_ROLE_START_TAG}`;
         return text;
     }
-    async _updateMessages(message) {
-        return new Promise((resolve, reject) => {
-            if (!this._cacheChatMessage) {
-                return resolve(void 0);
-            }
-            try {
-                if (message.role === 'user') {
-                    //超出指定范围，需要清理掉一下
-                    if (this._cacheChatMessage.length >= _historyCount) {
-                        while (this._cacheChatMessage.length >= _historyCount) {
-                            this._cacheChatMessage.splice(0, 1);
-                        }
-                    }
-                    this._cacheChatMessage.push({
-                        messageId: message.id,
-                        userMessage: message
-                    });
-                }
-                else {
-                    let exist = this._cacheChatMessage.find(f => f.messageId === message.parentMessageId);
-                    if (exist) {
-                        exist.assistantMessage = message;
-                    }
-                }
-                resolve(message);
-            } catch (err) {
-                reject(err);
-            }
-        }).catch(err => {
-            console.error(err);
-        });
-    }
-    async clearCacheMessage() {
-        this._cacheChatMessage = undefined;
-    }
+    // async _updateMessages(message) {
+    //     return new Promise((resolve, reject) => {
+    //         if (!this._cacheChatMessage) {
+    //             return resolve(void 0);
+    //         }
+    //         try {
+    //             if (message.role === 'user') {
+    //                 //超出指定范围，需要清理掉一下
+    //                 if (this._cacheChatMessage.length >= _historyCount) {
+    //                     while (this._cacheChatMessage.length >= _historyCount) {
+    //                         this._cacheChatMessage.splice(0, 1);
+    //                     }
+    //                 }
+    //                 this._cacheChatMessage.push({
+    //                     messageId: message.id,
+    //                     userMessage: message
+    //                 });
+    //             }
+    //             else {
+    //                 let exist = this._cacheChatMessage.find(f => f.messageId === message.parentMessageId);
+    //                 if (exist) {
+    //                     exist.assistantMessage = message;
+    //                 }
+    //             }
+    //             resolve(message);
+    //         } catch (err) {
+    //             reject(err);
+    //         }
+    //     }).catch(err => {
+    //         console.error(err);
+    //     });
+    // }
+    // async clearCacheMessage() {
+    //     this._cacheChatMessage = undefined;
+    // }
     doRequestPost(config, data) {
         return axios.post(config.url || "", data, config);
     }

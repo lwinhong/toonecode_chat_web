@@ -1,4 +1,6 @@
 import ChatApi from "../util/chat-api.js"
+import { v4 as uuidv4 } from "uuid";
+
 export const chatApi = new ChatApi({});
 export const chatUtil = {
     async sendApiRequest(prompt, options, onProgress, onDone, onError) {
@@ -7,54 +9,43 @@ export const chatUtil = {
             // The AI is still thinking... Do not accept more questions.
             return;
         }
-        let { questionId, abortController } = options || {};
-        this.questionCounter++;
-        const responseInMarkdown = true;
-
-        this.response = '';
+        let { conversationId, abortController } = options || {};
         let question = chatUtil.processQuestion(prompt);
 
         this.inProgress = true;
         if (!abortController)
             abortController = new AbortController();
 
-        this.currentMessageId = chatUtil.getRandomId();
+        this.currentMessageId = uuidv4();
         let err;
+        let responseResult = {
+            type: 'addResponse', value: "", conversationId, done: false,
+            currentMessageId: this.currentMessageId, autoScroll: true, responseInMarkdown: true
+        }
         if (chatApi) {
             try {
-                const chatResponse = await chatApi.sendMessage(question, {
+                await chatApi.sendMessage(question, {
                     systemMessage: this.systemContext,
-                    messageId: this.conversationId,
-                    parentMessageId: this.messageId,
+                    messageId: conversationId,
                     abortSignal: abortController.signal,
                     stream: true,
                     chatType: "chat",
                     onProgress: (message) => {
-
-                        //this.response = message.text;
                         try {
                             const { answer } = JSON.parse(message.text);
-                            this.response = answer;
-                            onProgress?.({
-                                type: 'addResponse', value: this.response, messageId: questionId,
-                                id: this.conversationId, autoScroll: true, responseInMarkdown
-                            });
+                            responseResult.value = answer;
+                            onProgress?.(responseResult);
                         } catch (error) {
                             console.error(error);
                         }
                     },
                     onDone: (message) => {
                         this.inProgress = false;
-                        // this.response = message.text;
-                        onDone?.({
-                            type: 'addResponse', value: this.response, done: true,
-                            id: this.conversationId, messageId: questionId, autoScroll: true, responseInMarkdown
-                        });
+                        responseResult.done = true;
+                        onDone?.(responseResult);
                         this.inProgress = false;
                     }
                 });
-                ({ text: this.response, id: this.conversationId, parentMessageId: this.messageId } = chatResponse);
-
                 return;
             } catch (error) {
                 err = error;
@@ -66,7 +57,8 @@ export const chatUtil = {
         // ****
         this.inProgress = false;
         onError?.(err ?? "没有api");
-        onDone?.({ type: 'addResponse', value: this.response, done: true, id: this.conversationId, autoScroll: this.autoScroll, responseInMarkdown });
+        responseResult.done = true;
+        onDone?.(responseResult);
     },
     processQuestion(question, code, language) {
         if (code) {
@@ -75,13 +67,5 @@ export const chatUtil = {
             question = `${question}${language ? ` (当前编程语言是${language})` : ''}: ${code}`;
         }
         return question + "\r\n";
-    },
-    getRandomId() {
-        let text = '';
-        const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        for (let i = 0; i < 32; i++) {
-            text += possible.charAt(Math.floor(Math.random() * possible.length));
-        }
-        return text;
     }
 }

@@ -1,6 +1,8 @@
 import ChatApi from "../util/chat-api.js"
 import { v4 as uuidv4 } from "uuid";
+import * as buffer from "buffer";
 
+export const RESPONSE_RESULT_BASE64_SPLIT = "<|BASE64_SPLIT|>";
 export const chatApi = new ChatApi({});
 export const chatUtil = {
     async sendApiRequest(prompt, options, onProgress, onDone, onError) {
@@ -9,7 +11,7 @@ export const chatUtil = {
             // The AI is still thinking... Do not accept more questions.
             return;
         }
-        let { conversationId, abortController } = options || {};
+        let { conversationId, abortController, history } = options || {};
         let question = chatUtil.processQuestion(prompt);
 
         this.inProgress = true;
@@ -20,23 +22,53 @@ export const chatUtil = {
         let err;
         let responseResult = {
             type: 'addResponse', value: "", conversationId, done: false,
-            currentMessageId: this.currentMessageId, autoScroll: true, responseInMarkdown: true
+            currentMessageId: this.currentMessageId, autoScroll: true, responseInMarkdown: true,
+            history: []
         }
         if (chatApi) {
             try {
                 await chatApi.sendMessage(question, {
-                    systemMessage: this.systemContext,
                     messageId: conversationId,
                     abortSignal: abortController.signal,
                     stream: true,
                     chatType: "chat",
+                    history,
                     onProgress: (message) => {
                         try {
-                            const { answer } = JSON.parse(message.text);
-                            responseResult.value = answer;
+
+                            let str = message.text;// buffer.Buffer.from(message.text, 'base64').toString('utf8');
+                            // if (str && str.indexOf(RESPONSE_RESULT_BASE64_SPLIT) >= 0) {
+                            //     if (str) {
+                            //         let split = str.split(RESPONSE_RESULT_BASE64_SPLIT).filter(x => {
+                            //             if (x.trim()) {
+                            //                 return true;
+                            //             }
+                            //             return false;
+                            //         });
+                            //         if (split.length > 0)
+                            //             str = split[split.length - 1];
+                            //         if (split > 1) {
+                            //             console.log(split);
+                            //         }
+                            //     }
+                            //     if (!str) {
+                            //         str = message.text;
+                            //     }
+                            //     const { answer, history, done } = JSON.parse(str);
+                            //     if (done) {
+                            //         responseResult.history = history;
+                            //     }
+                            //     responseResult.value = answer;
+                            // } else {
+                            //     responseResult.value = str;
+                            // }
+                            if (!str)
+                                return;
+                            responseResult.value = str;
                             onProgress?.(responseResult);
                         } catch (error) {
                             console.error(error);
+                            console.log(message.text);
                         }
                     },
                     onDone: (message) => {

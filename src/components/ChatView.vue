@@ -192,7 +192,6 @@ export default {
             questionInputDisabled: false,
             showStopButton: false,
             questionInputButtonsVisible: true,
-            lastQuestionId: "",
             questionInputButtonsMoreVisible: false,
         }
     },
@@ -216,6 +215,8 @@ export default {
         onClearClick() {
             this.qaData.list = [];
             this.currentViewType = viewType.introduction;
+            if (this._history)
+                this._history = []
             util.postMessageToVsCode({
                 type: "clearConversation"
             })
@@ -229,13 +230,13 @@ export default {
                 //本地模式
                 this.abortController?.abort();
                 this.showInProgress({ inProgress: false });
-                let existingMessageData = this.qaData.list.find(f => f.id === this.lastQuestionId);
+                let existingMessageData = this.qaData.list.find(f => f.conversationId === this.conversationId);
                 if (!existingMessageData && this.qaData.list.length > 0) {
                     existingMessageData = this.qaData.list[this.qaData.list.length - 1]
                 }
                 this.addResponse({
                     value: existingMessageData.answer,
-                    done: true, id: existingMessageData?.id ?? this.lastQuestionId, autoScroll: true, responseInMarkdown: true
+                    done: true, id: existingMessageData?.id ?? this.conversationId, autoScroll: true, responseInMarkdown: true
                 });
             }
         },
@@ -261,19 +262,22 @@ export default {
             const input = this.questionInput;
             this.questionInput = "";
             if (input?.length > 0) {
+                this.conversationId = uuidv4()
                 const result = util.postMessageToVsCode({
                     type: "addFreeTextQuestion",
                     value: input,
+                    conversationId: this.conversationId
                 });
                 if (result !== true) {
                     //本地模式
                     this.showInProgress({ showStopButton: true, inProgress: true });
-                    this.addQuestion({ value: input, conversationId: uuidv4() })
+                    this.addQuestion({ value: input, conversationId: this.conversationId })
                     this.abortController?.abort();
                     this.abortController = new AbortController();
                     await chatUtil.sendApiRequest(input, {
                         conversationId: this.conversationId,
-                        abortController: this.abortController
+                        abortController: this.abortController,
+                        history: this._history || []
                     },
                         (progress) => {
                             this.addResponse(progress);
@@ -291,7 +295,7 @@ export default {
             this.questionInputDisabled = message.inProgress;
             this.questionInputButtonsVisible = !message.inProgress;
             if (!message.inProgress) {
-                this.lastQuestionId = ""
+                this.conversationId = ""
             }
         },
         addQuestion(message) {
@@ -302,17 +306,19 @@ export default {
                 conversationId: this.conversationId,
                 answer: "",
                 error: "",
+                originAnswer: "",
                 done: false
             });
             util.autoScrollToBottom(this.qaElementList);
         },
         addResponse(message) {
-            if (this.isVsCodeMode)
-                this.addResponseCore(message)
-            else {
-                this.message = message;
-                util.throttle(() => this.addResponseCore(this.message), 300)
-            }
+            this.addResponseCore(message)
+            // if (this.isVsCodeMode)
+            //     this.addResponseCore(message)
+            // else {
+            //     this.message = message;
+            //     util.throttle(() => this.addResponseCore(this.message), 300)
+            // }
         },
         addResponseCore(message) {
             const conversationId = message.conversationId ?? this.conversationId;
@@ -322,17 +328,20 @@ export default {
             if (!existingMessageData) {
                 return;
             }
-
+            existingMessageData.originAnswer += message.value;
             let updatedValue = "";
             if (!message.responseInMarkdown) {
-                updatedValue = "```\r\n" + util.unEscapeHtml(message.value) + " \r\n ```";
+                updatedValue = "```\r\n" + util.unEscapeHtml(existingMessageData.originAnswer) + " \r\n ```";
             } else {
-                updatedValue = message.value.split("```").length % 2 === 1 ? message.value : message.value + "\n\n```\n\n";
+                updatedValue = existingMessageData.originAnswer.split("```").length % 2 === 1
+                    ? existingMessageData.originAnswer : existingMessageData.originAnswer + "\n\n```\n\n";
             }
 
             const markedResponse = util.markedParser(updatedValue);
             existingMessageData.answer = markedResponse
             if (message.done) {
+                this._history = message.histroy
+                this.conversationId = "";
                 this.message = null;
                 existingMessageData.done = true;
                 this.showInProgress({ inProgress: false })

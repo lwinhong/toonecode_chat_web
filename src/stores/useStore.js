@@ -8,7 +8,7 @@ export const useStore = defineStore('useStore', {
       this.isVsCodeMode = mode;
     },
     postMessageToVsCode(data) {
-      console.log(data);
+      // console.log(data);
       if (this.isVsCodeMode && window.vscodeInstance) {
         window.vscodeInstance.postMessage(data);
         return true;

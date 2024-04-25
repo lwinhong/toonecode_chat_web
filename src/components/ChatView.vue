@@ -47,7 +47,7 @@
                         <h2 class="mb-5 flex" data-license="isc-gnc">
                             <IconUserSvg />你
                         </h2>
-                        <no-export class="mb-2 flex items-center" data-license="isc-gnc">
+                        <div class="mb-2 flex items-center" data-license="isc-gnc">
                             <button title="编辑并重新提问" @click="onResendClick(message)"
                                 class="resend-element-ext p-1.5 flex items-center rounded-lg absolute right-6 top-6">
                                 <IconPencilSvg />
@@ -62,7 +62,7 @@
                                     <IconCancelSvg />&nbsp;取消
                                 </button>
                             </div> -->
-                        </no-export>
+                        </div>
                         <div class="overflow-y-auto">{{ message.question }}</div>
                     </div>
                 </div>
@@ -188,7 +188,7 @@ export default {
             currentViewType: viewType.introduction,
             isInProgress: false,
             qaData: { list: [] },
-            questionInput: "",
+            questionInput: "随机生成一个python函数",
             questionInputDisabled: false,
             showStopButton: false,
             questionInputButtonsVisible: true,
@@ -197,7 +197,7 @@ export default {
     },
     computed: {
         ...mapState(useStore, [
-            "isVsCodeMode"
+            "isInCodeIDE", "isIdeaMode", "isVsCodeMode"
         ]),
         isIntroduction() {
             return this.currentViewType == viewType.introduction
@@ -217,13 +217,13 @@ export default {
             this.currentViewType = viewType.introduction;
             if (this._history)
                 this._history = []
-            util.postMessageToVsCode({
+            util.postMessageToCodeEditor({
                 type: "clearConversation"
             })
         },
         onStopClick(e) {
             e.preventDefault();
-            const result = util.postMessageToVsCode({
+            const result = util.postMessageToCodeEditor({
                 type: "stopGenerating",
             });
             if (result !== true) {
@@ -263,7 +263,7 @@ export default {
             this.questionInput = "";
             if (input?.length > 0) {
                 this.conversationId = uuidv4()
-                const result = util.postMessageToVsCode({
+                const result = util.postMessageToCodeEditor({
                     type: "addFreeTextQuestion",
                     value: input,
                     conversationId: this.conversationId
@@ -340,55 +340,58 @@ export default {
             const markedResponse = util.markedParser(updatedValue);
             existingMessageData.answer = markedResponse
             if (message.done) {
+                existingMessageData.done = true;
                 this._history = message.histroy
                 this.conversationId = "";
                 this.message = null;
-                existingMessageData.done = true;
                 this.showInProgress({ inProgress: false })
-                const preCodeList = list.children[list.children.length - 1].querySelectorAll("pre > code");
-                preCodeList.forEach((preCode) => {
-                    preCode.classList.add("input-background", "p-4", "pb-2", "block", "whitespace-pre", "overflow-x-scroll");
-                    preCode.parentElement.classList.add("pre-code-element", "relative");
+                setTimeout(() => {
+                    const preCodeList = list.children[list.children.length - 1].querySelectorAll("pre > code");
+                    preCodeList.forEach((preCode) => {
+                        preCode.classList.add("input-background", "p-4", "pb-2", "block", "whitespace-pre", "overflow-x-scroll");
+                        preCode.parentElement.classList.add("pre-code-element", "relative");
 
-                    const buttonWrapper = document.createElement("no-export");
-                    buttonWrapper.classList.add("code-actions-wrapper", "flex", /*"gap-3",*/ "pr-2", "pt-1", "pb-1", "flex-wrap", "items-center", "justify-end", /*"rounded-t-lg",*/ "input-background");
+                        const buttonWrapper = document.createElement("div");
+                        buttonWrapper.classList.add("code-actions-wrapper", "flex", /*"gap-3",*/ "pr-2", "pt-1", "pb-1", "flex-wrap", "items-center", "justify-end", /*"rounded-t-lg",*/ "input-background");
 
-                    // let buttonsHtml = `<button title="复制到剪切板" class="code-element-ext p-1 pr-2 flex items-center rounded-lg">${clipboardSvg} 复制</button>`;
+                        // let buttonsHtml = `<button title="复制到剪切板" class="code-element-ext p-1 pr-2 flex items-center rounded-lg">${clipboardSvg} 复制</button>`;
 
-                    // if (this.isVsCodeMode) {
-                    //     buttonsHtml += `<button title="将以上内容插入到当前文件"
-                    //              class="edit-element-ext p-1 pr-2 flex items-center rounded-lg">${insertSvg} 插入</button>
-                    //         <button title="新建文件并将以上代码置入" class="new-code-element-ext p-1 pr-2 flex items-center rounded-lg">${plusSvg} 新建</button> `;
-                    // }
-                    // buttonWrapper.innerHTML = buttonsHtml;
+                        // if (this.isVsCodeMode) {
+                        //     buttonsHtml += `<button title="将以上内容插入到当前文件"
+                        //              class="edit-element-ext p-1 pr-2 flex items-center rounded-lg">${insertSvg} 插入</button>
+                        //         <button title="新建文件并将以上代码置入" class="new-code-element-ext p-1 pr-2 flex items-center rounded-lg">${plusSvg} 新建</button> `;
+                        // }
+                        // buttonWrapper.innerHTML = buttonsHtml;
 
-                    // Create copy to clipboard button
-                    const copyButton = document.createElement("button");
-                    copyButton.title = "复制到剪切板";
-                    copyButton.innerHTML = `${clipboardSvg} 复制`;
+                        // Create copy to clipboard button
+                        const copyButton = document.createElement("button");
+                        copyButton.title = "复制到剪切板";
+                        copyButton.innerHTML = `${clipboardSvg} 复制`;
 
-                    copyButton.classList.add("code-element-ext", "p-1", "pr-2", "flex", "items-center", "rounded-lg");
-                    buttonWrapper.append(copyButton);
+                        copyButton.classList.add("code-element-ext", "p-1", "pr-2", "flex", "items-center", "rounded-lg");
+                        buttonWrapper.append(copyButton);
 
-                    if (this.isVsCodeMode) {
-                        const insert = document.createElement("button");
-                        insert.title = "将以上内容插入到当前文件";
-                        insert.innerHTML = `${insertSvg} 插入`;
+                        if (this.isInCodeIDE) {
+                            const insert = document.createElement("button");
+                            insert.title = "将以上内容插入到当前文件";
+                            insert.innerHTML = `${insertSvg} 插入`;
 
-                        insert.classList.add("edit-element-ext", "p-1", "pr-2", "flex", "items-center", "rounded-lg");
+                            insert.classList.add("edit-element-ext", "p-1", "pr-2", "flex", "items-center", "rounded-lg");
 
-                        const newTab = document.createElement("button");
-                        newTab.title = "新建文件并将以上代码置入";
-                        newTab.innerHTML = `${plusSvg} 新建`;
+                            const newTab = document.createElement("button");
+                            newTab.title = "新建文件并将以上代码置入";
+                            newTab.innerHTML = `${plusSvg} 新建`;
 
-                        newTab.classList.add("new-code-element-ext", "p-1", "pr-2", "flex", "items-center", "rounded-lg");
-                        buttonWrapper.append(insert, newTab);
-                    }
+                            newTab.classList.add("new-code-element-ext", "p-1", "pr-2", "flex", "items-center", "rounded-lg");
+                            buttonWrapper.append(insert, newTab);
+                        }
 
-                    preCode.parentNode.append(buttonWrapper);
-                });
+                        preCode.parentNode.append(buttonWrapper);
+                    });
+                    util.autoScrollToBottom(list);
+                }, 100);
             }
-            if (message.autoScroll && (message.done || markedResponse.endsWith("\n"))) {
+            if (message.autoScroll /*&& (message.done || markedResponse.endsWith("\n"))*/) {
                 util.autoScrollToBottom(list);
             }
         },
@@ -459,10 +462,14 @@ export default {
             }
             if (targetButton?.classList?.contains("edit-element-ext")) {
                 e.preventDefault();
-                util.postMessageToVsCode({
+                const data = {
                     type: "editCode",
                     value: targetButton.parentElement.parentElement?.firstElementChild?.textContent,
-                });
+                };
+                if (this.isIdeaMode)
+                    util.postMessageToIdeaEditor(data);
+                else
+                    util.postMessageToCodeEditor(data);
                 return;
             }
             if (targetButton?.classList?.contains("new-code-element-ext")) {
@@ -479,19 +486,29 @@ export default {
                         }
                     }
                 }
-                util.postMessageToVsCode({
+                let data = {
                     type: "openNew",
                     value: value,
                     language
-                });
-
+                };
+                if (this.isIdeaMode)
+                    util.postMessageToIdeaEditor(data);
+                else
+                    util.postMessageToCodeEditor(data);
                 return;
             }
         }
     },
     mounted() {
-        window.addEventListener("message", this.messageHandler);
+        if (this.isVsCodeMode)
+            window.addEventListener("message", this.messageHandler);
         document.addEventListener("click", this.documnetClickHandler);
+
+        if (this.isIdeaMode) {
+            this.$bus.on("executeCmd", (cmd, value) => {
+                //alert(cmd)
+            })
+        }
     }
 
 }

@@ -46,6 +46,11 @@ export default defineConfig((/*{ mode }*/) => {
           target: 'http://codeserver.t.vtoone.com/v1',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, '')
+        },
+        '/codeapi': {
+          target: 'http://codeserver.t.vtoone.com/v1',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/codeapi/, '')
         }
       },
       open: true

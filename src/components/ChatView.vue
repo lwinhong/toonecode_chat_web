@@ -63,7 +63,8 @@
                                 </button>
                             </div> -->
                         </div>
-                        <div class="overflow-y-auto">{{ message.question }}</div>
+                        <!-- <div class="overflow-y-auto">{{ message.question }}</div> -->
+                        <div class="overflow-y-auto" v-html="message.question"></div>
                     </div>
                 </div>
                 <!--回答-->
@@ -178,6 +179,8 @@ import IconAiSvg from "./icons/IconAiSvg.vue";
 import { useStore } from '@/stores/useStore'
 import { mapState } from 'pinia'
 import { ref } from "vue";
+import { getLanguageExtByFilePath } from "../util/languageExt"
+
 const viewType = { introduction: "introduction", qa: "qa" }
 
 export default {
@@ -260,8 +263,10 @@ export default {
          */
         async addFreeTextQuestion() {
             const input = this.questionInput;
-            this.questionInput = "";
-            if (input?.length > 0) {
+            try {
+                if ((input || "").length === 0) {
+                    return;
+                }
                 this.conversationId = uuidv4()
                 const result = util.postMessageToCodeEditor({
                     type: "addFreeTextQuestion",
@@ -270,24 +275,31 @@ export default {
                 });
                 if (result !== true) {
                     //本地模式
-                    this.showInProgress({ showStopButton: true, inProgress: true });
-                    this.addQuestion({ value: input, conversationId: this.conversationId })
-                    this.abortController?.abort();
-                    this.abortController = new AbortController();
-                    await chatUtil.sendApiRequest(input, {
-                        conversationId: this.conversationId,
-                        abortController: this.abortController,
-                        history: this._history || []
-                    },
-                        (progress) => {
-                            this.addResponse(progress);
-                        },
-                        (done) => {
-                            this.addResponse(done)
-                            this.isInProgress = false;
-                        });
+                    await this.addFreeTextQuestion4Local({ value: input, conversationId: this.conversationId })
                 }
+            } catch (error) {
+                console.error(error);
             }
+            this.questionInput = "";
+        },
+        async addFreeTextQuestion4Local(message) {
+            //本地模式
+            this.showInProgress({ showStopButton: true, inProgress: true });
+            this.addQuestion(message)
+            this.abortController?.abort();
+            this.abortController = new AbortController();
+            await chatUtil.sendApiRequest(message.value, {
+                conversationId: this.conversationId,
+                abortController: this.abortController,
+                history: this._history || []
+            },
+                (progress) => {
+                    this.addResponse(progress);
+                },
+                (done) => {
+                    this.addResponse(done)
+                    this.isInProgress = false;
+                });
         },
         showInProgress(message) {
             this.showStopButton = message.showStopButton ? true : false;
@@ -301,8 +313,16 @@ export default {
         addQuestion(message) {
             this.currentViewType = viewType.qa;
             this.conversationId = message.conversationId ?? uuidv4();
+            let { prompt, language, filePath, value } = message;
+            if (prompt && value) {
+                language = language || getLanguageExtByFilePath(filePath);
+                //if (language) {
+                value = "```" + language + "\r\n" + value + "\n\n```\n\n" + prompt;
+                // }
+                message.value = value + "\n" + prompt + "\n";
+            }
             this.qaData.list.push({
-                question: util.escapeHtml(message.value),
+                question: util.markedParser(util.escapeHtml(value)),
                 conversationId: this.conversationId,
                 answer: "",
                 error: "",
@@ -389,6 +409,7 @@ export default {
                         preCode.parentNode.append(buttonWrapper);
                     });
                     util.autoScrollToBottom(list);
+                    this.questionInputRef?.focus();
                 }, 100);
             }
             if (message.autoScroll /*&& (message.done || markedResponse.endsWith("\n"))*/) {
@@ -497,6 +518,46 @@ export default {
                     util.postMessageToCodeEditor(data);
                 return;
             }
+        },
+        async busEventHandler(data) {
+            let { cmd, value } = data;
+            switch (cmd) {
+                case "ask":
+                    this.questionInput = value;
+                    this.questionInputRef?.focus();
+                    if (!this.isInProgress && !value)
+                        this.onAskButtonClick();
+                    break;
+                case "chat":
+                    this.questionInput = value;
+                    if (!this.isInProgress && value)
+                        this.onAskButtonClick();
+                    break;
+                case "chat_code":
+                    this.conversationId = uuidv4()
+                    this.addFreeTextQuestion4Local(data);
+
+                    // let { prompt, language, file } = data;
+                    // let question = value
+                    // let questionPrompt = value
+                    // if (prompt && value) {
+                    //     language = language || getLanguageExtByFilePath(file);
+                    //     question = "```" + language + "\r\n" + value + "\n\n```\n\n" + prompt;
+                    //     questionPrompt = value + "\n" + prompt_suffix + "\n";
+                    // }
+                    // this.questionInput = question;
+
+                    // if (!this.isInProgress && value) {
+                    //     this.conversationId = uuidv4()
+                    //     await this.addFreeTextQuestion4Local({
+                    //         value: question, conversationId: this.conversationId
+                    //     });
+                    //     this.questionInput = "";
+                    // }
+                    break;
+                default:
+                    break;
+            }
         }
     },
     mounted() {
@@ -504,15 +565,10 @@ export default {
             window.addEventListener("message", this.messageHandler);
         document.addEventListener("click", this.documnetClickHandler);
 
-        if (this.isIdeaMode) {
-            this.$bus.on("executeCmd", (cmd, value) => {
-                //alert(cmd)
-            })
-        }
+        if (!this.isIdeaMode)
+            return;
+        this.$bus.on("executeCmd", this.busEventHandler)
     }
-
 }
-
 </script>
-
 <style></style>

@@ -29,6 +29,6 @@ app.provide("$bus", $bus)
 app.config.globalProperties.$bus = $bus
 app.mount('#app')
 
-window.exportVar = function (cmd, value) {
-    $bus.emit('executeCmd', cmd, value)
+window.exportVar = function (data) {
+    $bus.emit('executeCmd', data)
 }

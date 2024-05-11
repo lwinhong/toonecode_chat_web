@@ -300,6 +300,7 @@ export default {
                     this.addResponse(done)
                     this.isInProgress = false;
                 });
+                
         },
         showInProgress(message) {
             this.showStopButton = message.showStopButton ? true : false;
@@ -532,6 +533,7 @@ export default {
                     this.questionInput = value;
                     if (!this.isInProgress && value)
                         this.onAskButtonClick();
+
                     break;
                 case "chat_code":
                     this.conversationId = uuidv4()
@@ -554,6 +556,8 @@ export default {
                     //     });
                     //     this.questionInput = "";
                     // }
+                    break;
+                case "selectedText":
                     break;
                 default:
                     break;

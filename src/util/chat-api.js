@@ -1,6 +1,6 @@
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
-import { fetchEventSource, EventStreamContentType } from './fetchEventSource/index';
+import { fetchEventSource } from './fetchEventSource/index';
 
 //let _historyCount = 3;
 // const HUMAN_ROLE_START_TAG = "<s>human\n";
@@ -55,6 +55,8 @@ export default class ChatApi {
         if (stream) {
             config.responseType = "stream";
             const requestMsg = await this.buildMessages(text, opts);
+            requestMsg.requestId = result.id;
+
             config.data = requestMsg;
             let url = "/api" + config.url
             if (import.meta.env.MODE === 'production') {
@@ -78,6 +80,7 @@ export default class ChatApi {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestMsg),
             signal: config.signal,
+            openWhenHidden: true,
             async onopen(response) {
                 if (response.ok) {
                     return; // everything's good
@@ -91,11 +94,13 @@ export default class ChatApi {
             onmessage(msg) {
                 // if the server emits an error message, throw an exception
                 // so it gets handled by the onerror callback below:
-                if (msg.event === 'FatalError') {
+                if (msg.event === 'error') {
                     throw new FatalError(msg.data);
-                }
-                if (msg.event === 'data') {
-                    throw new FatalError(msg.data);
+                } else if (msg.event === 'data') {
+                    result.text = msg.data;
+                    onProgress(result);
+                } else if (msg.event === 'done') {
+                    onDone?.(result);
                 }
             },
             onclose() {

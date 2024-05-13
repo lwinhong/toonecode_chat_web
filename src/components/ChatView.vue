@@ -268,13 +268,14 @@ export default {
                     return;
                 }
                 this.conversationId = uuidv4()
-                const result = util.postMessageToCodeEditor({
-                    type: "addFreeTextQuestion",
-                    value: input,
-                    conversationId: this.conversationId
-                });
+                //请求到vscode的api来返回数据
+                // const result = util.postMessageToCodeEditor({
+                //     type: "addFreeTextQuestion",
+                //     value: input,
+                //     conversationId: this.conversationId
+                // });
                 if (result !== true) {
-                    //本地模式
+                    //本地模式，直接请求api
                     await this.addFreeTextQuestion4Local({ value: input, conversationId: this.conversationId })
                 }
             } catch (error) {

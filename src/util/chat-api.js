@@ -1,7 +1,8 @@
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import { fetchEventSource } from './fetchEventSource/index';
-
+import { createParser } from 'eventsource-parser'
+import { EventSourceParserStream } from 'eventsource-parser/stream'
 //let _historyCount = 3;
 // const HUMAN_ROLE_START_TAG = "<s>human\n";
 // const BOT_ROLE_START_TAG = "<s>bot\n";
@@ -62,8 +63,8 @@ export default class ChatApi {
             if (import.meta.env.MODE === 'production') {
                 url = import.meta.env.VITE_API_BASE_URL + config.url; //
             }
-            await this.postByFetchEventSource(url, config, requestMsg, onProgress, onDone, result);
-            //await this.postByFetch(url, config, requestMsg, onProgress, onDone, result);
+            //await this.postByFetchEventSource(url, config, requestMsg, onProgress, onDone, result);
+            await this.postByFetch(url, config, requestMsg, onProgress, onDone, result);
         }
         else {
             const response = await this.doRequestPost(config, {});
@@ -125,26 +126,31 @@ export default class ChatApi {
                     body: JSON.stringify(requestMsg),
                     headers: { 'Content-Type': 'application/json' },
                     signal: config.signal,
-                    //mode: 'no-cors'
                 });
 
-            // const reader = response.body.getReader();
+            if (!response.ok) {
+                throw new FatalError("无法连接到服务器");
+            }
+            const parser = createParser((event) => {
+                if (event.type === 'event') {
+                    if (event.event === 'data') {
+                        result.text = event.data;
+                        onProgress(result);
+                    }
+                }
+            })
+
             const textDecoder = response.body.pipeThrough(new TextDecoderStream()).getReader();
-            let readEnd = true;
-
-            while (readEnd) {
+            while (true) {
                 const { done, value } = await textDecoder.read();
-
                 if (done) {
                     onDone?.(result);
-                    readEnd = false;
                     break;
                 }
-                result.text = value;
-                onProgress(result);
+                parser.feed(value);
             }
         } catch (error) {
-            result.error = "服务异常，请稍后再试 " + error;
+            result.error = "服务异常: " + error;
             console.log(error)
             onDone?.(result);
         }

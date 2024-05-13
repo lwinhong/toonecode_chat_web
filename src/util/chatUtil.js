@@ -35,33 +35,7 @@ export const chatUtil = {
                     history,
                     onProgress: (message) => {
                         try {
-
-                            let str = message.text;// buffer.Buffer.from(message.text, 'base64').toString('utf8');
-                            // if (str && str.indexOf(RESPONSE_RESULT_BASE64_SPLIT) >= 0) {
-                            //     if (str) {
-                            //         let split = str.split(RESPONSE_RESULT_BASE64_SPLIT).filter(x => {
-                            //             if (x.trim()) {
-                            //                 return true;
-                            //             }
-                            //             return false;
-                            //         });
-                            //         if (split.length > 0)
-                            //             str = split[split.length - 1];
-                            //         if (split > 1) {
-                            //             console.log(split);
-                            //         }
-                            //     }
-                            //     if (!str) {
-                            //         str = message.text;
-                            //     }
-                            //     const { answer, history, done } = JSON.parse(str);
-                            //     if (done) {
-                            //         responseResult.history = history;
-                            //     }
-                            //     responseResult.value = answer;
-                            // } else {
-                            //     responseResult.value = str;
-                            // }
+                            let str = message.text;
                             if (!str)
                                 return;
                             responseResult.value = str;

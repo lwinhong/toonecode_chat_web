@@ -180,7 +180,8 @@ import { useStore } from '@/stores/useStore'
 import { mapState } from 'pinia'
 import { ref } from "vue";
 import { getLanguageExtByFilePath } from "../util/languageExt"
-
+import { Cache } from "@/util/cache/cacheUtil";
+const cache = new Cache();
 const viewType = { introduction: "introduction", qa: "qa" }
 
 export default {
@@ -269,11 +270,11 @@ export default {
                 }
                 this.conversationId = uuidv4()
                 //请求到vscode的api来返回数据
-                // const result = util.postMessageToCodeEditor({
-                //     type: "addFreeTextQuestion",
-                //     value: input,
-                //     conversationId: this.conversationId
-                // });
+                const result = util.postMessageToCodeEditor({
+                    type: "addFreeTextQuestion",
+                    value: input,
+                    conversationId: this.conversationId
+                });
                 if (result !== true) {
                     //本地模式，直接请求api
                     await this.addFreeTextQuestion4Local({ value: input, conversationId: this.conversationId })
@@ -301,7 +302,7 @@ export default {
                     this.addResponse(done)
                     this.isInProgress = false;
                 });
-                
+
         },
         showInProgress(message) {
             this.showStopButton = message.showStopButton ? true : false;
@@ -332,6 +333,7 @@ export default {
                 done: false
             });
             util.autoScrollToBottom(this.qaElementList);
+            cache.put(this.conversationId, { q: value })
         },
         addResponse(message) {
             this.addResponseCore(message)
@@ -363,7 +365,7 @@ export default {
             existingMessageData.answer = markedResponse
             if (message.done) {
                 existingMessageData.done = true;
-                this._history = message.histroy
+                //this._history = message.histroy
                 this.conversationId = "";
                 this.message = null;
                 this.showInProgress({ inProgress: false })

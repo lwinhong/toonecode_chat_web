@@ -12,14 +12,14 @@ import axios from "axios";
 axios.defaults.timeout = 30 * 1000;//30s
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = '/api'; //'http://codeserver.t.vtoone.com'
-// axios.interceptors.response.use(
-//     config => {
-//         //debugger
-//         config.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-//         config.headers["access-control-allow-origin"] = "http://codeserver.t.vtoone.com";
-//         return config;
-//     }
-// );
+axios.interceptors.response.use(
+    config => {
+        //debugger
+        //config.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+        config.headers["access-control-allow-origin"] = "http://codeserver.t.vtoone.com";
+        return config;
+    }
+);
 /************************ */
 
 const app = createApp(App)

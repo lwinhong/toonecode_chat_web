@@ -14,17 +14,10 @@ const $bus = new mitt()
 
 import axios from "axios";
 
-axios.defaults.timeout = 30 * 1000;//30s
+axios.defaults.timeout = 40 * 1000;//40s
 axios.defaults.withCredentials = true;
-axios.defaults.baseURL = '/api'; //'http://codeserver.t.vtoone.com'
-// axios.interceptors.response.use(
-//     config => {
-//         //debugger
-//         //config.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-//         config.headers["access-control-allow-origin"] = "http://codeserver.t.vtoone.com";
-//         return config;
-//     }
-// );
+axios.defaults.baseURL = '/api1';
+
 /************************ */
 
 const app = createApp(App)

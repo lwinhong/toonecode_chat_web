@@ -44,15 +44,10 @@ export default defineConfig(() => {
       host: '0.0.0.0',
       port: 5173, //这里的端口跟配置开发环境文件# .env.development的端口要一致
       proxy: {
-        '/api': {
-          target: 'http://codeserver.t.vtoone.com/v1',
+        '/api1': {
+          target: 'http://ai.t.vtoone.com/api/v1',
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, '')
-        },
-        '/codeapi': {
-          target: 'http://codeserver.t.vtoone.com/v1',
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/codeapi/, '')
+          rewrite: (path) => path.replace(/^\/api1/, '')
         }
       },
       open: true

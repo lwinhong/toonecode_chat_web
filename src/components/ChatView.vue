@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col h-screen" :class="{ 'chat-box-600': (!isIdeaMode && !isVsCodeMode) }">
+    <div class="flex flex-col h-screen " :class="{ 'chat-box-600': (!isIdeaMode && !isVsCodeMode) }">
         <!--介绍 / 简介 / 引言 / 概述 -->
         <div id="introduction" v-if="isIntroduction"
             class="flex flex-col justify-between h-full justify-center px-6 w-full relative login-screen overflow-auto">
@@ -90,8 +90,8 @@
 
         </div>
 
-        <div class="flex-1 overflow-y-auto hidden" id="conversation-list" data-license="isc-gnc" v-show="isQAMode">
-        </div>
+        <!-- <div class="flex-1 overflow-y-auto hidden" id="conversation-list" data-license="isc-gnc" v-show="isQAMode">
+        </div> -->
 
         <!-- 正式思考动画 -->
         <div id="in-progress" class="pl-4 pt-2 flex items-center" data-license="isc-gnc" v-show="isInProgress">
@@ -616,5 +616,31 @@ html[data-code-theme="light"] {
     /* height: 200px; */
     /* background-color: #f0f0f0; */
     margin: 0 auto;
+}
+
+/* Chrome, Safari, and Opera */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+    /* 设置滚动条宽度 */
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 2px;
+    /* 滚动条轨道背景色 */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    /* 滚动条滑块背景色 */
+    border-radius: 2px;
+    /* 滑块圆角 */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+    /* 滑块悬停时的背景色 */
+    border-radius: 2px;
 }
 </style>

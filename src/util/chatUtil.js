@@ -33,10 +33,7 @@ export const chatUtil = {
                 history,
                 onProgress: (message) => {
                     try {
-                        let str = message.text;
-                        if (!str)
-                            return;
-                        responseResult.value = str;
+                        responseResult.value = message.text;
                         onProgress?.(responseResult);
                     } catch (error) {
                         console.error(error);
@@ -45,8 +42,13 @@ export const chatUtil = {
                 },
                 onDone: (message) => {
                     this.inProgress = false;
-                    responseResult.done = true;
-                    onDone?.(responseResult);
+                    try {
+                        responseResult.value = message.text;
+                        responseResult.done = true;
+                        onDone?.(responseResult);
+                    } catch (error) {
+                        console.error(error);
+                    }
                     this.inProgress = false;
                 }
             });
@@ -54,6 +56,7 @@ export const chatUtil = {
         } catch (error) {
             err = error;
             //出错了干点什么
+            console.error(error);
         }
 
         //没有接口，这里也可以发送一下消息过去

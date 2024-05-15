@@ -42,6 +42,7 @@ export const util = {
     },
     autoScrollToBottom(element) {
         element?.scrollTo?.({ behavior: "smooth", top: element.scrollHeight });
+        element.scrollTop = element.scrollHeight
     },
     markedParser(value) {
         return marked.parse(value);

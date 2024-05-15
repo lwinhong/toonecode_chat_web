@@ -100,6 +100,7 @@ export default class ChatApi2 {
             while (true) {
                 const { done, value } = await textDecoder.read();
                 if (done) {
+                    this.callBackResult.text = "";
                     onDone?.(this.callBackResult);
                     break;
                 }
@@ -115,8 +116,11 @@ export default class ChatApi2 {
     createSseParser(onProgress) {
         return createParser((event) => {
             if (event.type === 'event') {
-                this.callBackResult.text = this.responseDataParser(event.data);
-                onProgress(this.callBackResult);
+                const answer = this.responseDataParser(event.data);
+                if (answer) {
+                    this.callBackResult.text = answer;
+                    onProgress(this.callBackResult);
+                }
             }
         })
     }

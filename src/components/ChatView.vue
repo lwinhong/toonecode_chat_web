@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col h-screen">
+    <div class="flex flex-col h-screen" :class="{ 'chat-box-600': (!isIdeaMode && !isVsCodeMode) }">
         <!--介绍 / 简介 / 引言 / 概述 -->
         <div id="introduction" v-if="isIntroduction"
             class="flex flex-col justify-between h-full justify-center px-6 w-full relative login-screen overflow-auto">
@@ -43,7 +43,7 @@
             <template v-for="(message, index) in qaData.list" :key="index">
                 <!-- 问题 -->
                 <div class="chat-card-bg">
-                    <div class="p-4 self-end question-element-ext relative chat-card-content-bg rounded-lg">
+                    <div class="p-4 self-end question-element-ext relative chat-card-content-bg">
                         <h2 class="mb-5 flex" data-license="isc-gnc">
                             <IconUserSvg />你
                         </h2>
@@ -143,7 +143,7 @@
                             d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                     </svg>&nbsp;导出markdown</button>
             </div>
-            <div id="question-input-buttons" class="right-6 absolute p-0.5 ml-5 flex items-center gap-2"
+            <div id="question-input-buttons" class="p-0.5 flex  gap-2 send-erea-items-center"
                 v-show="questionInputButtonsVisible">
                 <button id="more-button" title="More actions" class="rounded-lg p-0.5" data-license="isc-gnc"
                     @click="questionInputButtonsMoreVisible = true">
@@ -317,15 +317,22 @@ export default {
             this.currentViewType = viewType.qa;
             this.conversationId = message.conversationId ?? uuidv4();
             let { prompt, language, filePath, value } = message;
+            let question = value;
+            let marked = false;
             if (prompt && value) {
-                language = language || getLanguageExtByFilePath(filePath);
-                //if (language) {
-                value = "```" + language + "\r\n" + value + "\n\n```\n\n" + prompt;
-                // }
+                if (prompt.contains("```")) {
+                    language = language || getLanguageExtByFilePath(filePath);
+                    value = "```" + language + "\r\n" + value + "\n\n```\n\n" + prompt;
+                    marked = true
+                }
                 message.value = value + "\n" + prompt + "\n";
             }
+            question = util.escapeHtml(value)
+            if (marked) {
+                question = util.markedParser(question)
+            }
             this.qaData.list.push({
-                question: util.markedParser(util.escapeHtml(value)),
+                question,
                 conversationId: this.conversationId,
                 answer: "",
                 error: "",
@@ -562,6 +569,16 @@ export default {
                     break;
                 case "selectedText":
                     break;
+                case "changeTheme":
+                    const handleThemeChange = (val) => {
+                        if (!val) {
+                            document.documentElement.setAttribute('theme', 'light')
+                        } else {
+                            document.documentElement.removeAttribute('theme')
+                        }
+                    }
+                    handleThemeChange(value !== 'light');
+                    break;
                 default:
                     break;
             }
@@ -572,10 +589,32 @@ export default {
             window.addEventListener("message", this.messageHandler);
         document.addEventListener("click", this.documnetClickHandler);
 
-        if (!this.isIdeaMode)
-            return;
+        // if (!this.isIdeaMode)
+        //     return;
         this.$bus.on("executeCmd", this.busEventHandler)
     }
 }
 </script>
-<style></style>
+<style lang="scss">
+@use "sass:meta";
+
+html[data-code-theme="dark"] {
+    @include meta.load-css("highlight.js/styles/atom-one-dark.css");
+}
+
+html[data-code-theme="light"] {
+    @include meta.load-css("highlight.js/styles/atom-one-light.css");
+}
+
+.chat-box-600 {
+    display: flex;
+    /* justify-content: center; */
+    /* align-items: center; */
+    width: 100%;
+    max-width: 600px;
+    /* min-width: 300px; */
+    /* height: 200px; */
+    /* background-color: #f0f0f0; */
+    margin: 0 auto;
+}
+</style>

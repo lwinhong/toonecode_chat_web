@@ -1,0 +1,27 @@
+:root {
+    --vscode-foreground: #cccccc;
+    --vscode-font-family: "Segoe WPC", "Segoe UI", sans-serif;
+    --vscode-font-weight: normal;
+    --vscode-font-size: 13px;
+    --vscode-editor-background: #1f1f1f;
+    --vscode-editor-foreground: #cccccc;
+    --vscode-focusBorder: #0078d4;
+    --vscode-textLink-foreground: #4daafc;
+    --vscode-textLink-activeForeground: #4daafc;
+    --vscode-editor-font-family: Consolas, 'Courier New', monospace;
+    --vscode-button-secondaryForeground: #cccccc;
+    --vscode-button-secondaryBackground: #313131;
+    --vscode-button-secondaryHoverBackground: #3c3c3c;
+    --vscode-input-background: #313131;
+    --vscode-input-foreground: #cccccc;
+    --vscode-input-border: #3c3c3c;
+    --vscode-input-placeholderForeground: #989898;
+
+    --tc-chat-card-content-bg: rgb(255 255 255 / 4%);
+
+    --container-padding: 0;
+    --input-padding-vertical: 6px;
+    --input-padding-horizontal: 4px;
+    --input-margin-vertical: 4px;
+    --input-margin-horizontal: 0;
+}

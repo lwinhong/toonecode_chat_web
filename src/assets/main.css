@@ -22,7 +22,8 @@
 body {
     padding: 0 var(--container-padding);
     color: var(--vscode-foreground);
-     font-size: 13px; /*var(--vscode-editor-font-size); */
+    font-size: 13px;
+    /*var(--vscode-editor-font-size); */
     font-weight: var(--vscode-font-weight);
     font-family: var(--vscode-font-family);
     background-color: var(--vscode-editor-background);
@@ -250,16 +251,17 @@ textarea::placeholder {
 
 .textarea-wrapper>textarea {
     resize: none;
-    overflow: hidden auto;
+    overflow: hidden;
     max-height: 20rem;
 }
 
 .textarea-wrapper>textarea,
 .textarea-wrapper::after {
-    border: 1px solid black;
-    padding: .5rem 5rem .5rem .5rem;
+    border: 1px solid #00000012;
+    padding: .5rem .5rem .5rem .5rem;
     font: inherit;
     grid-area: 1 / 1 / 2 / 2;
+    border-radius: 4px
 }
 
 .pre-code-element:not(:last-child) {
@@ -267,10 +269,11 @@ textarea::placeholder {
 }
 
 .chat-card-bg {
-    padding:4px 8px;
+    padding: 2px 4px;
 }
+
 .chat-card-content-bg {
-    background-color: rgb(255 255 255 / 4%);
+    background-color: var(--tc-chat-card-content-bg);
     border-radius: 4px;
 }
 
@@ -381,4 +384,9 @@ textarea::placeholder {
 .answer-element-ext a {
     text-decoration-line: underline;
     text-underline-offset: 2px;
+}
+
+.send-erea-items-center {
+    justify-content: right;
+    margin-left: 6px;
 }

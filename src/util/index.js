@@ -3,7 +3,7 @@ import TurndownService from 'turndown';
 import { Marked } from 'marked';
 import hljs from 'highlight.js';
 import { markedHighlight } from "marked-highlight";
-import 'highlight.js/styles/atom-one-dark.css'
+// import 'highlight.js/styles/atom-one-dark.css'
 
 const marked = new Marked(
     markedHighlight({

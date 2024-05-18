@@ -59,10 +59,10 @@ export default class ChatApi {
             requestMsg.requestId = result.id;
 
             config.data = requestMsg;
-            let url = "/api" + config.url
-            if (import.meta.env.MODE === 'production') {
-                url = import.meta.env.VITE_API_BASE_URL + config.url; //
-            }
+            let url = "http://codeserver.t.vtoone.com/v1" + config.url
+            // if (import.meta.env.MODE === 'production') {
+            //     url = import.meta.env.VITE_API_BASE_URL + config.url; //
+            // }
             //await this.postByFetchEventSource(url, config, requestMsg, onProgress, onDone, result);
             await this.postByFetch(url, config, requestMsg, onProgress, onDone, result);
         }

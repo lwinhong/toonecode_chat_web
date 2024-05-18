@@ -1,13 +1,12 @@
-import { createParser } from 'eventsource-parser'
-import axios from "axios";
+import { createParser } from 'eventsource-parser';
 import { v4 as uuidv4 } from "uuid";
 
 // 聊天接口
-export const ONLINE_CHAT_APIKEY = "app-jWmI0bA3AioiorQq6bmU73Ik"
-export const ONLINE_CHAT_API = "http://ai.t.vtoone.com/api/v1/chat-messages"
+export const ONLINE_CHAT_APIKEY = "app-jWmI0bA3AioiorQq6bmU73Ik";
+export const ONLINE_CHAT_API = "http://ai.t.vtoone.com/api/v1/chat-messages";
 // 代码接口
-export const ONLINE_CODE_APIKEY = "app-HZSqJWyZI6xjqkbyXUIcLErR"
-export const ONLINE_CODE_API = "http://ai.t.vtoone.com/api/v1/completion-messages"
+export const ONLINE_CODE_APIKEY = "app-HZSqJWyZI6xjqkbyXUIcLErR";
+export const ONLINE_CODE_API = "http://ai.t.vtoone.com/api/v1/completion-messages";
 
 export default class ChatApi2 {
 
@@ -20,7 +19,7 @@ export default class ChatApi2 {
             abortSignal = abortController.signal;
         }
         // 创建axios配置
-        this.axiosConfig = {
+        this.requestConfig = {
             method: 'post',
             timeout: timeoutMs,
             signal: abortSignal,
@@ -40,60 +39,32 @@ export default class ChatApi2 {
             error: "",
         };
     }
+
     getCallBackResult() {
-        return this.callBackResult || {}
+        return this.callBackResult || {};
     }
+
+    /**
+     * post到服务器
+     * @param {url} url 
+     * @param {数据} data 
+     * @param {进度回调} onProgress 
+     * @param {完成回调} onDone 
+     */
     async postToServer(url, data, onProgress, onDone) {
         data.requestId = this.callBackResult.id;
 
         //sse 解析器
-        const sseParser = this.createSseParser(onProgress)
-
-        // const handler = (response) => {
-        //     if (onProgress) {
-        //         response.data.on('data', (chunk) => {
-        //             // 处理流数据的逻辑
-        //             try {
-        //                 chunk = chunk || "";
-        //                 sseParser.feed(chunk.toString());
-        //             } catch (error) {
-        //                 console.error(error);
-        //             }
-        //         });
-        //     }
-        //     if (onDone) {
-        //         response.data.on('end', async () => {
-        //             // 数据接收完成的逻辑
-        //             let rs = onDone?.(this.callBackResult);
-        //             if (rs === false || this.callBackResult.error) {
-        //                 return;
-        //             }
-        //         });
-        //     }
-        //     response.data.on('error', (error) => {
-        //         if (axios.isCancel(error)) {
-        //             console.log('请求被取消', error.message);
-        //         } else {
-        //             console.log('请求出错', error.message);
-        //         }
-        //         this.callBackResult.error = "服务异常，请稍后再试 " + error;
-        //         onDone?.(this.callBackResult);
-        //     });
-        // };
-        // await axios.post(url || this.apiUrl, this.getRequestData(data), this.axiosConfig).then(handler).catch(err => {
-        //     this.callBackResult.error = "服务异常，请稍后再试. " + err;
-        //     onDone?.(this.callBackResult);
-        // });;
-
+        const sseParser = this.createSseParser(onProgress);
         try {
             let response = await fetch(url || this.apiUrl,
                 {
                     body: JSON.stringify(this.getRequestData(data)),
-                    ...this.axiosConfig
+                    ...this.requestConfig
                 });
 
             if (!response.ok) {
-                throw new FatalError("无法连接到服务器");
+                throw new Error("无法连接到服务器");
             }
 
             const textDecoder = response.body.pipeThrough(new TextDecoderStream()).getReader();
@@ -108,11 +79,16 @@ export default class ChatApi2 {
             }
         } catch (error) {
             this.callBackResult.error = "服务异常: " + error.messages;
-            console.log(error)
+            console.log(error);
             onDone?.(this.callBackResult);
         }
     }
 
+    /**
+     * sse解析器
+     * @param {进度} onProgress 
+     * @returns 
+     */
     createSseParser(onProgress) {
         return createParser((event) => {
             if (event.type === 'event') {
@@ -122,56 +98,77 @@ export default class ChatApi2 {
                     onProgress(this.callBackResult);
                 }
             }
-        })
+        });
     }
 
+    /**
+     * 响应数据二次解析
+     * @param {响应数据} data 
+     * @returns 
+     */
     responseDataParser(data) {
         try {
             let { event, answer } = JSON.parse(data);
-            if (event === 'message')
+            if (event === 'message') {
                 return answer;
+            }
         }
         catch (error) {
             console.error(error);
         }
     }
 
+    /**
+     * 添加请求头
+     * @param {Authorization} api_key 
+     * @returns 
+     */
     getRequestHeader(api_key) {
         let headers = {
             'Authorization': `Bearer ${api_key}`,
             'Content-Type': 'application/json',
             'Accept': 'text/event-stream'
-        }
+        };
         return headers;
     }
+
+    /**
+     * 获取请求数据
+     * @param {请求数据} originData 
+     * @returns 
+     */
     getRequestData(originData) {
-        let { chatType, lang, prompt, history, prefixCode, suffixCode } = originData
-        let query_dict = {
-            // "inputs": {},
-            // "query": prompt,
+        let { chatType, lang, prompt, history, prefixCode, suffixCode, max_length } = originData;
+        let query = {
             "response_mode": "streaming",
             "conversation_id": "",
             "user": "abc-123"
-        }
+        };
         if (chatType === "code") {
-            //"inputs": {"prefix_code": prefix_code,"suffix_code":suffix_code},
-            query_dict.inputs = { "prefix_code": prefixCode, "suffix_code": suffixCode };
+            query.inputs = { "prefix_code": prefixCode, "suffix_code": suffixCode, max_length };
         } else if (chatType === "chat") {
-            query_dict.inputs = {};
+            query.inputs = {};
+            let promptMessages = query.query = [];
 
-            let messages = [
+            promptMessages.push(
                 { role: "system", content: "You are a helpful assistant." }
-            ]
+            );
+            this.buildHistory(history, promptMessages);
+            promptMessages.push({ role: "user", content: prompt });
 
-            history && history.forEach(his => {
-                his.forEach(item => {
-                    messages.push({ role: his["role"], content: his["content"] })
-                })
-            });
-
-            messages.push({ role: "user", content: prompt })
-            query_dict.query = messages;
         }
-        return query_dict;
+        return query;
+    }
+
+    /**
+     * 组装历史
+     * @param {历史集合} histories [[],...[]]
+     * @param {*} messages 
+     */
+    buildHistory(histories, promptMessages) {
+        histories && histories.forEach(history => {
+    
+           promptMessages.push({ role: history["role"], content: history["content"] });
+        });
     }
 }

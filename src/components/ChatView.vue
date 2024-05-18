@@ -180,8 +180,8 @@ import { useStore } from '@/stores/useStore'
 import { mapState } from 'pinia'
 import { ref } from "vue";
 import { getLanguageExtByFilePath } from "../util/languageExt"
-import { Cache } from "@/util/cache/cacheUtil";
-const cache = new Cache();
+// import { Cache } from "@/util/cache/cacheUtil";
+// const cacheHistories = new Cache();
 const viewType = { introduction: "introduction", qa: "qa" }
 
 export default {
@@ -219,8 +219,6 @@ export default {
         onClearClick() {
             this.qaData.list = [];
             this.currentViewType = viewType.introduction;
-            if (this._history)
-                this._history = []
             util.postMessageToCodeEditor({
                 type: "clearConversation"
             })
@@ -270,21 +268,22 @@ export default {
                 }
                 this.conversationId = uuidv4()
                 //请求到vscode的api来返回数据
-                const result = util.postMessageToCodeEditor({
-                    type: "addFreeTextQuestion",
-                    value: input,
-                    conversationId: this.conversationId
-                });
-                if (result !== true) {
-                    //本地模式，直接请求api
-                    await this.addFreeTextQuestion4Local({ value: input, conversationId: this.conversationId })
-                }
+                // const result = util.postMessageToCodeEditor({
+                //     type: "addFreeTextQuestion",
+                //     value: input,
+                //     conversationId: this.conversationId
+                // });
+                // if (result !== true) {
+                //本地模式，直接请求api
+                await this.addFreeTextQuestion4Local({ value: input, conversationId: this.conversationId })
+                //}
             } catch (error) {
                 console.error(error);
             }
             this.questionInput = "";
         },
         async addFreeTextQuestion4Local(message) {
+            let history = chatUtil.buildHistories(this.qaData.list);
             //本地模式
             this.showInProgress({ showStopButton: true, inProgress: true });
             this.addQuestion(message)
@@ -293,7 +292,7 @@ export default {
             await chatUtil.sendApiRequest(message.value, {
                 conversationId: this.conversationId,
                 abortController: this.abortController,
-                history: this._history || []
+                history
             },
                 (progress) => {
                     this.addResponse(progress);
@@ -320,11 +319,11 @@ export default {
             let question = value;
             let marked = false;
             if (prompt && value) {
-                if (prompt.contains("```")) {
-                    language = language || getLanguageExtByFilePath(filePath);
-                    value = "```" + language + "\r\n" + value + "\n\n```\n\n" + prompt;
-                    marked = true
-                }
+
+                language = language || getLanguageExtByFilePath(filePath);
+                value = "```" + language + "\r\n" + value + "\n\n```\n\n" + prompt;
+                marked = true
+
                 message.value = value + "\n" + prompt + "\n";
             }
             question = util.escapeHtml(value)
@@ -333,6 +332,7 @@ export default {
             }
             this.qaData.list.push({
                 question,
+                originQuestion: value,
                 conversationId: this.conversationId,
                 answer: "",
                 error: "",
@@ -340,16 +340,16 @@ export default {
                 done: false
             });
             util.autoScrollToBottom(this.qaElementList);
-            cache.put(this.conversationId, { q: value })
+            //cacheHistories.put(this.conversationId, { q: value })
         },
         addResponse(message) {
-            this.addResponseCore(message)
-            // if (this.isVsCodeMode)
-            //     this.addResponseCore(message)
-            // else {
-            //     this.message = message;
-            //     util.throttle(() => this.addResponseCore(this.message), 300)
-            // }
+            //this.addResponseCore(message)
+            if (this.isVsCodeMode)
+                this.addResponseCore(message)
+            else {
+                this.message = message;
+                util.throttle(() => this.addResponseCore(this.message), 300)
+            }
         },
         addResponseCore(message) {
             const conversationId = message.conversationId ?? this.conversationId;
@@ -372,7 +372,6 @@ export default {
             existingMessageData.answer = markedResponse
             if (message.done) {
                 existingMessageData.done = true;
-                //this._history = message.histroy
                 this.conversationId = "";
                 this.message = null;
                 this.showInProgress({ inProgress: false })
@@ -407,13 +406,13 @@ export default {
                             insert.title = "将以上内容插入到当前文件";
                             insert.innerHTML = `${insertSvg} 插入`;
 
-                            insert.classList.add("edit-element-ext", "p-1", "pr-2", "flex", "items-center", "rounded-lg");
+                            insert.classList.add("edit-element-ext", "p-1", "pr-2", "ml-1", "flex", "items-center", "rounded-lg");
 
                             const newTab = document.createElement("button");
                             newTab.title = "新建文件并将以上代码置入";
                             newTab.innerHTML = `${plusSvg} 新建`;
 
-                            newTab.classList.add("new-code-element-ext", "p-1", "pr-2", "flex", "items-center", "rounded-lg");
+                            newTab.classList.add("new-code-element-ext", "p-1", "pr-2", "ml-1", "flex", "items-center", "rounded-lg");
                             buttonWrapper.append(insert, newTab);
                         }
 
@@ -429,44 +428,15 @@ export default {
         },
         addError(message) {
             const conversationId = message.conversationId ?? this.conversationId;
-            let existingMessageData = this.qaData.list.find(f => f.conversationId === conversationId);
-            if (!existingMessageData) {
+            let exist = this.qaData.list.find(f => f.conversationId === conversationId);
+            if (!exist) {
                 return;
             }
             const messageValue = message.value || "An error occurred. If this issue persists please clear your session token with `ChatGPT: Reset session` command and/or restart your Visual Studio Code. If you still experience issues, it may be due to outage on https://openai.com services.";
-            existingMessageData.answer = "";
-            existingMessageData.error = util.markedParser(messageValue)
+            exist.answer = "";
+            exist.error = util.markedParser(messageValue)
             if (message.autoScroll) {
                 util.autoScrollToBottom(this.qaElementList);
-            }
-        },
-        messageHandler(event) {
-            const message = event.data;
-            switch (message.type) {
-                case "showInProgress":
-                    this.showInProgress(message);
-                    break;
-                case "addResponse":
-                    this.addResponse(message);
-                    break;
-                case "addQuestion":
-                    this.addQuestion(message);
-                    break;
-                case "loginSuccessful":
-                    break;
-                case "addError":
-                    this.addError(message)
-                    break;
-                case "clearConversation":
-                    this.onClearClick();
-                    break;
-                case "exportConversation":
-                    this.onExportConversation();
-                    break;
-                case "textSelectionChanged":
-                    // const input = document.getElementById("question-input");
-                    // input.value = message.text;
-                    break;
             }
         },
         documnetClickHandler(e) {
@@ -530,6 +500,40 @@ export default {
                 return;
             }
         },
+        messageHandler(event) {
+            const message = event.data;
+            switch (message.type) {
+                case "showInProgress":
+                    this.showInProgress(message);
+                    break;
+                case "addResponse":
+                    this.addResponse(message);
+                    break;
+                case "addQuestion":
+                    this.addQuestion(message);
+                    break;
+                case "loginSuccessful":
+                    break;
+                case "addError":
+                    this.addError(message)
+                    break;
+                case "clearConversation":
+                    this.onClearClick();
+                    break;
+                case "exportConversation":
+                    this.onExportConversation();
+                    break;
+                case "textSelectionChanged":
+                    // const input = document.getElementById("question-input");
+                    // input.value = message.text;
+                    break;
+                case "chat_code":
+                    message.cmd = message.type;
+                    this.busEventHandler(message);
+                    break;
+            }
+        },
+
         async busEventHandler(data) {
             let { cmd, value } = data;
             switch (cmd) {
@@ -587,10 +591,12 @@ export default {
     mounted() {
         if (this.isVsCodeMode)
             window.addEventListener("message", this.messageHandler);
+        document.removeEventListener("click", this.documnetClickHandler)
         document.addEventListener("click", this.documnetClickHandler);
 
         // if (!this.isIdeaMode)
         //     return;
+        this.$bus.off("executeCmd", this.busEventHandler)
         this.$bus.on("executeCmd", this.busEventHandler)
     }
 }
@@ -608,13 +614,8 @@ html[data-code-theme="light"] {
 
 .chat-box-600 {
     display: flex;
-    /* justify-content: center; */
-    /* align-items: center; */
     width: 100%;
     max-width: 600px;
-    /* min-width: 300px; */
-    /* height: 200px; */
-    /* background-color: #f0f0f0; */
     margin: 0 auto;
 }
 
@@ -626,7 +627,8 @@ html[data-code-theme="light"] {
 }
 
 ::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: --var(--vscode-editor-background);
+    /*#f1f1f1;*/
     border-radius: 2px;
     /* 滚动条轨道背景色 */
 }

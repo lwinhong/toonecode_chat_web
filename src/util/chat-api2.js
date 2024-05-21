@@ -55,30 +55,30 @@ export default class ChatApi2 {
         data.requestId = this.callBackResult.id;
 
         //sse 解析器
-        const sseParser = this.createSseParser(onProgress);
+        const sseParser = this.createSseParser(onProgress, onDone);
         try {
             let response = await fetch(url || this.apiUrl,
                 {
-                    body: JSON.stringify(this.getRequestData(data)),
+                    body: this.getRequestDataJson(data),
                     ...this.requestConfig
                 });
 
             if (!response.ok) {
-                throw new Error("无法连接到服务器");
+                throw new Error(`无法连接到服务器：${response.status}-${response.statusText}`);
             }
 
             const textDecoder = response.body.pipeThrough(new TextDecoderStream()).getReader();
             while (true) {
                 const { done, value } = await textDecoder.read();
                 if (done) {
-                    this.callBackResult.text = "";
-                    onDone?.(this.callBackResult);
+                    //this.callBackResult.text = "";
+                    //onDone?.(this.callBackResult);
                     break;
                 }
                 sseParser.feed(value);
             }
         } catch (error) {
-            this.callBackResult.error = "服务异常: " + error.messages;
+            this.callBackResult.error = "服务异常: " + error.message;
             console.log(error);
             onDone?.(this.callBackResult);
         }
@@ -89,15 +89,20 @@ export default class ChatApi2 {
      * @param {进度} onProgress 
      * @returns 
      */
-    createSseParser(onProgress) {
-        return createParser((event) => {
-            if (event.type === 'event') {
-                const answer = this.responseDataParser(event.data);
-                if (answer) {
-                    this.callBackResult.text = answer;
-                    onProgress(this.callBackResult);
-                }
+    createSseParser(onProgress, onDone) {
+        return createParser((sseEvent) => {
+            if (sseEvent.type !== 'event') {
+                return
             }
+            const { event, answer } = this.responseDataParser(sseEvent.data);
+            if (event === 'message') {
+                this.callBackResult.text = answer;
+                onProgress?.(this.callBackResult);
+            } else if (event === "message_end") {
+                this.callBackResult.text = "";
+                onDone?.(this.callBackResult);
+            }
+            //console.log(sseEvent.type + ":" + sseEvent.data);
         });
     }
 
@@ -108,10 +113,7 @@ export default class ChatApi2 {
      */
     responseDataParser(data) {
         try {
-            let { event, answer } = JSON.parse(data);
-            if (event === 'message') {
-                return answer;
-            }
+            return JSON.parse(data);
         }
         catch (error) {
             console.error(error);
@@ -151,24 +153,26 @@ export default class ChatApi2 {
             let promptMessages = query.query = [];
 
             promptMessages.push(
-                { role: "system", content: "You are a helpful assistant." }
+                { role: "system", content: 'You are a helpful assistant. 请用中文回答，你的名字叫"同望编码助手"。' },
             );
             this.buildHistory(history, promptMessages);
             promptMessages.push({ role: "user", content: prompt });
-
         }
         return query;
     }
 
+    getRequestDataJson(originData) {
+        return JSON.stringify(this.getRequestData(originData));
+    }
+
     /**
      * 组装历史
-     * @param {历史集合} histories [[],...[]]
+     * @param {历史集合} histories [[]...]
      * @param {*} messages 
      */
     buildHistory(histories, promptMessages) {
         histories && histories.forEach(history => {
-    
-           promptMessages.push({ role: history["role"], content: history["content"] });
+            promptMessages.push({ role: history["role"], content: history["content"] });
         });
     }
 }

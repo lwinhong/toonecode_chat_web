@@ -282,8 +282,8 @@ export default {
             }
             this.questionInput = "";
         },
-        async addFreeTextQuestion4Local(message) {
-            let history = chatUtil.buildHistories(this.qaData.list);
+        async addFreeTextQuestion4Local(message, withHistory = true) {
+            let history = withHistory && chatUtil.buildHistories(this.qaData.list);
             //本地模式
             this.showInProgress({ showStopButton: true, inProgress: true });
             this.addQuestion(message)
@@ -292,7 +292,7 @@ export default {
             await chatUtil.sendApiRequest(message.value, {
                 conversationId: this.conversationId,
                 abortController: this.abortController,
-                history
+                history: history || []
             },
                 (progress) => {
                     this.addResponse(progress);
@@ -343,13 +343,13 @@ export default {
             //cacheHistories.put(this.conversationId, { q: value })
         },
         addResponse(message) {
-            //this.addResponseCore(message)
-            if (this.isVsCodeMode)
-                this.addResponseCore(message)
-            else {
-                this.message = message;
-                util.throttle(() => this.addResponseCore(this.message), 300)
-            }
+            this.addResponseCore(message)
+            // if (this.isVsCodeMode)
+            //     this.addResponseCore(message)
+            // else {
+            //     this.message = message;
+            //     util.throttle(() => this.addResponseCore(this.message), 300)
+            // }
         },
         addResponseCore(message) {
             const conversationId = message.conversationId ?? this.conversationId;
@@ -551,7 +551,7 @@ export default {
                     break;
                 case "chat_code":
                     this.conversationId = uuidv4()
-                    this.addFreeTextQuestion4Local(data);
+                    this.addFreeTextQuestion4Local(data, false);
 
                     // let { prompt, language, file } = data;
                     // let question = value
@@ -581,10 +581,30 @@ export default {
                             document.documentElement.removeAttribute('theme')
                         }
                     }
-                    handleThemeChange(value !== 'light');
+                    handleThemeChange(!(value || "").toLowerCase().includes("light"));
+                    break;
+                case "colorChanged":
+                    this.colorChangedHandler(value);
                     break;
                 default:
                     break;
+            }
+        },
+        colorChangedHandler(colorValue) {
+            try {
+                let { backColor, foreColor, borderColor } = JSON.parse(colorValue);
+                document.documentElement.style.setProperty(`--vscode-foreground`, foreColor);
+                document.documentElement.style.setProperty(`--vscode-editor-foreground`, foreColor);
+                document.documentElement.style.setProperty(`--vscode-button-secondaryForeground`, foreColor);
+                document.documentElement.style.setProperty(`--vscode-input-foreground`, foreColor);
+
+                document.documentElement.style.setProperty(`--vscode-editor-background`, backColor);
+                //document.documentElement.style.setProperty(`--vscode-input-background`, backColor);
+
+                document.documentElement.style.setProperty(`--vscode-input-border`, borderColor);
+
+            } catch (error) {
+
             }
         }
     },

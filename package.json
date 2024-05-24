@@ -12,6 +12,7 @@
   "dependencies": {
     "axios": "^1.6.8",
     "buffer": "^6.0.3",
+    "clipboard-polyfill": "^4.1.0",
     "element-plus": "^2.7.3",
     "eventsource-parser": "^1.1.2",
     "highlight.js": "^11.9.0",

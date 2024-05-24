@@ -7,22 +7,25 @@ export const ONLINE_CHAT_API = "http://ai.t.vtoone.com/api/v1/chat-messages";
 // 代码接口
 export const ONLINE_CODE_APIKEY = "app-HZSqJWyZI6xjqkbyXUIcLErR";
 export const ONLINE_CODE_API = "http://ai.t.vtoone.com/api/v1/completion-messages";
+//export const ONLINE_CODE_APIKEY = "app-app-OU5P1wr9ErUs0VBsuK5CBk5I";
+//export const ONLINE_CODE_API = "http://10.1.30.43:5001/v1/completion-messages";
 
 export default class ChatApi2 {
 
     constructor(options) {
-        let { abortSignal, timeoutMs = 40 * 1000, chatType = "chat" } = options;
+        let { abortSignal, abortController, timeoutMs = 60 * 1000, chatType = "chat" } = options;
 
-        let abortController = null;
         if (timeoutMs && !abortSignal) {
             abortController = new AbortController();
             abortSignal = abortController.signal;
         }
+        this.abortController = abortController;
         // 创建axios配置
         this.requestConfig = {
             method: 'post',
             timeout: timeoutMs,
             signal: abortSignal,
+            abortController,
             responseType: "stream",
             headers: this.getRequestHeader(chatType === "code"
                 ? ONLINE_CODE_APIKEY : ONLINE_CHAT_APIKEY)
@@ -38,8 +41,27 @@ export default class ChatApi2 {
             text: "",
             error: "",
         };
+        this.isDone = false;
     }
 
+    /**
+    * 取消请求
+    */
+    abort() {
+        try {
+            if (this.abortController) {
+                this.abortController?.abort();
+            }
+        } catch (error) {
+            console.error(error);
+        }
+        this.abortController = undefined;
+    }
+
+    /**
+     * 获取结果
+     * @returns 结果
+     */
     getCallBackResult() {
         return this.callBackResult || {};
     }
@@ -55,32 +77,44 @@ export default class ChatApi2 {
         data.requestId = this.callBackResult.id;
 
         //sse 解析器
-        const sseParser = this.createSseParser(onProgress, onDone);
+        const sseParser = this.createSseParser(onProgress, onDone, data);
+        let timoutTask;
         try {
-            let response = await fetch(url || this.apiUrl,
-                {
-                    body: this.getRequestDataJson(data),
-                    ...this.requestConfig
-                });
+            //超时处理
+            timoutTask = setTimeout(() => this.abort(), this.requestConfig.timeout);
+
+            let response = await fetch(url || this.apiUrl, {
+                body: this.getRequestDataJson(data),
+                ...this.requestConfig
+            });
 
             if (!response.ok) {
                 throw new Error(`无法连接到服务器：${response.status}-${response.statusText}`);
+            }
+
+            if (response.body === null) {
+                throw new Error(`响应response.body: 空`);
             }
 
             const textDecoder = response.body.pipeThrough(new TextDecoderStream()).getReader();
             while (true) {
                 const { done, value } = await textDecoder.read();
                 if (done) {
-                    //this.callBackResult.text = "";
-                    //onDone?.(this.callBackResult);
+                    this.isDone = true;
                     break;
                 }
                 sseParser.feed(value);
             }
+            if (!this.isDone) {
+                this.fireDone(onDone);
+            }
         } catch (error) {
-            this.callBackResult.error = "服务异常: " + error.message;
             console.log(error);
-            onDone?.(this.callBackResult);
+            this.callBackResult.error = "服务异常: " + error.message;
+            this.fireDone(onDone);
+        }
+        if (timoutTask) {
+            clearTimeout(timoutTask);
         }
     }
 
@@ -89,21 +123,32 @@ export default class ChatApi2 {
      * @param {进度} onProgress 
      * @returns 
      */
-    createSseParser(onProgress, onDone) {
+    createSseParser(onProgress, onDone, data) {
+        let notOnline = data && data.useOnline === false;
         return createParser((sseEvent) => {
             if (sseEvent.type !== 'event') {
                 return
             }
-            const { event, answer } = this.responseDataParser(sseEvent.data);
+            const { event, answer, message } = this.responseDataParser(sseEvent, !notOnline);
+            //console.log("SseParser-> " + event + ":" + answer);
             if (event === 'message') {
                 this.callBackResult.text = answer;
                 onProgress?.(this.callBackResult);
             } else if (event === "message_end") {
-                this.callBackResult.text = "";
-                onDone?.(this.callBackResult);
+                console.log("SseParser-> message_end");
+                this.fireDone(onDone);
+            } else if (event === "error") {
+                console.log("SseParser->error--->: " + message);
+                this.callBackResult.error = message;
+                this.fireDone(onDone);
             }
-            //console.log(sseEvent.type + ":" + sseEvent.data);
         });
+    }
+
+    fireDone(onDone) {
+        this.callBackResult.text = "";
+        this.isDone = true;
+        onDone?.(this.callBackResult);
     }
 
     /**
@@ -111,13 +156,17 @@ export default class ChatApi2 {
      * @param {响应数据} data 
      * @returns 
      */
-    responseDataParser(data) {
-        try {
-            return JSON.parse(data);
+    responseDataParser(sseEvent, useOnline) {
+        if (useOnline) {
+            try {
+                return JSON.parse(sseEvent.data);
+            }
+            catch (error) {
+                console.error(error);
+            }
+            return;
         }
-        catch (error) {
-            console.error(error);
-        }
+        return { event: sseEvent.event, answer: sseEvent.data, message: sseEvent.data };
     }
 
     /**
@@ -140,6 +189,10 @@ export default class ChatApi2 {
      * @returns 
      */
     getRequestData(originData) {
+        if (!originData.useOnline) {
+            return originData;
+        }
+
         let { chatType, lang, prompt, history, prefixCode, suffixCode, max_length } = originData;
         let query = {
             "response_mode": "streaming",
@@ -168,7 +221,7 @@ export default class ChatApi2 {
     /**
      * 组装历史
      * @param {历史集合} histories [[]...]
-     * @param {*} messages 
+     * @param {*} promptMessages 
      */
     buildHistory(histories, promptMessages) {
         histories && histories.forEach(history => {

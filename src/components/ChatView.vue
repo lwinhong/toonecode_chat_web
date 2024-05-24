@@ -43,16 +43,16 @@
             <template v-for="(message, index) in qaData.list" :key="index">
                 <!-- 问题 -->
                 <div class="chat-card-bg">
-                    <div class="p-4 self-end question-element-ext relative chat-card-content-bg">
+                    <div class="p-2 self-end question-element-ext relative chat-card-content-bg">
                         <h2 class="mb-5 flex" data-license="isc-gnc">
                             <IconUserSvg />你
                         </h2>
-                        <div class="mb-2 flex items-center" data-license="isc-gnc">
+                        <!-- <div class="mb-2 flex items-center" data-license="isc-gnc">
                             <button title="编辑并重新提问" @click="onResendClick(message)"
                                 class="resend-element-ext p-1.5 flex items-center rounded-lg absolute right-6 top-6">
                                 <IconPencilSvg />
                             </button>
-                            <!-- <div class="send-cancel-elements-ext flex gap-2" v-show="resenEditdVisible">
+                            <div class="send-cancel-elements-ext flex gap-2" v-show="resenEditdVisible">
                                 <button title="发送这个提示" class="send-element-ext p-1 pr-2 flex items-center"
                                     @click="onResendSendClick(message.question)">
                                     <IconSendSvg />&nbsp;发送
@@ -61,8 +61,8 @@
                                     class="cancel-element-ext p-1 pr-2 flex items-center">
                                     <IconCancelSvg />&nbsp;取消
                                 </button>
-                            </div> -->
-                        </div>
+                            </div>
+                        </div> -->
                         <!-- <div class="overflow-y-auto">{{ message.question }}</div> -->
                         <div class="overflow-y-auto" v-html="message.question"></div>
                     </div>
@@ -70,7 +70,7 @@
                 <!--回答-->
                 <div class="chat-card-bg">
                     <div v-if="message.answer" data-license="isc-gnc"
-                        class="p-4 self-end answer-element-ext chat-card-content-bg">
+                        class="p-2 self-end answer-element-ext chat-card-content-bg">
                         <h2 class="mb-5 flex">
                             <IconAiSvg />AI
                         </h2>
@@ -167,7 +167,7 @@
     </div>
 </template>
 <script>
-
+import * as clipboard from "clipboard-polyfill";
 import { v4 as uuidv4 } from "uuid";
 import { util, clipboardSvg, plusSvg, insertSvg, checkSvg } from "../util/index"
 import { chatUtil } from "../util/chatUtil"
@@ -192,7 +192,7 @@ export default {
             currentViewType: viewType.introduction,
             isInProgress: false,
             qaData: { list: [] },
-            questionInput: "随机生成一个python函数",
+            questionInput: "",
             questionInputDisabled: false,
             showStopButton: false,
             questionInputButtonsVisible: true,
@@ -244,7 +244,7 @@ export default {
         },
         onResendClick(message) {
             this.resenEditdVisible = true;
-            this.questionInput = message.question;
+            this.questionInput = message.originQuestion;
             this.questionInputRef?.focus();
         },
         onQuestionKeyEnter(e) {
@@ -262,6 +262,7 @@ export default {
          */
         async addFreeTextQuestion() {
             const input = this.questionInput;
+            this.questionInput = "";
             try {
                 if ((input || "").length === 0) {
                     return;
@@ -280,7 +281,6 @@ export default {
             } catch (error) {
                 console.error(error);
             }
-            this.questionInput = "";
         },
         async addFreeTextQuestion4Local(message, withHistory = true) {
             let history = withHistory && chatUtil.buildHistories(this.qaData.list);
@@ -339,8 +339,7 @@ export default {
                 originAnswer: "",
                 done: false
             });
-            util.autoScrollToBottom(this.qaElementList);
-            //cacheHistories.put(this.conversationId, { q: value })
+            setTimeout(() => { util.autoScrollToBottom(this.qaElementList); }, 100);
         },
         addResponse(message) {
             this.addResponseCore(message)
@@ -367,7 +366,6 @@ export default {
                 updatedValue = existingMessageData.originAnswer.split("```").length % 2 === 1
                     ? existingMessageData.originAnswer : existingMessageData.originAnswer + "\n\n```\n\n";
             }
-
             const markedResponse = util.markedParser(updatedValue);
             existingMessageData.answer = markedResponse
             if (message.done) {
@@ -453,7 +451,8 @@ export default {
             }
             if (targetButton?.classList?.contains("code-element-ext")) {
                 e.preventDefault();
-                navigator.clipboard.writeText(targetButton.parentElement.parentElement?.firstElementChild?.textContent).then(() => {
+
+                clipboard.writeText(targetButton.parentElement.parentElement?.firstElementChild?.textContent).then(() => {
                     targetButton.innerHTML = `${checkSvg} 已复制`;
                     setTimeout(() => {
                         targetButton.innerHTML = `${clipboardSvg} 复制`;
@@ -528,6 +527,7 @@ export default {
                     // input.value = message.text;
                     break;
                 case "chat_code":
+                case "ask":
                     message.cmd = message.type;
                     this.busEventHandler(message);
                     break;
@@ -552,24 +552,6 @@ export default {
                 case "chat_code":
                     this.conversationId = uuidv4()
                     this.addFreeTextQuestion4Local(data, false);
-
-                    // let { prompt, language, file } = data;
-                    // let question = value
-                    // let questionPrompt = value
-                    // if (prompt && value) {
-                    //     language = language || getLanguageExtByFilePath(file);
-                    //     question = "```" + language + "\r\n" + value + "\n\n```\n\n" + prompt;
-                    //     questionPrompt = value + "\n" + prompt_suffix + "\n";
-                    // }
-                    // this.questionInput = question;
-
-                    // if (!this.isInProgress && value) {
-                    //     this.conversationId = uuidv4()
-                    //     await this.addFreeTextQuestion4Local({
-                    //         value: question, conversationId: this.conversationId
-                    //     });
-                    //     this.questionInput = "";
-                    // }
                     break;
                 case "selectedText":
                     break;
@@ -618,6 +600,9 @@ export default {
         //     return;
         this.$bus.off("executeCmd", this.busEventHandler)
         this.$bus.on("executeCmd", this.busEventHandler)
+        if (import.meta.env.MODE !== 'production') {
+            this.questionInput = "生成一个python排序算法"
+        }
     }
 }
 </script>

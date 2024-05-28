@@ -12,9 +12,10 @@
                     </svg>
                     <h2>特性</h2>
                     <ul class="flex flex-col gap-3.5 text-xs">
-                        <li class="features-li w-full border border-zinc-700 p-3 rounded-md">改进你的代码，添加测试并发现bug</li>
+                        <li class="features-li w-full border border-zinc-700 p-3 rounded-md">改进你的代码，生成测试</li>
+                        <li class="features-li w-full border border-zinc-700 p-3 rounded-md">解析和注释代码</li>
                         <li class="features-li w-full border border-zinc-700 p-3 rounded-md">自动复制或创建新文件</li>
-                        <li class="features-li w-full border border-zinc-700 p-3 rounded-md">语法高亮与自动语言检测</li>
+                        <!--<li class="features-li w-full border border-zinc-700 p-3 rounded-md">语法高亮与自动语言检测</li>-->
                     </ul>
                 </div>
             </div>
@@ -72,7 +73,7 @@
                     <div v-if="message.answer" data-license="isc-gnc"
                         class="p-2 self-end answer-element-ext chat-card-content-bg">
                         <h2 class="mb-5 flex">
-                            <IconAiSvg />AI
+                            <IconAiSvg style="margin-right: 0.5rem;"/>TooneCode
                         </h2>
                         <div :class="{ 'result-streaming': message.done !== true }" @id="message.conversationId"
                             v-html="message.answer">
@@ -146,7 +147,7 @@
             <div id="question-input-buttons" class="p-0.5 flex  gap-2 send-erea-items-center"
                 v-show="questionInputButtonsVisible">
                 <button id="more-button" title="More actions" class="rounded-lg p-0.5" data-license="isc-gnc"
-                    @click="questionInputButtonsMoreVisible = true">
+                    @click="questionInputButtonsMoreVisible = true" ref="questionInputButtonsMore">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="w-5 h-5">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -197,6 +198,7 @@ export default {
             showStopButton: false,
             questionInputButtonsVisible: true,
             questionInputButtonsMoreVisible: false,
+            serverConversationId: "" //和服务器通讯的对话结果id，又服务器返回，用于定位这次对话的标识，可以不用传历史。新聊天的时候记得清空它
         }
     },
     computed: {
@@ -213,34 +215,36 @@ export default {
     setup() {
         let qaElementList = ref();
         let questionInputRef = ref();
-        return { qaElementList, questionInputRef }
+        let questionInputButtonsMore = ref();
+        return { qaElementList, questionInputRef, questionInputButtonsMore }
     },
     methods: {
         onClearClick() {
             this.qaData.list = [];
-            this.currentViewType = viewType.introduction;
+            this.serverConversationId = "",
+                this.currentViewType = viewType.introduction;
             util.postMessageToCodeEditor({
                 type: "clearConversation"
             })
         },
         onStopClick(e) {
             e.preventDefault();
-            const result = util.postMessageToCodeEditor({
-                type: "stopGenerating",
-            });
-            if (result !== true) {
-                //本地模式
-                this.abortController?.abort();
-                this.showInProgress({ inProgress: false });
-                let existingMessageData = this.qaData.list.find(f => f.conversationId === this.conversationId);
-                if (!existingMessageData && this.qaData.list.length > 0) {
-                    existingMessageData = this.qaData.list[this.qaData.list.length - 1]
-                }
-                this.addResponse({
-                    value: existingMessageData.answer,
-                    done: true, id: existingMessageData?.id ?? this.conversationId, autoScroll: true, responseInMarkdown: true
-                });
+            // const result = util.postMessageToCodeEditor({
+            //     type: "stopGenerating",
+            // });
+            // if (result !== true) {
+            //本地模式
+            this.abortController?.abort();
+            this.showInProgress({ inProgress: false });
+            let existData = this.qaData.list.find(f => f.conversationId === this.conversationId);
+            if (!existData && this.qaData.list.length > 0) {
+                existData = this.qaData.list[this.qaData.list.length - 1]
             }
+            this.addResponse({
+                value: existData.answer,
+                done: true, id: existData?.id ?? this.conversationId, autoScroll: true, responseInMarkdown: true
+            });
+            // }
         },
         onResendClick(message) {
             this.resenEditdVisible = true;
@@ -291,6 +295,7 @@ export default {
             this.abortController = new AbortController();
             await chatUtil.sendApiRequest(message.value, {
                 conversationId: this.conversationId,
+                serverConversationId: this.serverConversationId,
                 abortController: this.abortController,
                 history: history || []
             },
@@ -359,6 +364,7 @@ export default {
             if (!existingMessageData) {
                 return;
             }
+            this.serverConversationId = message.serverConversationId;
             existingMessageData.originAnswer += message.value;
             let updatedValue = "";
             if (!message.responseInMarkdown) {
@@ -499,6 +505,8 @@ export default {
                     util.postMessageToCodeEditor(data);
                 return;
             }
+            if (targetButton !== this.questionInputButtonsMore)
+                this.questionInputButtonsMoreVisible = false;
         },
         messageHandler(event) {
             const message = event.data;

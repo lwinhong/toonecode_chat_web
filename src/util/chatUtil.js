@@ -10,30 +10,34 @@ export const chatUtil = {
             // The AI is still thinking... Do not accept more questions.
             return;
         }
-        let { conversationId, abortController, history } = options || {};
+        let { conversationId, abortController, history, serverConversationId } = options || {};
         let question = chatUtil.processQuestion(prompt);
 
         this.inProgress = true;
         if (!abortController)
             abortController = new AbortController();
 
-        this.currentMessageId = uuidv4();
+        //this.currentMessageId = uuidv4();
         let err;
         let responseResult = {
             type: 'addResponse', value: "", conversationId, done: false,
-            currentMessageId: this.currentMessageId, autoScroll: true, responseInMarkdown: true,
-            history: []
+            //currentMessageId: this.currentMessageId, 
+            autoScroll: true, responseInMarkdown: true,
+            serverConversationId,
+            //history: []
         }
 
         try {
             await chatUtil.sendMessage(question, {
                 messageId: conversationId,
+                serverConversationId,
                 abortSignal: abortController.signal,
                 stream: true,
                 chatType: "chat",
                 history,
                 onProgress: (message) => {
                     try {
+                        responseResult.serverConversationId = message.serverConversationId;
                         responseResult.value = message.text;
                         onProgress?.(responseResult);
                     } catch (error) {
@@ -83,9 +87,8 @@ export const chatUtil = {
     async buildMessages(text, opts) {
         const { chatType = "chat", lang } = opts;
         return {
-            lang, chatType,
-            "prompt": text,
-            stream: true,
+            lang, chatType, "prompt": text, stream: true,
+            serverConversationId: opts.serverConversationId,
             history: opts.history || []
         };
     },

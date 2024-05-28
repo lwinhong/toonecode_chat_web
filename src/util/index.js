@@ -41,7 +41,7 @@ export const util = {
         return unsafe;
     },
     autoScrollToBottom(element) {
-        element?.scrollTo?.({ behavior: "smooth", top: element.scrollHeight });
+        element?.scrollTo?.({ behavior: "smooth", block: 'nearest'/*, top: element.scrollHeight */});  
         // if (element)
         //     element.scrollTop = element.scrollHeight
     },

@@ -13,7 +13,7 @@ export const ONLINE_CODE_API = "http://ai.t.vtoone.com/api/v1/completion-message
 export default class ChatApi2 {
 
     constructor(options) {
-        let { abortSignal, abortController, timeoutMs = 60 * 1000, chatType = "chat" } = options;
+        let { abortSignal, abortController, timeoutMs = 60 * 1000, chatType = "chat", serverConversationId = "" } = options;
 
         if (timeoutMs && !abortSignal) {
             abortController = new AbortController();
@@ -38,9 +38,12 @@ export default class ChatApi2 {
         this.callBackResult = {
             role: "assistant",
             id: uuidv4(),
+            serverConversationId,
+            serverTaskId: "",
             text: "",
             error: "",
         };
+        this.serverConversationId = serverConversationId;
         this.isDone = false;
     }
 
@@ -129,8 +132,9 @@ export default class ChatApi2 {
             if (sseEvent.type !== 'event') {
                 return
             }
-            const { event, answer, message } = this.responseDataParser(sseEvent, !notOnline);
+            const { event, answer, message, conversation_id, task_id } = this.responseDataParser(sseEvent, !notOnline);
             //console.log("SseParser-> " + event + ":" + answer);
+            this.callBackResult.serverConversationId = conversation_id;
             if (event === 'message') {
                 this.callBackResult.text = answer;
                 onProgress?.(this.callBackResult);
@@ -193,7 +197,7 @@ export default class ChatApi2 {
             return originData;
         }
 
-        let { chatType, lang, prompt, history, prefixCode, suffixCode, max_length } = originData;
+        let { chatType, lang, prompt, history, prefixCode, suffixCode, max_length, serverConversationId } = originData;
         let query = {
             "response_mode": "streaming",
             "conversation_id": "",
@@ -202,14 +206,16 @@ export default class ChatApi2 {
         if (chatType === "code") {
             query.inputs = { "prefix_code": prefixCode, "suffix_code": suffixCode, max_length };
         } else if (chatType === "chat") {
+            query.conversation_id = serverConversationId;
             query.inputs = {};
-            let promptMessages = query.query = [];
+            query.query = prompt;
+            // let promptMessages = query.query = [];
 
-            promptMessages.push(
-                { role: "system", content: 'You are a helpful assistant. 请用中文回答，你的名字叫"同望编码助手"。' },
-            );
-            this.buildHistory(history, promptMessages);
-            promptMessages.push({ role: "user", content: prompt });
+            // // promptMessages.push(
+            // //     { role: "system", content: 'You are a helpful assistant. 请用中文回答，你的名字叫"同望编码助手"。' },
+            // // );
+            // this.buildHistory(history, promptMessages);
+            // promptMessages.push({ role: "user", content: prompt });
         }
         return query;
     }

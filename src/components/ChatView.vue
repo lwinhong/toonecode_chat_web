@@ -315,10 +315,10 @@ export default {
         addQuestion(message) {
             this.currentViewType = viewType.qa;
             this.conversationId = message.conversationId ?? uuidv4();
-            let { prompt, language, filePath, value } = message;
+            let { prompt, language, filePath, value, isMarked } = message;
             let question = value;
             let marked = false;
-            if (prompt && value) {
+            if (!isMarked && prompt && value) {
 
                 language = language || getLanguageExtByFilePath(filePath);
                 value = "```" + language + "\r\n" + value + "\n\n```\n\n" + prompt;
@@ -327,7 +327,7 @@ export default {
                 message.value = value + "\n" + prompt + "\n";
             }
             question = util.escapeHtml(value)
-            if (marked) {
+            if (isMarked || marked) {
                 question = util.markedParser(question)
             }
             this.qaData.list.push({
@@ -337,6 +337,7 @@ export default {
                 answer: "",
                 error: "",
                 originAnswer: "",
+                answer: " ",
                 done: false
             });
             setTimeout(() => { util.autoScrollToBottom(this.qaElementList); }, 100);
@@ -420,7 +421,7 @@ export default {
                     this.questionInputRef?.focus();
                 }, 100);
             }
-            if (message.autoScroll /*&& (message.done || markedResponse.endsWith("\n"))*/) {
+            if (message.autoScroll && (message.done || markedResponse.endsWith("\n"))) {
                 util.autoScrollToBottom(list);
             }
         },
@@ -547,7 +548,6 @@ export default {
                     this.questionInput = value;
                     if (!this.isInProgress && value)
                         this.onAskButtonClick();
-
                     break;
                 case "chat_code":
                     this.conversationId = uuidv4()

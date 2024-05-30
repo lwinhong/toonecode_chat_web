@@ -73,9 +73,9 @@
                     <div v-if="message.answer" data-license="isc-gnc"
                         class="p-2 self-end answer-element-ext chat-card-content-bg">
                         <h2 class="mb-5 flex">
-                            <IconAiSvg style="margin-right: 0.5rem;"/>TooneCode
+                            <IconAiSvg style="margin-right: 0.5rem;" />TooneCode
                         </h2>
-                        <div :class="{ 'result-streaming': message.done !== true }" @id="message.conversationId"
+                        <div :class="{ 'result-streaming': message.done !== true }" @id="message.qaId"
                             v-html="message.answer">
                         </div>
                         <div></div>
@@ -198,7 +198,7 @@ export default {
             showStopButton: false,
             questionInputButtonsVisible: true,
             questionInputButtonsMoreVisible: false,
-            serverConversationId: "" //和服务器通讯的对话结果id，又服务器返回，用于定位这次对话的标识，可以不用传历史。新聊天的时候记得清空它
+            //serverConversationId: "" //和服务器通讯的对话结果id，又服务器返回，用于定位这次对话的标识，可以不用传历史。新聊天的时候记得清空它
         }
     },
     computed: {
@@ -221,29 +221,34 @@ export default {
     methods: {
         onClearClick() {
             this.qaData.list = [];
-            this.serverConversationId = "",
-                this.currentViewType = viewType.introduction;
-            util.postMessageToCodeEditor({
-                type: "clearConversation"
-            })
+            this.serverConversationId = "";
+            this.currentViewType = viewType.introduction;
         },
-        onStopClick(e) {
-            e.preventDefault();
-            // const result = util.postMessageToCodeEditor({
-            //     type: "stopGenerating",
-            // });
-            // if (result !== true) {
+        async onStopClick(e) {
+            e?.preventDefault();
+            if (!this.isInProgress) {
+                return;
+            }
+            await chatUtil.stopConversation({ taskId: this.lastServerMessage?.serverTaskId ?? "" });
+            try {
+                this.abortController?.abort();
+            } catch (error) {
+                console.log(error);
+            }
             //本地模式
-            this.abortController?.abort();
-            this.showInProgress({ inProgress: false });
-            let existData = this.qaData.list.find(f => f.conversationId === this.conversationId);
+            await this.showInProgress({ inProgress: false });
+
+            let existData = this.qaData.list.find(f => f.qaId === this.qaId);
             if (!existData && this.qaData.list.length > 0) {
                 existData = this.qaData.list[this.qaData.list.length - 1]
             }
-            this.addResponse({
-                value: existData.answer,
-                done: true, id: existData?.id ?? this.conversationId, autoScroll: true, responseInMarkdown: true
-            });
+            if (existData) {
+                this.addResponse({
+                    value: existData.answer,
+                    done: true, id: existData?.id ?? this.qaId, autoScroll: true, responseInMarkdown: true,
+                    isStop: true
+                });
+            }
             // }
         },
         onResendClick(message) {
@@ -271,56 +276,63 @@ export default {
                 if ((input || "").length === 0) {
                     return;
                 }
-                this.conversationId = uuidv4()
-                //请求到vscode的api来返回数据
-                // const result = util.postMessageToCodeEditor({
-                //     type: "addFreeTextQuestion",
-                //     value: input,
-                //     conversationId: this.conversationId
-                // });
-                // if (result !== true) {
+                this.qaId = uuidv4()
                 //本地模式，直接请求api
-                await this.addFreeTextQuestion4Local({ value: input, conversationId: this.conversationId })
-                //}
+                this.addFreeTextQuestion4Local({ value: input, qaId: this.qaId }).catch(error => {
+                    console.error(error);
+                });
+
             } catch (error) {
                 console.error(error);
             }
         },
+        //本地模式
         async addFreeTextQuestion4Local(message, withHistory = true) {
-            let history = withHistory && chatUtil.buildHistories(this.qaData.list);
-            //本地模式
-            this.showInProgress({ showStopButton: true, inProgress: true });
+
+            await this.showInProgress({ showStopButton: true, inProgress: true });
+
             this.addQuestion(message)
             this.abortController?.abort();
             this.abortController = new AbortController();
+            let history = withHistory && chatUtil.buildHistories(this.qaData.list);
             await chatUtil.sendApiRequest(message.value, {
-                conversationId: this.conversationId,
-                serverConversationId: this.serverConversationId,
+                qaId: this.qaId,
+                serverConversationId: this.lastServerMessage?.serverConversationId,
                 abortController: this.abortController,
                 history: history || []
-            },
-                (progress) => {
-                    this.addResponse(progress);
-                },
-                (done) => {
-                    this.addResponse(done)
-                    this.isInProgress = false;
-                });
-
+            }, (progress) => {
+                this.addResponse(progress);
+            }, (done) => {
+                this.addResponse(done)
+                this.isInProgress = false;
+            });
         },
-        showInProgress(message) {
-            this.showStopButton = message.showStopButton ? true : false;
-            this.isInProgress = message.inProgress;
-            this.questionInputDisabled = message.inProgress;
-            this.questionInputButtonsVisible = !message.inProgress;
-            if (!message.inProgress) {
-                this.conversationId = ""
+        async showInProgress(message) {
+            //     return new Promise((resolve) => {
+            try {
+                this.showStopButton = message.showStopButton ? true : false;
+                this.isInProgress = message.inProgress;
+                this.questionInputDisabled = message.inProgress;
+                this.questionInputButtonsVisible = !message.inProgress;
+                if (!message.inProgress) {
+                    this.qaId = ""
+                }
+                console.log("showInProgress:" + message.inProgress)
+            } catch (error) {
+                console.log(error);
             }
+
+            //     setTimeout(() => {
+            //         resolve();
+            //     }, 100);
+            // })
+
         },
         addQuestion(message) {
             this.currentViewType = viewType.qa;
-            this.conversationId = message.conversationId ?? uuidv4();
+            this.qaId = message.qaId ?? uuidv4();
             let { prompt, language, filePath, value, isMarked } = message;
+
             let question = value;
             let marked = false;
             if (!isMarked && prompt && value) {
@@ -338,11 +350,11 @@ export default {
             this.qaData.list.push({
                 question,
                 originQuestion: value,
-                conversationId: this.conversationId,
+                qaId: this.qaId,
                 answer: "",
                 error: "",
                 originAnswer: "",
-                answer: " ",
+                answer: "",
                 done: false
             });
             setTimeout(() => { util.autoScrollToBottom(this.qaElementList); }, 100);
@@ -357,30 +369,31 @@ export default {
             // }
         },
         addResponseCore(message) {
-            const conversationId = message.conversationId ?? this.conversationId;
+            const qaId = message.qaId ?? this.qaId;
             const list = this.qaElementList;
-            //let existingMessage = document.getElementById(message.id);
-            let existingMessageData = this.qaData.list.find(f => f.conversationId === conversationId);
-            if (!existingMessageData) {
+
+            this.lastServerMessage = message.serverMessage;
+            let existQA = this.qaData.list.find(f => f.qaId === qaId);
+            if (!existQA) {
                 return;
             }
-            this.serverConversationId = message.serverConversationId;
-            existingMessageData.originAnswer += message.value;
+
+            existQA.originAnswer += message.value;
             let updatedValue = "";
             if (!message.responseInMarkdown) {
-                updatedValue = "```\r\n" + util.unEscapeHtml(existingMessageData.originAnswer) + " \r\n ```";
+                updatedValue = "```\r\n" + util.unEscapeHtml(existQA.originAnswer) + " \r\n ```";
             } else {
-                updatedValue = existingMessageData.originAnswer.split("```").length % 2 === 1
-                    ? existingMessageData.originAnswer : existingMessageData.originAnswer + "\n\n```\n\n";
+                updatedValue = existQA.originAnswer.split("```").length % 2 === 1
+                    ? existQA.originAnswer : existQA.originAnswer + "\n\n```\n\n";
             }
             const markedResponse = util.markedParser(updatedValue);
-            existingMessageData.answer = markedResponse
+            existQA.answer = markedResponse
             if (message.done) {
-                existingMessageData.done = true;
-                this.conversationId = "";
+                existQA.done = true;
+                this.qaId = "";
                 this.message = null;
-                this.showInProgress({ inProgress: false })
-                setTimeout(() => {
+
+                const buildCodeButton = () => {
                     const preCodeList = list.children[list.children.length - 1].querySelectorAll("pre > code");
                     preCodeList.forEach((preCode) => {
                         preCode.classList.add("input-background", "p-4", "pb-2", "block", "whitespace-pre", "overflow-x-scroll");
@@ -425,15 +438,22 @@ export default {
                     });
                     util.autoScrollToBottom(list);
                     this.questionInputRef?.focus();
-                }, 100);
+                };
+
+                if (!message.isStop) {
+                    buildCodeButton();
+                    this.showInProgress({ inProgress: false })
+                } else {
+                    setTimeout(buildCodeButton, 100);
+                }
             }
             if (message.autoScroll && (message.done || markedResponse.endsWith("\n"))) {
                 util.autoScrollToBottom(list);
             }
         },
         addError(message) {
-            const conversationId = message.conversationId ?? this.conversationId;
-            let exist = this.qaData.list.find(f => f.conversationId === conversationId);
+            const qaId = message.qaId ?? this.qaId;
+            let exist = this.qaData.list.find(f => f.qaId === qaId);
             if (!exist) {
                 return;
             }
@@ -558,7 +578,8 @@ export default {
                         this.onAskButtonClick();
                     break;
                 case "chat_code":
-                    this.conversationId = uuidv4()
+                    await this.onStopClick();
+                    this.qaId = uuidv4()
                     this.addFreeTextQuestion4Local(data, false);
                     break;
                 case "selectedText":

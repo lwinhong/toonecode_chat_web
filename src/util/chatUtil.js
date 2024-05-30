@@ -1,35 +1,27 @@
 import { v4 as uuidv4 } from "uuid";
-import ChatApi2 from "./chat-api2";
+import { ChatApi2, StopChatApi } from "./chat-api2";
 import ChatApi from "../util/chat-api-bak.js"
 const historyCount = 3;
 
 export const chatUtil = {
     async sendApiRequest(prompt, options, onProgress, onDone, onError) {
 
-        if (this.inProgress) {
-            // The AI is still thinking... Do not accept more questions.
-            return;
-        }
-        let { conversationId, abortController, history, serverConversationId } = options || {};
+        this.abortController?.abort();
+        let { qaId, abortController, history, serverConversationId } = options || {};
         let question = chatUtil.processQuestion(prompt);
 
-        this.inProgress = true;
         if (!abortController)
-            abortController = new AbortController();
+            this.abortController = abortController = new AbortController();
 
-        //this.currentMessageId = uuidv4();
         let err;
         let responseResult = {
-            type: 'addResponse', value: "", conversationId, done: false,
-            //currentMessageId: this.currentMessageId, 
+            type: 'addResponse', value: "", qaId, done: false, 
             autoScroll: true, responseInMarkdown: true,
-            serverConversationId,
-            //history: []
         }
 
         try {
             await chatUtil.sendMessage(question, {
-                messageId: conversationId,
+                messageId: qaId,
                 serverConversationId,
                 abortSignal: abortController.signal,
                 stream: true,
@@ -37,7 +29,7 @@ export const chatUtil = {
                 history,
                 onProgress: (message) => {
                     try {
-                        responseResult.serverConversationId = message.serverConversationId;
+                        responseResult.serverMessage = message;
                         responseResult.value = message.text;
                         onProgress?.(responseResult);
                     } catch (error) {
@@ -46,15 +38,16 @@ export const chatUtil = {
                     }
                 },
                 onDone: (message) => {
-                    this.inProgress = false;
+                    //this.inProgress = false;
                     try {
+                        responseResult.serverMessage = message;
                         responseResult.value = message.text;
                         responseResult.done = true;
                         onDone?.(responseResult);
                     } catch (error) {
                         console.error(error);
                     }
-                    this.inProgress = false;
+                    //this.inProgress = false;
                 }
             });
             return;
@@ -64,9 +57,10 @@ export const chatUtil = {
             console.error(error);
         }
 
+        this.abortController = null;
         //没有接口，这里也可以发送一下消息过去
         // ****
-        this.inProgress = false;
+        //this.inProgress = false;
         onError?.(err ?? "没有api");
         responseResult.done = true;
         onDone?.(responseResult);
@@ -191,4 +185,13 @@ export const chatUtil = {
         responseResult.done = true;
         onDone?.(responseResult);
     },
+
+    stopConversation(options) {
+        const { taskId } = options || {};
+        if (!taskId)
+            return;
+
+        const stop = new StopChatApi(options);
+        return stop.stop();
+    }
 }

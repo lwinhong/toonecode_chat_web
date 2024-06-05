@@ -68,7 +68,7 @@
                         <div class="overflow-y-auto" v-html="message.question"></div>
                     </div>
                 </div>
-                <!--回答-->
+                <!-- 回答 -->
                 <div class="chat-card-bg">
                     <div v-if="message.answer" data-license="isc-gnc"
                         class="p-2 self-end answer-element-ext chat-card-content-bg">
@@ -78,7 +78,31 @@
                         <div :class="{ 'result-streaming': message.done !== true }" @id="message.qaId"
                             v-html="message.answer">
                         </div>
-                        <div></div>
+                        <!-- 反馈-->
+                        <div class="code-chat-box-like-wrapper" v-if="message.done">
+                            <div class="rating-panel">
+                                <button class="btn-like" title="赞" @click="onLikeClick(message)">
+                                    <span role="img" aria-label="like" size="12" class="anticon">
+                                        <svg viewBox="64 64 896 896" focusable="false" data-icon="like" width="1em"
+                                            height="1em" fill="currentColor" aria-hidden="true">
+                                            <path
+                                                d="M885.9 533.7c16.8-22.2 26.1-49.4 26.1-77.7 0-44.9-25.1-87.4-65.5-111.1a67.67 67.67 0 00-34.3-9.3H572.4l6-122.9c1.4-29.7-9.1-57.9-29.5-79.4A106.62 106.62 0 00471 99.9c-52 0-98 35-111.8 85.1l-85.9 311H144c-17.7 0-32 14.3-32 32v364c0 17.7 14.3 32 32 32h601.3c9.2 0 18.2-1.8 26.5-5.4 47.6-20.3 78.3-66.8 78.3-118.4 0-12.6-1.8-25-5.4-37 16.8-22.2 26.1-49.4 26.1-77.7 0-12.6-1.8-25-5.4-37 16.8-22.2 26.1-49.4 26.1-77.7-.2-12.6-2-25.1-5.6-37.1zM184 852V568h81v284h-81zm636.4-353l-21.9 19 13.9 25.4a56.2 56.2 0 016.9 27.3c0 16.5-7.2 32.2-19.6 43l-21.9 19 13.9 25.4a56.2 56.2 0 016.9 27.3c0 16.5-7.2 32.2-19.6 43l-21.9 19 13.9 25.4a56.2 56.2 0 016.9 27.3c0 22.4-13.2 42.6-33.6 51.8H329V564.8l99.5-360.5a44.1 44.1 0 0142.2-32.3c7.6 0 15.1 2.2 21.1 6.7 9.9 7.4 15.2 18.6 14.6 30.5l-9.6 198.4h314.4C829 418.5 840 436.9 840 456c0 16.5-7.2 32.1-19.6 43z">
+                                            </path>
+                                        </svg>
+                                    </span>
+                                </button>
+                                <button class="btn-dislike" title="踩" @click="onDislikeClick(message)">
+                                    <span role="img" aria-label="dislike" size="12" class="anticon">
+                                        <svg viewBox="64 64 896 896" focusable="false" data-icon="dislike" width="1em"
+                                            height="1em" fill="currentColor" aria-hidden="true">
+                                            <path
+                                                d="M885.9 490.3c3.6-12 5.4-24.4 5.4-37 0-28.3-9.3-55.5-26.1-77.7 3.6-12 5.4-24.4 5.4-37 0-28.3-9.3-55.5-26.1-77.7 3.6-12 5.4-24.4 5.4-37 0-51.6-30.7-98.1-78.3-118.4a66.1 66.1 0 00-26.5-5.4H144c-17.7 0-32 14.3-32 32v364c0 17.7 14.3 32 32 32h129.3l85.8 310.8C372.9 889 418.9 924 470.9 924c29.7 0 57.4-11.8 77.9-33.4 20.5-21.5 31-49.7 29.5-79.4l-6-122.9h239.9c12.1 0 23.9-3.2 34.3-9.3 40.4-23.5 65.5-66.1 65.5-111 0-28.3-9.3-55.5-26.1-77.7zM184 456V172h81v284h-81zm627.2 160.4H496.8l9.6 198.4c.6 11.9-4.7 23.1-14.6 30.5-6.1 4.5-13.6 6.8-21.1 6.7a44.28 44.28 0 01-42.2-32.3L329 459.2V172h415.4a56.85 56.85 0 0133.6 51.8c0 9.7-2.3 18.9-6.9 27.3l-13.9 25.4 21.9 19a56.76 56.76 0 0119.6 43c0 9.7-2.3 18.9-6.9 27.3l-13.9 25.4 21.9 19a56.76 56.76 0 0119.6 43c0 9.7-2.3 18.9-6.9 27.3l-14 25.5 21.9 19a56.76 56.76 0 0119.6 43c0 19.1-11 37.5-28.8 48.4z">
+                                            </path>
+                                        </svg>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     <div v-if="message.error" class="p-4 self-end mt-4 pb-8 error-element-ext" data-license="isc-gnc">
                         <h2 class="mb-5 flex">
@@ -86,9 +110,10 @@
                         </h2>
                         <div class="text-red-400">{{ message.error }}</div>
                     </div>
-                </div>
-            </template>
 
+                </div>
+
+            </template>
         </div>
 
         <!-- <div class="flex-1 overflow-y-auto hidden" id="conversation-list" data-license="isc-gnc" v-show="isQAMode">
@@ -170,7 +195,7 @@
 <script>
 import * as clipboard from "clipboard-polyfill";
 import { v4 as uuidv4 } from "uuid";
-import { util, clipboardSvg, plusSvg, insertSvg, checkSvg } from "../util/index"
+import { util, clipboardSvg, checkSvg } from "../util/index"
 import { chatUtil } from "../util/chatUtil"
 import IconUserSvg from "./icons/IconUserSvg.vue";
 import IconPencilSvg from "./icons/IconPencilSvg.vue";
@@ -181,6 +206,7 @@ import { useStore } from '@/stores/useStore'
 import { mapState } from 'pinia'
 import { ref } from "vue";
 import { getLanguageExtByFilePath } from "../util/languageExt"
+import { renderCodeAndToolBar } from "./CodeToolBar.jsx";
 // import { Cache } from "@/util/cache/cacheUtil";
 // const cacheHistories = new Cache();
 const viewType = { introduction: "introduction", qa: "qa" }
@@ -219,6 +245,12 @@ export default {
         return { qaElementList, questionInputRef, questionInputButtonsMore }
     },
     methods: {
+        onLikeClick(messageData){
+            //qaId
+        },
+        onDislikeClick(messageData){
+
+        },
         onClearClick() {
             this.qaData.list = [];
             this.serverConversationId = "";
@@ -392,49 +424,11 @@ export default {
                 existQA.done = true;
                 this.qaId = "";
                 this.message = null;
-
+                this.lastServerMessage = null;
                 const buildCodeButton = () => {
                     const preCodeList = list.children[list.children.length - 1].querySelectorAll("pre > code");
                     preCodeList.forEach((preCode) => {
-                        preCode.classList.add("input-background", "p-4", "pb-2", "block", "whitespace-pre", "overflow-x-scroll");
-                        preCode.parentElement.classList.add("pre-code-element", "relative");
-
-                        const buttonWrapper = document.createElement("div");
-                        buttonWrapper.classList.add("code-actions-wrapper", "flex", /*"gap-3",*/ "pr-2", "pt-1", "pb-1", "flex-wrap", "items-center", "justify-end", /*"rounded-t-lg",*/ "input-background");
-
-                        // let buttonsHtml = `<button title="复制到剪切板" class="code-element-ext p-1 pr-2 flex items-center rounded-lg">${clipboardSvg} 复制</button>`;
-
-                        // if (this.isVsCodeMode) {
-                        //     buttonsHtml += `<button title="将以上内容插入到当前文件"
-                        //              class="edit-element-ext p-1 pr-2 flex items-center rounded-lg">${insertSvg} 插入</button>
-                        //         <button title="新建文件并将以上代码置入" class="new-code-element-ext p-1 pr-2 flex items-center rounded-lg">${plusSvg} 新建</button> `;
-                        // }
-                        // buttonWrapper.innerHTML = buttonsHtml;
-
-                        // Create copy to clipboard button
-                        const copyButton = document.createElement("button");
-                        copyButton.title = "复制到剪切板";
-                        copyButton.innerHTML = `${clipboardSvg} 复制`;
-
-                        copyButton.classList.add("code-element-ext", "p-1", "pr-2", "flex", "items-center", "rounded-lg");
-                        buttonWrapper.append(copyButton);
-
-                        if (this.isInCodeIDE) {
-                            const insert = document.createElement("button");
-                            insert.title = "将以上内容插入到当前文件";
-                            insert.innerHTML = `${insertSvg} 插入`;
-
-                            insert.classList.add("edit-element-ext", "p-1", "pr-2", "ml-1", "flex", "items-center", "rounded-lg");
-
-                            const newTab = document.createElement("button");
-                            newTab.title = "新建文件并将以上代码置入";
-                            newTab.innerHTML = `${plusSvg} 新建`;
-
-                            newTab.classList.add("new-code-element-ext", "p-1", "pr-2", "ml-1", "flex", "items-center", "rounded-lg");
-                            buttonWrapper.append(insert, newTab);
-                        }
-
-                        preCode.parentNode.append(buttonWrapper);
+                        renderCodeAndToolBar(preCode.parentNode, preCode, this.isInCodeIDE, { onclick: this.codeToolbarClick })
                     });
                     util.autoScrollToBottom(list);
                     this.questionInputRef?.focus();
@@ -464,105 +458,61 @@ export default {
                 util.autoScrollToBottom(this.qaElementList);
             }
         },
-        documnetClickHandler(e) {
-            const targetButton = e.target.closest('button');
-            if (targetButton?.classList?.contains("resend-element-ext")) {
-                // e.preventDefault();
-                // const question = targetButton.closest(".question-element-ext");
-                // const elements = targetButton.nextElementSibling;
-                // elements.classList.remove("hidden");
-                // question.lastElementChild?.setAttribute("contenteditable", true);
-
-                targetButton.classList.add("hidden");
-                return;
-            }
-            if (targetButton?.classList?.contains("code-element-ext")) {
-                e.preventDefault();
-
-                clipboard.writeText(targetButton.parentElement.parentElement?.firstElementChild?.textContent).then(() => {
-                    targetButton.innerHTML = `${checkSvg} 已复制`;
-                    setTimeout(() => {
-                        targetButton.innerHTML = `${clipboardSvg} 复制`;
-                    }, 1500);
-                });
-
-                return;
-            }
-            if (targetButton?.classList?.contains("edit-element-ext")) {
-                e.preventDefault();
-                const data = {
-                    type: "editCode",
-                    value: targetButton.parentElement.parentElement?.firstElementChild?.textContent,
-                };
-                if (this.isIdeaMode)
-                    util.postMessageToIdeaEditor(data);
-                else
-                    util.postMessageToCodeEditor(data);
-                return;
-            }
-            if (targetButton?.classList?.contains("new-code-element-ext")) {
-                e.preventDefault();
-                let first = targetButton.parentElement.parentElement?.firstElementChild;
-                let value = first?.textContent;
-                let language;
-                if (first) {
-                    for (let i = 0; i < first.classList.length; i++) {
-                        const c = first.classList[i];
-                        if (c.startsWith("language-")) {
-                            language = c.substring(c.indexOf('-') + 1);
-                            break;
+        codeToolbarClick(target, codeEl) {
+            switch (target.id) {
+                case "copy-code":
+                    clipboard.writeText(codeEl.textContent).then(() => {
+                        target.innerHTML = `${checkSvg} 已复制`;
+                        setTimeout(() => {
+                            target.innerHTML = `${clipboardSvg} 复制`;
+                        }, 1500);
+                    });
+                    break;
+                case "insert-code":
+                    const data1 = {
+                        type: "editCode",
+                        value: codeEl.textContent,
+                    };
+                    if (this.isIdeaMode)
+                        util.postMessageToIdeaEditor(data1);
+                    else
+                        util.postMessageToCodeEditor(data1);
+                    break;
+                case "new-file":
+                    let first = codeEl;
+                    let value = codeEl?.textContent;
+                    let language;
+                    if (first) {
+                        for (let i = 0; i < first.classList.length; i++) {
+                            const c = first.classList[i];
+                            if (c.startsWith("language-")) {
+                                language = c.substring(c.indexOf('-') + 1);
+                                break;
+                            }
                         }
                     }
-                }
-                let data = {
-                    type: "openNew",
-                    value: value,
-                    language
-                };
-                if (this.isIdeaMode)
-                    util.postMessageToIdeaEditor(data);
-                else
-                    util.postMessageToCodeEditor(data);
-                return;
+                    let data2 = {
+                        type: "openNew",
+                        value: value,
+                        language
+                    };
+                    if (this.isIdeaMode)
+                        util.postMessageToIdeaEditor(data2);
+                    else
+                        util.postMessageToCodeEditor(data2);
+                    break;
             }
+        },
+        documnetClickHandler(e) {
+            // const targetButton = e.target.closest('button');
+            // if (targetButton?.classList?.contains("resend-element-ext")) {
+            //     targetButton.classList.add("hidden");
+            //     return;
+            // }
+       
             if (targetButton !== this.questionInputButtonsMore)
                 this.questionInputButtonsMoreVisible = false;
         },
-        messageHandler(event) {
-            const message = event.data;
-            switch (message.type) {
-                case "showInProgress":
-                    this.showInProgress(message);
-                    break;
-                case "addResponse":
-                    this.addResponse(message);
-                    break;
-                case "addQuestion":
-                    this.addQuestion(message);
-                    break;
-                case "loginSuccessful":
-                    break;
-                case "addError":
-                    this.addError(message)
-                    break;
-                case "clearConversation":
-                    this.onClearClick();
-                    break;
-                case "exportConversation":
-                    this.onExportConversation();
-                    break;
-                case "textSelectionChanged":
-                    // const input = document.getElementById("question-input");
-                    // input.value = message.text;
-                    break;
-                case "chat_code":
-                case "ask":
-                    message.cmd = message.type;
-                    this.busEventHandler(message);
-                    break;
-            }
-        },
-
         async busEventHandler(data) {
             let { cmd, value } = data;
             switch (cmd) {
@@ -620,10 +570,10 @@ export default {
         }
     },
     mounted() {
-        if (this.isVsCodeMode)
-            window.addEventListener("message", this.messageHandler);
-        document.removeEventListener("click", this.documnetClickHandler)
-        document.addEventListener("click", this.documnetClickHandler);
+        // if (this.isVsCodeMode)
+        //     window.addEventListener("message", this.messageHandler);
+        // document.removeEventListener("click", this.documnetClickHandler)
+        // document.addEventListener("click", this.documnetClickHandler);
 
         // if (!this.isIdeaMode)
         //     return;
@@ -678,5 +628,54 @@ html[data-code-theme="light"] {
     background: #555;
     /* 滑块悬停时的背景色 */
     border-radius: 2px;
+}
+
+.code-chat-box-like-wrapper {
+    margin-top: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.code-chat-box-like-wrapper .rating-panel {
+    display: flex;
+    justify-content: flex-end;
+}
+
+
+.rating-panel .btn-like,
+.rating-panel .btn-dislike {
+    background-color: transparent !important;
+    padding: 0;
+    font-size: var(--code-editor-font-size);
+    margin-bottom: 0;
+    margin-right: 5px;
+    margin-left: 10px;
+    cursor: pointer;
+    height: 100%;
+    border: none;
+    color: #999;
+}
+
+.rating-panel .anticon {
+    display: inline-flex;
+    align-items: center;
+    color: inherit;
+    font-style: normal;
+    line-height: 0;
+    text-align: center;
+    text-transform: none;
+    vertical-align: -0.125em;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.rating-panel .anticon svg {
+    display: inline-block;
+}
+
+.rating-panel .anticon>* {
+    line-height: 1;
 }
 </style>

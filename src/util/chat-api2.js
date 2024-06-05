@@ -139,10 +139,12 @@ export class ChatApi2 {
             if (sseEvent.type !== 'event') {
                 return
             }
-            const { event, answer, message, conversation_id, task_id } = this.responseDataParser(sseEvent, !notOnline);
+            const serverData = this.responseDataParser(sseEvent, !notOnline);
+            const { event, answer, message, conversation_id, task_id } = serverData;
             //console.log("SseParser-> " + event + ":" + answer);
             this.callBackResult.serverConversationId = conversation_id;
             this.callBackResult.serverTaskId = task_id;
+            this.callBackResult.serverData = serverData;
             if (event === 'message') {
                 this.callBackResult.text = answer;
                 onProgress?.(this.callBackResult);

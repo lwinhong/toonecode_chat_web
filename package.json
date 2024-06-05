@@ -27,6 +27,8 @@
   "devDependencies": {
     "@vitejs/plugin-legacy": "^5.4.0",
     "@vitejs/plugin-vue": "^5.0.4",
+    "@vitejs/plugin-vue-jsx": "^4.0.0",
+    "@vue/babel-preset-jsx": "^1.4.0",
     "autoprefixer": "^10.4.19",
     "eslint": "^8.49.0",
     "eslint-plugin-vue": "^9.17.0",

@@ -1,15 +1,32 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import ChatOnlyView from '@/views/ChatOnlyView.vue';
+//import HomeView from '@/views/HomeView.vue';
+
+import ChatVsCodeView from '@/views/ChatVsCodeView.vue';
+import ChatIdeaView from '@/views/ChatIdeaView.vue';
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: HomeView
-    }
-  ]
+  routes: [{
+    path: '/',
+    name: 'default vscode view',
+    component: ChatVsCodeView
+  },
+  {
+    path: '/chat',
+    name: 'chat only view',
+    component: ChatOnlyView
+  },
+  {
+    path: '/vscode',
+    name: 'vscode view',
+    component: ChatVsCodeView
+  },
+  {
+    path: '/idea',
+    name: 'idea view',
+    component: ChatIdeaView
+  }]
 })
 
 export default router

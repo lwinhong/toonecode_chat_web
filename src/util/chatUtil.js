@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { ChatApi2, StopChatApi } from "./chat-api2";
-import ChatApi from "../util/chat-api-bak.js"
-const historyCount = 3;
+import ChatApi from "../util/chat-api-bak.js";
+import { FileHandlerCore } from "./file-upload-core";
 
 export const chatUtil = {
     async sendApiRequest(prompt, options, onProgress, onDone, onError) {
@@ -15,11 +15,23 @@ export const chatUtil = {
 
         let err;
         let responseResult = {
-            type: 'addResponse', value: "", qaId, done: false, 
+            type: 'addResponse', value: "", qaId, done: false,
             autoScroll: true, responseInMarkdown: true,
         }
 
         try {
+            const callBackHandler = (callback, message, done) => {
+                try {
+                    responseResult.serverMessage = message;
+                    responseResult.value = message.text;
+                    responseResult.done = done;
+                    responseResult.error = message.error;
+                    callback?.(responseResult);
+                } catch (error) {
+                    console.error(error);
+                    console.log(message.text);
+                }
+            }
             await chatUtil.sendMessage(question, {
                 messageId: qaId,
                 serverConversationId,
@@ -27,28 +39,8 @@ export const chatUtil = {
                 stream: true,
                 chatType: "chat",
                 history,
-                onProgress: (message) => {
-                    try {
-                        responseResult.serverMessage = message;
-                        responseResult.value = message.text;
-                        onProgress?.(responseResult);
-                    } catch (error) {
-                        console.error(error);
-                        console.log(message.text);
-                    }
-                },
-                onDone: (message) => {
-                    //this.inProgress = false;
-                    try {
-                        responseResult.serverMessage = message;
-                        responseResult.value = message.text;
-                        responseResult.done = true;
-                        onDone?.(responseResult);
-                    } catch (error) {
-                        console.error(error);
-                    }
-                    //this.inProgress = false;
-                }
+                onProgress: (message) => callBackHandler(onProgress, message, false),
+                onDone: (message) => callBackHandler(onProgress, message, true)
             });
             return;
         } catch (error) {
@@ -63,6 +55,7 @@ export const chatUtil = {
         //this.inProgress = false;
         onError?.(err ?? "没有api");
         responseResult.done = true;
+        responseResult.error = err;
         onDone?.(responseResult);
     },
 
@@ -93,6 +86,7 @@ export const chatUtil = {
             return histories;
 
         let tempHistories = [];
+        const historyCount = 3;
         if (viewHistories.length > historyCount) {
             for (let i = viewHistories.length - historyCount; i < viewHistories.length; i++) {
                 tempHistories.push(viewHistories[i])
@@ -193,5 +187,8 @@ export const chatUtil = {
 
         const stop = new StopChatApi(options);
         return stop.stop();
+    },
+    uploadFile(filePath) {
+        return new FileHandlerCore().uploadFile("", filePath);
     }
 }

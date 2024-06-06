@@ -1,14 +1,12 @@
 <script>
-import ChatView from '../components/ChatView.vue';
-import { useStore } from '../stores/useStore';
+import ChatView from '@/components/ChatView.vue';
+import { useStore } from '@/stores/useStore';
 
 export default {
     extends: ChatView,
     setup(props, ctx) {
-        //let chatViewRef = ref();
         return {
             ...ChatView.setup(props, ctx),
-            //chatViewRef
         }
     },
     methods: {

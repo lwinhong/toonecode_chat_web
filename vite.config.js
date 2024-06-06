@@ -34,9 +34,11 @@ export default defineConfig(() => {
       rollupOptions: {
         output: {
           entryFileNames: '[name].js',
+          //entryFileNames: '[name]-[hash].js',
           // 块文件名
           chunkFileNames: '[name]-[hash].js',
           // 资源文件名（例如 CSS、图片等）
+          //assetFileNames: '[name]-[hash].[ext]',
           assetFileNames: '[name].[ext]'
         }
       }

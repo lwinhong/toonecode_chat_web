@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col h-screen " :class="{ 'chat-box-600': (!isIdeaMode && !isVsCodeMode) }">
+    <div class="flex flex-col " :class="{ 'chat-box-600': (!isIdeaMode && !isVsCodeMode) }" style="flex-grow:1;">
         <!--介绍 / 简介 / 引言 / 概述 -->
         <div id="introduction" v-if="isIntroduction"
             class="flex flex-col justify-between h-full justify-center px-6 w-full relative login-screen overflow-auto">

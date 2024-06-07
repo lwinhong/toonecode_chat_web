@@ -1,4 +1,4 @@
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 import * as clipboard from "clipboard-polyfill";
 import { v4 as uuidv4 } from "uuid";
 import { util, clipboardSvg, checkSvg } from "@/util/index"
@@ -8,7 +8,6 @@ import IconPencilSvg from "../icons/IconPencilSvg.vue";
 import IconAiSvg from "../icons/IconAiSvg.vue";
 import { useStore } from '@/stores/useStore'
 import { mapState } from 'pinia'
-import { ref } from "vue";
 import { getLanguageExtByFilePath } from "@/util/languageExt"
 import { renderCodeAndToolBar } from "./CodeToolBar.jsx";
 const viewType = { introduction: "introduction", qa: "qa" }

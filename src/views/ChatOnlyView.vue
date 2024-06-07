@@ -14,7 +14,7 @@ onMounted(() => {
       <ChatView></ChatView>
     </template>
     <template v-slot:aiExt>
-      <IconPlusSvg> </IconPlusSvg>
+      <IconPlusSvg></IconPlusSvg>
     </template>
     <!-- <template v-slot="tools">
     </template> -->

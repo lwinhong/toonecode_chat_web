@@ -1,36 +1,39 @@
 <template>
-    <!-- <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
-        <el-tab-pane label="AI 提问" name="aiTab">
-            <slot name="ai"></slot>
-        </el-tab-pane>
-        <el-tab-pane label="工具箱" name="toolsTab">
-            <slot name="tools"></slot>
-        </el-tab-pane>
-    </el-tabs> -->
-    <header>
+    <header class="u-header">
         <div class="u-viewsHd">
-            <h2 @click="tabHeanderClick('aiTab', $event)" :class="{ 's-selected': activeName === 'aiTab' }">AI 问答</h2>
-            <h2 @click="tabHeanderClick('toolsTab')" :class="{ 's-selected': activeName === 'toolsTab' }">工具箱</h2>
+            <h2 @click="tabHeanderClick('aiTab', $event)" :class="{ 's-selected': isAiMode }">AI 问答</h2>
+            <h2 @click="tabHeanderClick('toolsTab')" :class="{ 's-selected': isToolsMode }">工具箱</h2>
+        </div>
+        <div class="u-tab-extends">
+            <div v-show="isAiMode" class="tabContent">
+                <slot name="aiExt"></slot>
+            </div>
+            <div v-show="isToolsMode" class="tabContent">
+                <slot name="toolsExt"></slot>
+            </div>
         </div>
     </header>
     <main class="u-viewsBd">
-        <!-- <template v-show="activeName === 'aiTab'"> -->
-        <div v-show="activeName === 'aiTab'" class="tabContent">
+        <div v-show="isAiMode" class="tabContent">
             <slot name="ai"></slot>
         </div>
-        <div v-show="activeName === 'toolsTab'" class="tabContent">
+        <div v-show="isToolsMode" class="tabContent">
             <slot name="tools"></slot>
         </div>
     </main>
 </template>
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const activeName = ref('aiTab')
 
 const tabHeanderClick = (tab, event) => {
     activeName.value = tab;
 }
+
+const isAiMode = computed(() => activeName.value === 'aiTab');
+const isToolsMode = computed(() => activeName.value === 'toolsTab');
+
 </script>
 <style>
 .u-viewsHd {
@@ -88,5 +91,23 @@ const tabHeanderClick = (tab, event) => {
 .u-viewsBd .tabContent {
     flex: 1;
     display: flex;
+}
+
+.u-header {
+    display: flex;
+    gap: 10px;
+}
+
+.u-header .u-tab-extends {
+    display: flex;
+    /* justify-items: end; */
+    /* align-content: end; */
+    flex-grow: 1;
+    gap: 10px;
+    flex-shrink: 2;
+    flex-direction: row-reverse;
+    align-self: center;
+    flex-wrap: nowrap;
+    padding-right: 10px;
 }
 </style>

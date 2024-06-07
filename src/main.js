@@ -7,8 +7,8 @@ import router from './router'
 import mitt from 'mitt'
 const $bus = new mitt()
 
-import ElementPlus from 'element-plus'
-import 'element-plus/dist/index.css'
+// import ElementPlus from 'element-plus'
+// import 'element-plus/dist/index.css'
 
 /*********** axios ************* */
 
@@ -23,7 +23,7 @@ axios.defaults.baseURL = '/api1';
 const app = createApp(App)
 app.use(createPinia())
 app.use(router)
-app.use(ElementPlus)
+// app.use(ElementPlus)
 app.provide("$bus", $bus)
 app.config.globalProperties.$bus = $bus
 app.mount('#app')

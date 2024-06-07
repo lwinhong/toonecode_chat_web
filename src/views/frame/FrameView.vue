@@ -9,8 +9,8 @@
     </el-tabs> -->
     <header>
         <div class="u-viewsHd">
-            <h2 @click="activeName = 'aiTab'" :class="{ 's-selected': activeName === 'aiTab' }">AI 问答</h2>
-            <h2 @click="activeName = 'toolsTab'" :class="{ 's-selected': activeName === 'toolsTab' }">工具箱</h2>
+            <h2 @click="tabHeanderClick('aiTab', $event)" :class="{ 's-selected': activeName === 'aiTab' }">AI 问答</h2>
+            <h2 @click="tabHeanderClick('toolsTab')" :class="{ 's-selected': activeName === 'toolsTab' }">工具箱</h2>
         </div>
     </header>
     <main class="u-viewsBd">
@@ -28,8 +28,8 @@ import { ref } from 'vue'
 
 const activeName = ref('aiTab')
 
-const handleClick = (tab, event) => {
-    console.log(tab, event)
+const tabHeanderClick = (tab, event) => {
+    activeName.value = tab;
 }
 </script>
 <style>

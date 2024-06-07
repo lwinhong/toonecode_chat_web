@@ -1,5 +1,5 @@
 <script>
-import ChatView from '@/components/ChatView.vue';
+import ChatView from '@/components/chat/ChatView.vue';
 import { useStore } from '@/stores/useStore';
 
 export default {

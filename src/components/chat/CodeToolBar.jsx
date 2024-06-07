@@ -1,7 +1,7 @@
 import { render } from 'vue';
-import IconClipboardSvg from "./icons/IconClipboardSvg.vue";
-import IconInsertSvg from "./icons/IconInsertSvg.vue";
-import IconPlusSvg from "./icons/IconPlusSvg.vue";
+import IconClipboardSvg from "../icons/IconClipboardSvg.vue";
+import IconInsertSvg from "../icons/IconInsertSvg.vue";
+import IconPlusSvg from "../icons/IconPlusSvg.vue";
 
 export function renderCodeAndToolBar(pre_el, code_el, isInCodeIDE, props) {
     isInCodeIDE = true;

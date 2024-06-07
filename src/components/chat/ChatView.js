@@ -1,15 +1,15 @@
 import { defineComponent } from 'vue'
 import * as clipboard from "clipboard-polyfill";
 import { v4 as uuidv4 } from "uuid";
-import { util, clipboardSvg, checkSvg } from "../util/index"
-import { chatUtil } from "../util/chatUtil"
-import IconUserSvg from "./icons/IconUserSvg.vue";
-import IconPencilSvg from "./icons/IconPencilSvg.vue";
-import IconAiSvg from "./icons/IconAiSvg.vue";
+import { util, clipboardSvg, checkSvg } from "@/util/index"
+import { chatUtil } from "@/util/chatUtil"
+import IconUserSvg from "../icons/IconUserSvg.vue";
+import IconPencilSvg from "../icons/IconPencilSvg.vue";
+import IconAiSvg from "../icons/IconAiSvg.vue";
 import { useStore } from '@/stores/useStore'
 import { mapState } from 'pinia'
 import { ref } from "vue";
-import { getLanguageExtByFilePath } from "../util/languageExt"
+import { getLanguageExtByFilePath } from "@/util/languageExt"
 import { renderCodeAndToolBar } from "./CodeToolBar.jsx";
 const viewType = { introduction: "introduction", qa: "qa" }
 
@@ -44,8 +44,7 @@ export default defineComponent({
         let qaElementList = ref();
         let questionInputRef = ref();
         let questionInputButtonsMore = ref();
-        let fileUploadInputRef = ref();
-        return { qaElementList, questionInputRef, questionInputButtonsMore, fileUploadInputRef }
+        return { qaElementList, questionInputRef, questionInputButtonsMore }
     },
     methods: {
         onLikeClick(messageData) {
@@ -53,12 +52,6 @@ export default defineComponent({
         },
         onDislikeClick(messageData) {
 
-        },
-        onUploadFile() {
-            this.fileUploadInputRef.click();
-        },
-        onUploadFileChange(e) {
-            console.log("123132")
         },
         onClearClick() {
             this.qaData.list = [];

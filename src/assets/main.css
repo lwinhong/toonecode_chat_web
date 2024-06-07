@@ -390,3 +390,9 @@ textarea::placeholder {
     justify-content: right;
     margin-left: 6px;
 }
+
+.app-start {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}

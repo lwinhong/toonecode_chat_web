@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted } from 'vue'
 import FrameView from './frame/FrameView.vue';
-import ChatView from '../components/ChatView.vue'
+import ChatView from '@/components/chat/ChatView.vue'
 import IconPlusSvg from '@/components/icons/IconPlusSvg.vue';
 onMounted(() => {
   console.log("chat only view mounted")

@@ -137,7 +137,7 @@
         </div>
 
         <!-- 提问框 -->
-        <div class="p-4 flex items-center pt-2" data-license="isc-gnc">
+        <div class="p-3 flex items-center pt-2" data-license="isc-gnc">
             <div class="flex-1 textarea-wrapper">
                 <!-- <textarea type="text" rows="1" data-license="isc-gnc" id="question-input" placeholder="输入一个问题..."
                     onInput="this.parentNode.dataset.replicatedValue = this.value"></textarea> -->
@@ -167,12 +167,12 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                     </svg>&nbsp;导出markdown</button>
-                <button type="button" class="flex gap-2 items-center justify-start p-2 w-full" id="upload-button"
+                <!-- <button type="button" class="flex gap-2 items-center justify-start p-2 w-full" id="upload-button"
                     @click="onUploadFile"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                         stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                    </svg>&nbsp;上传</button>
+                    </svg>&nbsp;上传</button> -->
             </div>
             <div id="question-input-buttons" class="p-0.5 flex  gap-2 send-erea-items-center"
                 v-show="questionInputButtonsVisible">
@@ -195,9 +195,6 @@
                     </svg>
                 </button>
             </div>
-            <input ref="fileUploadInputRef" type="file" id="file-upload-input" style="display: none;"
-                @change=" onUploadFileChange" accept="image/png, image/jpeg" required></input>
-
         </div>
     </div>
 </template>
@@ -299,7 +296,4 @@ html[data-code-theme="light"] {
     line-height: 1;
 }
 
-.file-input12 {
-    display: none;
-}
 </style>

@@ -18,13 +18,14 @@
             <slot name="ai"></slot>
         </div>
         <div v-show="isToolsMode" class="tabContent">
-            <slot name="tools"></slot>
+            <!-- <slot name="tools"></slot> -->
+             <ToolsView></ToolsView>
         </div>
     </main>
 </template>
 <script setup>
 import { ref, computed } from 'vue'
-
+import ToolsView from '../tools/ToolsView.vue'
 const activeName = ref('aiTab')
 
 const tabHeanderClick = (tab, event) => {
@@ -35,12 +36,16 @@ const isAiMode = computed(() => activeName.value === 'aiTab');
 const isToolsMode = computed(() => activeName.value === 'toolsTab');
 
 </script>
-<style>
+<style scoped>
 .u-viewsHd {
     display: flex;
     padding-left: 16px;
     gap: 16px;
     align-items: center;
+    padding-top: 3px;
+    height: 40px;
+   
+    overflow-x: auto;
 }
 
 .u-viewsHd h2 {
@@ -58,11 +63,11 @@ const isToolsMode = computed(() => activeName.value === 'toolsTab');
 
 .u-viewsHd h2:after {
     position: absolute;
-    bottom: -8px;
+    bottom: -6px;
     left: 50%;
     content: '';
     width: 0;
-    height: 3px;
+    height: 2px;
     border-radius: 3px;
     background: var(--vscode-editor-foreground);
     transform: translateX(-50%);
@@ -85,7 +90,8 @@ const isToolsMode = computed(() => activeName.value === 'toolsTab');
 .u-viewsBd {
     flex: 1;
     display: flex;
-    /* align-items: stretch; */
+    padding-top: 8px;
+    overflow: auto;
 }
 
 .u-viewsBd .tabContent {
@@ -96,18 +102,31 @@ const isToolsMode = computed(() => activeName.value === 'toolsTab');
 .u-header {
     display: flex;
     gap: 10px;
+
+    height: 40px;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .u-header .u-tab-extends {
-    display: flex;
-    /* justify-items: end; */
-    /* align-content: end; */
+    /* display: flex;
     flex-grow: 1;
     gap: 10px;
-    flex-shrink: 2;
-    flex-direction: row-reverse;
     align-self: center;
     flex-wrap: nowrap;
+    padding-right: 10px;
+    height: 100%;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: nowrap;
+    z-index: 10; */
+    position: relative;
+    height: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: nowrap;
+    z-index: 10;
     padding-right: 10px;
 }
 </style>

@@ -24,18 +24,21 @@ export default defineComponent({
         onUploadFile(item) {
             this.fileUploadInputRef.click();
         },
-        onUploadFileChange(e) {
+        async onUploadFileChange(e) {
             const file = e.target.files[0];
             try {
                 if (file.name.endsWith('.sql')) {
-                    const reader = new FileReader()
-                    reader.onload = (e) => {
-                        console.log(reader.result)
-                        new Translate2j().sql2j(reader.result)
-                    }
-                    // text类型
-                    reader.readAsText(file, 'utf-8')
-                    //this.message.info('上传成功')
+
+                    new Translate2j().excelFile2J(file);
+
+                    // const reader = new FileReader()
+                    // reader.onload = (e) => {
+                    //     console.log(reader.result)
+                    //     new Translate2j().sql2j(reader.result)
+                    // }
+                    // // text类型
+                    // reader.readAsText(file, 'utf-8')
+
                 }
             } catch (e) {
                 this.$toast.error(e)

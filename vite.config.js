@@ -54,7 +54,7 @@ export default defineConfig(() => {
           rewrite: (path) => path.replace(/^\/api1/, '')
         }, 
         '/api2': {
-          target: 'http://10.1.33.138:1234/generator/',
+          target: 'http://10.1.33.138:1234/',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api2/, '')
         }

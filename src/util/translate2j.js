@@ -20,7 +20,7 @@ export class Translate2j {
     async sql2j(sql, options) {
         const param = {
             tableSql: sql,
-            options: mergeOptions(options)
+            options: this.mergeOptions(options)
         }
         await fetch("/api2/code/generate", {
             method: "POST",
@@ -33,9 +33,9 @@ export class Translate2j {
         })
     }
     async excelFile2J(file, options) {
-
         try {
-            let data = await new FileHandlerCore().uploadFile("/api2/code/generate", file, mergeOptions(options));
+            let data = await new FileHandlerCore().uploadFile("/api2/code/generate4file",
+                file, this.mergeOptions(options));
         } catch (error) {
 
         }

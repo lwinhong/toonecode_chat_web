@@ -1,20 +1,22 @@
-
 //如果文件太大，大于500m，可以使用https://github.com/jimmywarting/StreamSaver.js
 import { saveAs } from "file-saver";
 
-const api_key = 'app-pFEGY14EzZm47OXRnEBtNmB1'
-const upload_API = 'http://ai2.t.vtoone.com/api/v1/files/upload'
-
 export class FileHandlerCore {
-    async uploadFile(url, file) {
+    async uploadFile(url, file, options) {
+        if (!url) {
+            throw new Error(`url 不能空`);
+        }
+        if (!file) {
+            throw new Error(`file 不能空`);
+        }
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('options', JSON.stringify(options));
 
-        const response = await fetch(url || upload_API, {
+        const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'multipart/form-data',
-                'Authorization': `Bearer ${api_key}`,
             },
             body: formData,
         });
@@ -24,7 +26,7 @@ export class FileHandlerCore {
         }
 
         const data = await response.json();
-        console.log('File uploaded:', data);
+        return data;
     }
 
     async saveAsFile(url, filePath) {

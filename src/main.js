@@ -20,7 +20,10 @@ axios.defaults.baseURL = '/api1';
 
 /************************ */
 
+import messageInstall from './components/messages/install.js';
+
 const app = createApp(App)
+app.use(messageInstall)
 app.use(createPinia())
 app.use(router)
 // app.use(ElementPlus)

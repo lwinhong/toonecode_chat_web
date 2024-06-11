@@ -1,22 +1,24 @@
 import { defineComponent, ref } from 'vue'
 import ToolView from './ToolView.vue';
-import Message from '../messages/Message.vue'
+import { Translate2j } from '@/util/translate2j.js'
+
 export default defineComponent({
     components: {
-        ToolView, Message
+        ToolView
     },
     data() {
         return {
             data: {
-                title: 'SQL转Java类', subtitle: '根据SQL数据生成Java类型', name: 'sql2java',
+                title: 'SQL转Java类',
+                subtitle: '根据SQL数据生成Java类型',
+                name: 'sql2java',
                 click: (item) => this.onUploadFile(item)
             }
         }
     },
     setup() {
         let fileUploadInputRef = ref();
-        const message = ref()
-        return { fileUploadInputRef, message }
+        return { fileUploadInputRef }
     },
     methods: {
         onUploadFile(item) {
@@ -24,14 +26,22 @@ export default defineComponent({
         },
         onUploadFileChange(e) {
             const file = e.target.files[0];
-            if (file.name.endsWith('.sql')) {
-                const reader = new FileReader()
-                reader.onload = (e) => {
-                    console.log(reader.result)
+            try {
+                if (file.name.endsWith('.sql')) {
+                    const reader = new FileReader()
+                    reader.onload = (e) => {
+                        console.log(reader.result)
+                        new Translate2j().sql2j(reader.result)
+                    }
+                    // text类型
+                    reader.readAsText(file, 'utf-8')
+                    //this.message.info('上传成功')
                 }
-                // text类型
-                reader.readAsText(file, 'utf-8')
-                this.message.info('上传成功')
+            } catch (e) {
+                this.$toast.error(e)
+            }
+            finally {
+                this.fileUploadInputRef.value = "";
             }
         }
     }

@@ -6,7 +6,6 @@ export default SQL2JavaTool
     <ToolView :data="data">
         <input ref="fileUploadInputRef" type="file" class="fileInput-hide" id="file-upload-input"
             @change="onUploadFileChange" accept=".sql" required></input>
-        <Message ref="message"></Message>
     </ToolView>
 </template>
 <style scoped>

@@ -22,7 +22,13 @@ export class Translate2j {
             tableSql: sql,
             options: this.mergeOptions(options)
         }
-        await fetch("/api2/code/generate", {
+        let url = "/code/generate";
+        if (import.meta.env.PROD) {
+            url = import.meta.env.VITE_API_FILE_URL + url;
+        } else {
+            url = "/api2" + url;
+        }
+        await fetch(url, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(param)
@@ -34,10 +40,28 @@ export class Translate2j {
     }
     async excelFile2J(file, options) {
         try {
-            let data = await new FileHandlerCore().uploadFile("/api2/code/generate4file",
+            const fileHandler = new FileHandlerCore();
+            let url = "/code/generate4file";
+            if (import.meta.env.PROD) {
+                url = import.meta.env.VITE_API_FILE_URL + url;
+            } else {
+                url = "/api2" + url;
+            }
+            //import.meta.env.VITE_API_FILE_URL
+            let { code, msg } = await fileHandler.uploadFile(url,
                 file, this.mergeOptions(options));
+            if (code === 0) {
+                url = "/download";
+                if (import.meta.env.PROD) {
+                    url = import.meta.env.VITE_API_FILE_URL + url;
+                } else {
+                    url = "/api2" + url;
+                }
+                url += "?fileId=" + msg[0].fileId;
+                await fileHandler.saveAsFile(url, "testset.zip")
+            }
         } catch (error) {
-
+            console.error(error);
         }
     }
 

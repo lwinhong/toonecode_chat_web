@@ -1,6 +1,6 @@
 import { fileURLToPath, URL } from 'node:url'
 
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
@@ -8,7 +8,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import vue from '@vitejs/plugin-vue'
 //import ElementPlus from 'unplugin-element-plus/vite'
 // https://vitejs.dev/config/
-export default defineConfig(() => {
+export default defineConfig(({ command, mode }) => {
   return {
     plugins: [
       vue(),
@@ -52,9 +52,9 @@ export default defineConfig(() => {
           target: 'http://ai.t.vtoone.com/api/v1',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api1/, '')
-        }, 
+        },
         '/api2': {
-          target: 'http://10.1.33.138:1234/',
+          target: 'http://10.1.33.138:1234/generator',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api2/, '')
         }

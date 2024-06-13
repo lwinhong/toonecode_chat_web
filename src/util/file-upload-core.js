@@ -25,11 +25,21 @@ export class FileHandlerCore {
         const data = await response.json();
         return data;
     }
-
+    async saveFileByFileId(fileId, savePath) {
+        const response = await fetch(url, {
+            method: 'POST',
+            body: formData,
+        });
+    }
     async saveAsFile(url, filePath) {
+        // const link = document.createElement("a");
+        // link.href = url;
+        // link.download = filePath;
+        // link.click();
+
         const response = await fetch(url);
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            throw new Error(`HTTP error! status: ${response.statusText}`);
         }
         const blob = await response.blob();
         saveAs(blob, filePath);

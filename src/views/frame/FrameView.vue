@@ -5,10 +5,10 @@
             <h2 @click="tabHeanderClick('toolsTab')" :class="{ 's-selected': isToolsMode }">工具箱</h2>
         </div>
         <div class="u-tab-extends">
-            <div v-show="isAiMode" class="tabContent">
+            <div v-show="isAiMode" class="u-tab-extends-items">
                 <slot name="aiExt"></slot>
             </div>
-            <div v-show="isToolsMode" class="tabContent">
+            <div v-show="isToolsMode" class="u-tab-extends-items">
                 <slot name="toolsExt"></slot>
             </div>
         </div>
@@ -18,8 +18,7 @@
             <slot name="ai"></slot>
         </div>
         <div v-show="isToolsMode" class="tabContent">
-            <!-- <slot name="tools"></slot> -->
-             <ToolsView></ToolsView>
+            <ToolsView></ToolsView>
         </div>
     </main>
 </template>
@@ -37,14 +36,14 @@ const isToolsMode = computed(() => activeName.value === 'toolsTab');
 
 </script>
 <style scoped>
-.u-viewsHd {
+/* .u-viewsHd {
     display: flex;
     padding-left: 16px;
     gap: 16px;
     align-items: center;
     padding-top: 3px;
     height: 40px;
-   
+
     overflow-x: auto;
 }
 
@@ -109,17 +108,6 @@ const isToolsMode = computed(() => activeName.value === 'toolsTab');
 }
 
 .u-header .u-tab-extends {
-    /* display: flex;
-    flex-grow: 1;
-    gap: 10px;
-    align-self: center;
-    flex-wrap: nowrap;
-    padding-right: 10px;
-    height: 100%;
-    justify-content: flex-end;
-    align-items: center;
-    flex-wrap: nowrap;
-    z-index: 10; */
     position: relative;
     height: 100%;
     display: flex;
@@ -129,4 +117,9 @@ const isToolsMode = computed(() => activeName.value === 'toolsTab');
     z-index: 10;
     padding-right: 10px;
 }
+
+.u-header .u-tab-extends .u-tab-extends-items {
+    display: flex;
+    gap: 5px;
+} */
 </style>

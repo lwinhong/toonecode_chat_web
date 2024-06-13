@@ -1,13 +1,15 @@
 <script setup>
 import ChatIdea from './extends/ChatIdea.vue'
 import FrameView from './frame/FrameView.vue';
+import IconPlusSvg from '@/components/icons/IconPlusSvg.vue';
 </script>
 <template>
   <FrameView>
     <template v-slot:ai>
       <ChatIdea />
     </template>
-    <!-- <template v-slot="tools">
-      </template> -->
+    <template v-slot:aiExt>
+      <IconPlusSvg></IconPlusSvg>
+    </template>
   </FrameView>
 </template>

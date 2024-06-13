@@ -16,7 +16,5 @@ onMounted(() => {
     <template v-slot:aiExt>
       <IconPlusSvg></IconPlusSvg>
     </template>
-    <!-- <template v-slot="tools">
-    </template> -->
   </FrameView>
 </template>

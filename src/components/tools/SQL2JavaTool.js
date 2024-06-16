@@ -12,7 +12,8 @@ export default defineComponent({
                 title: 'SQL转Java类',
                 subtitle: '根据SQL数据生成Java类型',
                 name: 'sql2java',
-                click: (item) => this.onUploadFile(item)
+                click: this.onToolClick,
+                disabled: false
             }
         }
     },
@@ -21,27 +22,38 @@ export default defineComponent({
         return { fileUploadInputRef }
     },
     methods: {
-        onUploadFile(item) {
+        onToolClick(item) {
             this.fileUploadInputRef.click();
         },
         async onUploadFileChange(e) {
             const file = e.target.files[0];
             try {
-                if (file.name.endsWith('.sql')) {
+                // if (!file.name.endsWith('.sql')) {
+                //     return;
+                // }
+                this.data.disabled = true;
+                this.$toast.loading('正在生成,请稍候...')
 
-                    new Translate2j().excelFile2J(file);
-
-                    // const reader = new FileReader()
-                    // reader.onload = (e) => {
-                    //     console.log(reader.result)
-                    //     new Translate2j().sql2j(reader.result)
-                    // }
-                    // // text类型
-                    // reader.readAsText(file, 'utf-8')
-
+                //文件的方式上传
+                // await new Translate2j().excelFile2J(file);
+                // this.data.disabled = false;
+                
+                //读取text方式
+                const reader = new FileReader()
+                reader.onload = async () => {
+                    try {
+                        await new Translate2j().sql2j(reader.result, null, file.name);
+                    } catch (e) {
+                        this.$toast.error("SQL转java失败");
+                        console.error(e)
+                    }
+                    this.data.disabled = false;
                 }
+                // text类型
+                reader.readAsText(file, 'utf-8')
             } catch (e) {
-                this.$toast.error(e)
+                this.$toast.error("文件格式错误")
+                console.error(e)
             }
             finally {
                 this.fileUploadInputRef.value = "";

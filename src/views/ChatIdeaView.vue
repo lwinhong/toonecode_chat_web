@@ -9,7 +9,9 @@ import IconPlusSvg from '@/components/icons/IconPlusSvg.vue';
       <ChatIdea />
     </template>
     <template v-slot:aiExt>
-      <IconPlusSvg></IconPlusSvg>
+      <span class="tab-extends-item" title="新的聊天">
+        <IconPlusSvg></IconPlusSvg>
+      </span>
     </template>
   </FrameView>
 </template>

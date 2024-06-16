@@ -1,12 +1,12 @@
 const defaltOption = {
     "dataType": "sql",
     "authorName": "toone",
-    "packageName": "com.toone.system",
-    "returnUtilSuccess": "ReturnT.success",
-    "returnUtilFailure": "ReturnT.error",
+    "packageName": "com.toone.masterdata",
+    "returnUtilSuccess": "Return.success",
+    "returnUtilFailure": "Return.error",
     "isPackageType": true,
     "isSwagger": false,
-    "isAutoImport": false,
+    "isAutoImport": true,
     "isWithPackage": false,
     "isComment": true,
     "isLombok": true,
@@ -17,52 +17,78 @@ const defaltOption = {
 import { FileHandlerCore } from "./file-upload-core"
 
 export class Translate2j {
-    async sql2j(sql, options) {
+    async sql2j(sql, options, fileName) {
         const param = {
             tableSql: sql,
             options: this.mergeOptions(options)
         }
-        let url = "/code/generate";
+        let url = "/code/generate4SQL";
         if (import.meta.env.PROD) {
             url = import.meta.env.VITE_API_FILE_URL + url;
         } else {
             url = "/api2" + url;
         }
-        await fetch(url, {
+
+        const response = await fetch(url, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(param)
-        }).then(res => res.json()).then(res => {
-            console.log(res)
-        }).catch(err => {
-            console.log(err)
-        })
-    }
-    async excelFile2J(file, options) {
-        try {
-            const fileHandler = new FileHandlerCore();
-            let url = "/code/generate4file";
-            if (import.meta.env.PROD) {
-                url = import.meta.env.VITE_API_FILE_URL + url;
-            } else {
-                url = "/api2" + url;
-            }
-            //import.meta.env.VITE_API_FILE_URL
-            let { code, msg } = await fileHandler.uploadFile(url,
-                file, this.mergeOptions(options));
+        });
+        if (response.ok) {
+            let { code, msg } = await response.json();
             if (code === 0) {
-                url = "/download";
-                if (import.meta.env.PROD) {
-                    url = import.meta.env.VITE_API_FILE_URL + url;
-                } else {
-                    url = "/api2" + url;
-                }
-                url += "?fileId=" + msg[0].fileId;
-                await fileHandler.saveAsFile(url, "testset.zip")
+                await new Promise(async (resolve, reject) => {
+                    setTimeout(() => {
+                        resolve();
+                    }, 1000);
+                })
+                if (import.meta.env.PROD)
+                    await this.downloadByUrl(msg[0].fileUrl, fileName)
+                else
+                    await this.downloadResult(msg[0].fileId, fileName)
+                return;
             }
-        } catch (error) {
-            console.error(error);
+            throw new Error(result.msg);
         }
+        throw new Error("服务异常");
+    }
+
+    async excelFile2J(file, options) {
+
+        let url = "/code/generate4file";
+        if (import.meta.env.PROD) {
+            url = import.meta.env.VITE_API_FILE_URL + url;
+        } else {
+            url = "/api2" + url;
+        }
+
+        const fileHandler = new FileHandlerCore();
+        let { code, msg } = await fileHandler.uploadFile(url,
+            file, this.mergeOptions(options));
+
+        //上传成功之后，会返回下载地址，然后接着下载即可    
+        if (code === 0) {
+            await this.downloadResult(msg[0].fileId, file.name, fileHandler)
+        } else {
+            throw new Error(msg);
+        }
+    }
+
+    async downloadResult(fileId, saveName, fileHandler) {
+        let url = "/code/download";
+        if (import.meta.env.PROD) {
+            url = import.meta.env.VITE_API_FILE_URL + url;
+        } else {
+            url = "/api2" + url;
+        }
+        url += `?fileId=${fileId}`;
+        await this.downloadByUrl(url, saveName, fileHandler)
+    }
+    async downloadByUrl(url, saveName, fileHandler) {
+        if (saveName) {
+            saveName = saveName.substring(0, saveName.lastIndexOf(".")) + ".zip";
+        }
+        await (fileHandler || new FileHandlerCore()).saveAsFile(url, saveName)
     }
 
     mergeOptions(options) {

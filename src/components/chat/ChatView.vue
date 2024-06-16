@@ -75,7 +75,7 @@
                         <h2 class="mb-5 flex">
                             <IconAiSvg style="margin-right: 0.5rem;" />TooneCode
                         </h2>
-                        <div :class="{ 'result-streaming': message.done !== true }" @id="message.qaId"
+                        <div :class="{ 'result-streaming': message.done !== true }" :id="message.qaId"
                             v-html="message.answer">
                         </div>
                         <!-- 反馈-->
@@ -104,13 +104,13 @@
                             </div>
                         </div>
                     </div>
-                    <div v-if="message.error" class="p-2 self-end answer-element-ext chat-card-content-bg"
+                    <!-- <div v-if="message.error" class="p-2 self-end answer-element-ext chat-card-content-bg"
                         data-license="isc-gnc">
                         <h2 class="mb-5 flex">
                             <IconAiSvg />AI
                         </h2>
                         <div class="text-red-400">{{ message.error }}</div>
-                    </div>
+                    </div> -->
                 </div>
             </template>
         </div>
@@ -295,5 +295,4 @@ html[data-code-theme="light"] {
 .rating-panel .anticon>* {
     line-height: 1;
 }
-
 </style>

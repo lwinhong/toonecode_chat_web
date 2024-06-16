@@ -6,7 +6,7 @@ interface Props {
   top?: number|string // 消息距离顶部的位置，单位px
 }
 const props = withDefaults(defineProps<Props>(), {
-  duration: 3000,
+  duration: 2000,
   top: 30
 })
 enum ColorStyle { // 颜色主题对象

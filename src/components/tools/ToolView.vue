@@ -12,11 +12,14 @@ const props = defineProps({
         tooltip: String
     }
 });
-
+function handleClick() {
+    if (props.data.disabled)
+        return;
+    props.data.click?.(props.data);
+}
 </script>
 <template>
-    <div class="prompt_block" @click="props.data.click?.(props.data)" 
-        :title="props.data.tooltip">
+    <div class="prompt_block" @click="handleClick" :title="props.data.tooltip" :disabled="props.data.disabled">
         <div class="toolbox_prompt_title">{{ props.data.title }}</div>
         <div class="toolbox_prompt_subtitle">{{ props.data.subtitle }}</div>
         <slot></slot>

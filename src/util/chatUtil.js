@@ -35,7 +35,8 @@ export const chatUtil = {
             await chatUtil.sendMessage(question, {
                 messageId: qaId,
                 serverConversationId,
-                abortSignal: abortController.signal,
+                abortController,
+                abortSignal:abortController?.signal,
                 stream: true,
                 chatType: "chat",
                 history,

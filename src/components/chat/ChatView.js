@@ -256,9 +256,9 @@ export default defineComponent({
             if (!exist) {
                 return;
             }
-            const messageValue = message.error || '网络异常';
-            exist.answer = "";
-            exist.error = messageValue
+            const messageValue = "服务异常" //message.error || '网络异常';
+            exist.answer = messageValue;
+            // exist.error = messageValue
             if (message.autoScroll) {
                 util.autoScrollToBottom(this.qaElementList);
             }

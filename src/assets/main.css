@@ -498,6 +498,7 @@ textarea::placeholder {
 
 .tab-extends-item {
     cursor: pointer;
+    padding: 4px;
 }
 
 .tab-extends-item:active {

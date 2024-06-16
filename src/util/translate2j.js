@@ -29,19 +29,23 @@ export class Translate2j {
             url = "/api2" + url;
         }
 
+        let abor = new AbortController();
+        const timerout = setTimeout(() => {
+            abor?.abort();
+        }, 1000 * 10);
         const response = await fetch(url, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            signal: abor.signal,
             body: JSON.stringify(param)
         });
+        abor = null;
+        timerout && clearTimeout(timerout);
+
         if (response.ok) {
             let { code, msg } = await response.json();
             if (code === 0) {
-                await new Promise(async (resolve, reject) => {
-                    setTimeout(() => {
-                        resolve();
-                    }, 1000);
-                })
+                await new Promise((resolve) => setTimeout(resolve, 1000));
                 if (import.meta.env.PROD)
                     await this.downloadByUrl(msg[0].fileUrl, fileName)
                 else

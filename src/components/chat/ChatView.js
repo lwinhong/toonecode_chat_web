@@ -7,9 +7,10 @@ import IconUserSvg from "../icons/IconUserSvg.vue";
 import IconPencilSvg from "../icons/IconPencilSvg.vue";
 import IconAiSvg from "../icons/IconAiSvg.vue";
 import { useStore } from '@/stores/useStore'
-import { mapState } from 'pinia'
+import { mapState, mapActions } from 'pinia'
 import { getLanguageExtByFilePath } from "@/util/languageExt"
 import { renderCodeAndToolBar } from "./CodeToolBar.jsx";
+
 const viewType = { introduction: "introduction", qa: "qa" }
 
 export default defineComponent({
@@ -26,6 +27,11 @@ export default defineComponent({
             questionInputButtonsVisible: true,
             questionInputButtonsMoreVisible: false,
             //serverConversationId: "" //和服务器通讯的对话结果id，又服务器返回，用于定位这次对话的标识，可以不用传历史。新聊天的时候记得清空它
+        }
+    },
+    watch: {
+        isInProgress(n, o) {
+            useStore().setChatInProgress(n);
         }
     },
     computed: {
@@ -46,6 +52,7 @@ export default defineComponent({
         return { qaElementList, questionInputRef, questionInputButtonsMore }
     },
     methods: {
+        // ...mapActions(useStore, [setChatInProgress]),
         onLikeClick(messageData) {
             //qaId
         },
@@ -351,6 +358,9 @@ export default defineComponent({
                     break;
                 case "colorChanged":
                     this.colorChangedHandler(value);
+                    break;
+                case "newChat":
+                    this.onClearClick();
                     break;
                 default:
                     break;

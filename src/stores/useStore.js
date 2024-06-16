@@ -5,7 +5,12 @@ export const useStore = defineStore('useStore', {
     isVsCodeMode: false,
     isIdeaMode: false,
     isInCodeIDE: false,
-  }), actions: {
+    chatInProgress: false,
+  }),
+  actions: {
+    setChatInProgress(ing) {
+      this.chatInProgress = ing;
+    },
     setVsCodeMode(mode) {
       this.isVsCodeMode = mode;
       if (mode)

@@ -23,6 +23,10 @@ export default defineComponent({
     },
     methods: {
         onToolClick(item) {
+            if(this.data.disabled){
+                this.$toast.loading('正在生成,请稍候...')
+                return;
+            }
             this.fileUploadInputRef.click();
         },
         async onUploadFileChange(e) {
@@ -37,7 +41,7 @@ export default defineComponent({
                 //文件的方式上传
                 // await new Translate2j().excelFile2J(file);
                 // this.data.disabled = false;
-                
+
                 //读取text方式
                 const reader = new FileReader()
                 reader.onload = async () => {
@@ -47,6 +51,10 @@ export default defineComponent({
                         this.$toast.error("SQL转java失败");
                         console.error(e)
                     }
+                    this.data.disabled = false;
+                }
+                reader.onerror = () => {
+                    this.$toast.error("文件读取失败")
                     this.data.disabled = false;
                 }
                 // text类型

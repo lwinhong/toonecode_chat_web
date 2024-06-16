@@ -13,8 +13,8 @@ const props = defineProps({
     }
 });
 function handleClick() {
-    if (props.data.disabled)
-        return;
+    // if (props.data.disabled)
+    //     return;
     props.data.click?.(props.data);
 }
 </script>

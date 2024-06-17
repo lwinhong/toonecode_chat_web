@@ -52,7 +52,7 @@ export class Translate2j {
                     await this.downloadResult(msg[0].fileId, fileName)
                 return;
             }
-            throw new Error(result.msg);
+            throw new Error(msg);
         }
         throw new Error("服务异常");
     }

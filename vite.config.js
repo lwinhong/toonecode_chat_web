@@ -31,16 +31,16 @@ export default defineConfig(({ command, mode }) => {
       outDir: "dist",
       assetsDir: "assets", //指定静态资源存放路径
       sourcemap: true, //是否构建source map 文件
-      minify: true,//是否压缩，在生产环境中使用压缩更省资源
+      minify: false,//是否压缩，在生产环境中使用压缩更省资源
       rollupOptions: {
         output: {
           // 块文件名
           chunkFileNames: '[name]-[hash].js',
           // 资源文件名（例如 CSS、图片等）
-          // entryFileNames: '[name].js',
-          // assetFileNames: '[name].[ext]',
-          entryFileNames: '[name]-[hash].js',
-          assetFileNames: '[name]-[hash].[ext]',
+          entryFileNames: '[name].js',
+          assetFileNames: '[name].[ext]',
+          // entryFileNames: '[name]-[hash].js',
+          // assetFileNames: '[name]-[hash].[ext]',
         }
       }
     },

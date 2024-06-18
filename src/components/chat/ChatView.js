@@ -63,6 +63,7 @@ export default defineComponent({
             this.qaData.list = [];
             this.serverConversationId = "";
             this.currentViewType = viewType.introduction;
+            this.questionInputRef?.focus();
         },
         async onStopClick(e) {
             e?.preventDefault();

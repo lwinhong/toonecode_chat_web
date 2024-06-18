@@ -79,7 +79,7 @@
                             v-html="message.answer">
                         </div>
                         <!-- 反馈-->
-                        <div class="code-chat-box-like-wrapper" v-if="message.done">
+                        <div class="code-chat-box-like-wrapper" v-if="message.done && false">
                             <div class="rating-panel">
                                 <button type="button" class="btn-like" title="赞" @click="onLikeClick(message)">
                                     <span role="img" aria-label="like" size="12" class="anticon">

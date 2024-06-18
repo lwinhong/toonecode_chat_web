@@ -5,7 +5,7 @@ import IconPlusSvg from "../icons/IconPlusSvg.vue";
 
 export function renderCodeAndToolBar(pre_el, code_el, isInCodeIDE, props) {
     isInCodeIDE = true;
-    code_el.classList.add("input-background", "p-4", "pb-2", "block", "whitespace-pre", "overflow-x-scroll");
+    code_el.classList.add("input-background", "p-4", "pb-2", "block", /*"whitespace-pre",*/ "overflow-x-scroll");
     code_el.parentElement.classList.add("pre-code-element", "relative");
     let click = (target) => props?.onclick?.(target.currentTarget, code_el);
 

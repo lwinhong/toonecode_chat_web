@@ -50,9 +50,11 @@ export default {
 
         console.log("vscode view mounted")
         try {
-            const vscode = window.acquireVsCodeApi();
-            window.vscodeInstance = vscode;
-            useStore().setVsCodeMode(vscode ? true : false);
+            if (!window.vscodeInstance) {
+                const vscode = window.acquireVsCodeApi();
+                window.vscodeInstance = vscode;
+                useStore().setVsCodeMode(vscode ? true : false);
+            }
         } catch (error) {
             console.log("不在vscode内:" + error)
         }

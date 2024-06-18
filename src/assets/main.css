@@ -266,6 +266,7 @@ textarea::placeholder {
 
 .pre-code-element:not(:last-child) {
     margin-bottom: 2rem;
+    word-break: break-word;
 }
 
 .chat-card-bg {
@@ -275,6 +276,10 @@ textarea::placeholder {
 .chat-card-content-bg {
     background-color: var(--tc-chat-card-content-bg);
     border-radius: 4px;
+}
+
+.hljs {
+    white-space: pre-wrap;
 }
 
 .code-actions-wrapper {

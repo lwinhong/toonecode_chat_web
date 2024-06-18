@@ -51,11 +51,16 @@ export const util = {
         turndownService.remove('no-export');
         let markdown = turndownService.turndown(element);
 
-        util.postMessage({
+        const param ={
             type: "openNew",
             value: markdown,
             language: "markdown"
-        })
+        };
+        if (util.getUseStore().isIdeaMode) {
+            util.postMessageToIdeaEditor(param)
+        } else if (util.getUseStore().isVsCodeMode) {
+            util.postMessageToCodeEditor(param)
+        }
     },
     throttle(fn, delay = 300) {
         if (this.timer == null) {

@@ -10,7 +10,7 @@ export default defineComponent({
         return {
             data: {
                 title: 'SQL转Java类',
-                subtitle: '根据SQL数据生成Java类型',
+                subtitle: '根据SQL脚本生成Java类',
                 name: 'sql2java',
                 click: this.onToolClick,
                 disabled: false

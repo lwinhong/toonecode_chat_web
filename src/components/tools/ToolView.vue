@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineProps } from 'vue';
+import { ref, defineProps, defineEmits } from 'vue';
 const props = defineProps({
     data: {
         title: String,
@@ -12,16 +12,22 @@ const props = defineProps({
         tooltip: String
     }
 });
-function handleClick() {
+const emit = defineEmits(['click']);
+function handleClick(e) {
     // if (props.data.disabled)
     //     return;
-    props.data.click?.(props.data);
+    //e.preventDefault();
+    props.data.click?.(props.data, e);
+    emit('click', props.data, e);
 }
 </script>
 <template>
-    <div class="prompt_block" @click="handleClick" :title="props.data.tooltip" :disabled="props.data.disabled">
-        <div class="toolbox_prompt_title">{{ props.data.title }}</div>
-        <div class="toolbox_prompt_subtitle">{{ props.data.subtitle }}</div>
+    <div class="prompt_block" @click="handleClick"
+        :title="props.data.tooltip || (props.data.title + '\n' + props.data.subtitle)">
+        <div class="toolbox_prompt_title" :class="{ 'toolbox_prompt_title_disabled': props.data.disabled }">{{
+            props.data.title }}</div>
+        <div class="toolbox_prompt_subtitle" :class="{ 'toolbox_prompt_title_disabled': props.data.disabled }">{{
+            props.data.subtitle }}</div>
         <slot></slot>
     </div>
 </template>
@@ -51,6 +57,10 @@ function handleClick() {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.toolbox_prompt_title_disabled {
+    color: rgba(128, 128, 128, .8) !important;
 }
 
 .toolbox_prompt_subtitle {

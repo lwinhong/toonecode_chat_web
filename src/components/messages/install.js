@@ -15,6 +15,8 @@ export default {
         //         Vnode.component?.exposed?.show(str)
         //     },
         // }
-        app.config.globalProperties.$toast =Vnode.component?.exposed
+        const exposed = Vnode.component?.exposed
+        app.config.globalProperties.$toast = exposed
+        app.provide("$toast", exposed)
     }
 }

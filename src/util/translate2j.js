@@ -1,4 +1,4 @@
-const defaltOption = {
+export const defaltOption = {
     "dataType": "sql",
     "authorName": "toone",
     "packageName": "com.toone.masterdata",

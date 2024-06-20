@@ -1,7 +1,7 @@
 <script setup>
 import { inject, ref } from 'vue'
 import ToolView from './ToolView.vue';
-import { Translate2j, defaltOption } from '@/util/translate2j.js'
+import { Translate2j } from '@/util/translate2j.js'
 
 const $toast = inject('$toast');
 const fileUploadInputRef = ref(null);
@@ -34,10 +34,10 @@ const onUploadFileChange = async (e) => {
         const reader = new FileReader()
         reader.onload = async () => {
             try {
-                let option = Object.assign({ dataType: "json" }, defaltOption);
+                let option = { dataType: "json" };
                 await new Translate2j().sql2j(reader.result, option, file.name);
             } catch (e) {
-                this.$toast.error("SQL转java失败");
+                $toast.error("SQL转java失败");
                 console.error(e)
             }
             data.disabled = false;

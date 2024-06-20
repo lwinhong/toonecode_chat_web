@@ -58,5 +58,6 @@ const tools = ref([
     row-gap: 10px;
     column-gap: 6px;
     padding-top: 10px;
+    padding-bottom: 13px;
 }
 </style>

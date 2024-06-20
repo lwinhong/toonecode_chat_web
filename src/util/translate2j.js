@@ -1,6 +1,7 @@
 export const defaltOption = {
     "dataType": "sql",
-    "authorName": "toone",
+    "dbType": "mysql",
+    "authorName": "tooneCode",
     "packageName": "com.toone.masterdata",
     "returnUtilSuccess": "Return.success",
     "returnUtilFailure": "Return.error",
@@ -11,15 +12,16 @@ export const defaltOption = {
     "isComment": true,
     "isLombok": true,
     "ignorePrefix": "sys_",
-    "tinyintTransType": "Date"
+    "tinyintTransType": "Date",
+    "nameCaseType": "CamelCase"
 }
 
 import { FileHandlerCore } from "./file-upload-core"
 
 export class Translate2j {
-    async sql2j(sql, options, fileName) {
+    async sql2j(sqlContent, options, fileName) {
         const param = {
-            tableSql: sql,
+            tableSql: sqlContent,
             options: this.mergeOptions(options)
         }
         let url = "/code/generate4SQL";

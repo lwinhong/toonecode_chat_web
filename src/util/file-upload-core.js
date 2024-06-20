@@ -2,7 +2,7 @@
 import { saveAs } from "file-saver";
 
 export class FileHandlerCore {
-    async uploadFile(url, file, options) {
+    async uploadFile(url, file, options, dataType) {
         if (!url) {
             throw new Error(`url 不能空`);
         }
@@ -12,6 +12,7 @@ export class FileHandlerCore {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('options', JSON.stringify(options));
+        formData.append('dataType', dataType);
 
         const response = await fetch(url, {
             method: 'POST',
@@ -25,7 +26,7 @@ export class FileHandlerCore {
         const data = await response.json();
         return data;
     }
-    async saveFileByFileId(fileId, savePath) {
+    async saveFileByFileId(fileId, filePath) {
         const response = await fetch(url, {
             method: 'POST',
             body: JSON.stringify({ fileId })
@@ -33,7 +34,7 @@ export class FileHandlerCore {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.statusText}`);
         }
-        
+
         const blob = await response.blob();
         saveAs(blob, filePath);
     }

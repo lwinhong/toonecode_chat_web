@@ -30,7 +30,7 @@ export default defineConfig(({ command, mode }) => {
     build: {
       outDir: "dist",
       assetsDir: "assets", //指定静态资源存放路径
-      sourcemap: true, //是否构建source map 文件
+      sourcemap: false, //是否构建source map 文件
       minify: false,//是否压缩，在生产环境中使用压缩更省资源
       rollupOptions: {
         output: {
@@ -54,7 +54,7 @@ export default defineConfig(({ command, mode }) => {
           rewrite: (path) => path.replace(/^\/api1/, '')
         },
         '/api2': {
-          target: 'http://codegen.t.vtoone.com/generator',
+          target: 'http://10.1.33.138:1235/generator',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api2/, '')
         }

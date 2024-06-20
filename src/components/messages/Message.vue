@@ -155,10 +155,10 @@ function onHideMessage (index: number) {
       align-items: center;
       padding: 9px 12px;
       background: #FFF;
-      border-radius: 8px;
+      border-radius: 4px;
       box-shadow: 0 6px 16px 0 rgba(0, 0, 0, .08), 0 3px 6px -4px rgba(0, 0, 0, .12), 0 9px 28px 8px rgba(0, 0, 0, .05);
       pointer-events: auto; // 保证内容区域部分可以正常响应鼠标事件
-      height: 32px;
+      height: 36px;
       .u-svg {
         display: inline-block;
         width: 16px;

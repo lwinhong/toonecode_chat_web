@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineProps, defineEmits } from 'vue';
+import { ref, defineEmits } from 'vue';
 const props = defineProps({
     data: {
         title: String,
@@ -22,7 +22,7 @@ function handleClick(e) {
 }
 </script>
 <template>
-    <div class="prompt_block" @click="handleClick"
+    <div class="prompt_block" :class="{ 'prompt_block_disabled': props.data.disabled }" @click="handleClick"
         :title="props.data.tooltip || (props.data.title + '\n' + props.data.subtitle)">
         <div class="toolbox_prompt_title" :class="{ 'toolbox_prompt_title_disabled': props.data.disabled }">{{
             props.data.title }}</div>
@@ -42,6 +42,10 @@ function handleClick(e) {
     background: var(--tc-chat-card-content-bg);
     cursor: pointer;
     border: 1px solid transparent;
+}
+
+.prompt_block_disabled {
+    cursor: default !important;
 }
 
 .prompt_block:hover {

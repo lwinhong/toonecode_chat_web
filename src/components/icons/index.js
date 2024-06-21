@@ -1,0 +1,6 @@
+export { default as IconDownloadSvg } from './IconDownloadSvg.vue'
+export { default as IconUserSvg } from './IconUserSvg.vue'
+export { default as IconPencilSvg } from './IconPencilSvg.vue'
+export { default as IconAiSvg } from './IconAiSvg.vue'
+export { default as IconPlusSvg } from './IconPlusSvg.vue'
+export { default as IconSettingSvg } from './IconSettingSvg.vue'

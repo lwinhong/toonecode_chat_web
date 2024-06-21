@@ -1,5 +1,5 @@
 :root[theme='light'] {
-    --vscode-foreground:  #3b3b3b;
+    --vscode-foreground: #3b3b3b;
     --vscode-font-family: "Segoe WPC", "Segoe UI", sans-serif;
     --vscode-font-weight: normal;
     --vscode-font-size: 13px;
@@ -18,6 +18,8 @@
     --vscode-input-placeholderForeground: #767676;
 
     --tc-chat-card-content-bg: rgb(0 0 0 / 4%);
+    --tc-chat-card-content-like-unchecked: rgb(59 59 59 /30%);
+    --tc-chat-card-content-like-checked: var(--vscode-foreground);
 
     --container-padding: 0;
     --input-padding-vertical: 6px;

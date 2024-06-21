@@ -12,24 +12,31 @@ const $bus = new mitt()
 
 /*********** axios ************* */
 
-import axios from "axios";
+// import axios from "axios";
 
-axios.defaults.timeout = 40 * 1000;//40s
-axios.defaults.withCredentials = true;
-axios.defaults.baseURL = '/api1';
+// axios.defaults.timeout = 40 * 1000;//40s
+// axios.defaults.withCredentials = true;
+// axios.defaults.baseURL = '/api1';
 
 /************************ */
 
-import messageInstall from './components/messages/install.js';
+import plugins from './plugins/index.js';
+import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
+import './plugins/vue3-context-menu/myContextMenu.scss'
+import ContextMenu from '@imengyu/vue3-context-menu'
+
 const pinia = createPinia();
 const app = createApp(App)
-app.use(messageInstall)
+
 app.use(pinia)
 app.use(router)
+app.use(ContextMenu)
+app.use(plugins)
 // app.use(ElementPlus)
 app.provide("$bus", $bus)
 app.config.globalProperties.$bus = $bus
 app.mount('#app')
+
 
 window.exportVar = function (data) {
     $bus.emit('executeCmd', data)

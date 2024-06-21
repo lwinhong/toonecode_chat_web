@@ -5,7 +5,6 @@ import { useStore } from '@/stores/useStore';
 import FrameView from './frame/FrameView.vue';
 import ChatView from '@/components/chat/ChatView.vue'
 import ChatVsCode from './extends/ChatVsCode.vue'
-// import ChatIdea from './extends/ChatIdea.vue'
 
 import IconPlusSvg from '@/components/icons/IconPlusSvg.vue';
 const $bus = inject('$bus')

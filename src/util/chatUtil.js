@@ -1,5 +1,5 @@
 // import { v4 as uuidv4 } from "uuid";
-import { ChatApi2, StopChatApi } from "./chat-api2";
+import { ChatApi2, StopChatApi, LikeApi } from "./chat-api2";
 //import ChatApi from "../util/chat-api-bak.js";
 import { FileHandlerCore } from "./file-upload-core";
 
@@ -36,7 +36,7 @@ export const chatUtil = {
                 messageId: qaId,
                 serverConversationId,
                 abortController,
-                abortSignal:abortController?.signal,
+                abortSignal: abortController?.signal,
                 stream: true,
                 chatType: "chat",
                 history,
@@ -191,5 +191,12 @@ export const chatUtil = {
     },
     uploadFile(filePath) {
         return new FileHandlerCore().uploadFile("", filePath);
+    },
+    likeConversation(options) {
+        const { messageId } = options || {};
+        if (!messageId)
+            return true;
+
+        return new LikeApi(options).like();
     }
 }

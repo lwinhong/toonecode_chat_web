@@ -4,6 +4,7 @@ import { createParser } from 'eventsource-parser';
 // 聊天接口
 export const ONLINE_CHAT_APIKEY = "app-jWmI0bA3AioiorQq6bmU73Ik";
 export const ONLINE_CHAT_API = "http://ai.t.vtoone.com/api/v1/chat-messages";
+export const ONLINE_CHAT_LIKE_API = "http://ai.t.vtoone.com/api/v1/messages";
 
 // 代码接口
 export const ONLINE_CODE_APIKEY = "app-HZSqJWyZI6xjqkbyXUIcLErR";
@@ -11,6 +12,19 @@ export const ONLINE_CODE_API = "http://ai.t.vtoone.com/api/v1/completion-message
 
 //export const ONLINE_CODE_APIKEY = "app-app-OU5P1wr9ErUs0VBsuK5CBk5I";
 //export const ONLINE_CODE_API = "http://10.1.30.43:5001/v1/completion-messages";
+/**
+* 添加请求头
+* @param {Authorization} api_key 
+* @returns 
+*/
+export function getRequestHeader(api_key) {
+    let headers = {
+        'Authorization': `Bearer ${api_key}`,
+        'Content-Type': 'application/json',
+        'Accept': 'text/event-stream'
+    };
+    return headers;
+}
 
 export class ChatApi2 {
 
@@ -29,7 +43,7 @@ export class ChatApi2 {
             signal: abortSignal,
             abortController,
             responseType: "stream",
-            headers: this.getRequestHeader(chatType === "code"
+            headers: getRequestHeader(chatType === "code"
                 ? ONLINE_CODE_APIKEY : ONLINE_CHAT_APIKEY)
         };
         //if (import.meta.env.MODE === 'production')
@@ -68,7 +82,7 @@ export class ChatApi2 {
      * @returns 结果
      */
     getCallBackResult() {
-        return this.callBackResult || {};
+        return this.callBackResult ?? {};
     }
 
     /**
@@ -183,19 +197,19 @@ export class ChatApi2 {
         return { event: sseEvent.event, answer: sseEvent.data, message: sseEvent.data };
     }
 
-    /**
-     * 添加请求头
-     * @param {Authorization} api_key 
-     * @returns 
-     */
-    getRequestHeader(api_key) {
-        let headers = {
-            'Authorization': `Bearer ${api_key}`,
-            'Content-Type': 'application/json',
-            'Accept': 'text/event-stream'
-        };
-        return headers;
-    }
+    // /**
+    //  * 添加请求头
+    //  * @param {Authorization} api_key 
+    //  * @returns 
+    //  */
+    // getRequestHeader(api_key) {
+    //     let headers = {
+    //         'Authorization': `Bearer ${api_key}`,
+    //         'Content-Type': 'application/json',
+    //         'Accept': 'text/event-stream'
+    //     };
+    //     return headers;
+    // }
 
     /**
      * 获取请求数据
@@ -207,11 +221,11 @@ export class ChatApi2 {
             return originData;
         }
 
-        let { chatType, lang, prompt, history, prefixCode, suffixCode, max_length, serverConversationId } = originData;
+        let { chatType, lang, prompt, history, prefixCode, suffixCode, max_length, serverConversationId, user } = originData;
         let query = {
-            "response_mode": "streaming",
-            "conversation_id": "",
-            "user": "abc-123"
+            response_mode: "streaming",
+            conversation_id: "",
+            user: user ?? "abc-123"
         };
         if (chatType === "code") {
             query.inputs = { "prefix_code": prefixCode, "suffix_code": suffixCode, max_length };
@@ -251,11 +265,8 @@ export class StopChatApi {
         this.url = `${ONLINE_CHAT_API}/:${option.taskId}/stop`;
         this.requestInit = {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${ONLINE_CHAT_APIKEY}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ user: "abc-123" })
+            headers: getRequestHeader(ONLINE_CHAT_APIKEY),
+            body: JSON.stringify({ user: option.user ?? "abc-123" })
         };
     }
 
@@ -276,6 +287,41 @@ export class StopChatApi {
                 }
                 reject({ result: "error", msg: response.status + "-" + response.statusText });
             } catch (error) {
+                console.error(error);
+                reject({ result: "error", msg: error });
+            }
+        });
+    }
+}
+
+export class LikeApi {
+    constructor(option) {
+        this.url = `${ONLINE_CHAT_LIKE_API}/${option.messageId}/feedbacks`;
+        let param = {
+            user: option.user ?? "abc-123",
+        }
+        if (option.like) {
+            param.rating = option.like
+        }
+        this.requestInit = {
+            method: 'POST',
+            headers: getRequestHeader(ONLINE_CHAT_APIKEY),
+            body: JSON.stringify(param)
+        };
+    }
+    like() {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const response = await fetch(this.url, this.requestInit);
+                if (response.ok) {
+                    const result = await response.json();
+                    resolve(result);
+                    console.log("保存like成功:" + this.requestInit + "," + JSON.stringify(result));
+                    return;
+                }
+                reject({ result: "error", msg: response.status + "-" + response.statusText });
+            } catch (error) {
+                console.log("保存like异常");
                 console.error(error);
                 reject({ result: "error", msg: error });
             }

@@ -1,0 +1,50 @@
+//CSS Vars
+:root {
+    //Backgroud
+    --mx-menu-backgroud: var(--vscode-input-background);
+    --mx-menu-hover-backgroud: var(--vscode-button-secondaryHoverBackground);
+    --mx-menu-active-backgroud: var(--vscode-button-secondaryHoverBackground);
+    --mx-menu-open-backgroud: var(--vscode-button-secondaryHoverBackground);
+    --mx-menu-open-hover-backgroud: var(--vscode-button-secondaryHoverBackground);
+    --mx-menu-divider: var(--vscode-input-border);
+
+    //Text
+    --mx-menu-text: var(--vscode-foreground);
+    --mx-menu-hover-text: var(--vscode-foreground);
+    --mx-menu-active-text: var(--vscode-foreground);
+    --mx-menu-open-text: var(--vscode-foreground);
+    --mx-menu-open-hover-text: var(--vscode-foreground);
+    --mx-menu-disabled-text: var(--vscode-disabledForeground);
+
+    --mx-menu-icon-size: 16px;
+
+    //Shadow
+    --mx-menu-shadow-color: rgba(0, 0, 0, 0.1);
+    --mx-menu-backgroud-radius: 10px;
+
+    //Shortcut badge
+    --mx-menu-shortcut-backgroud: #ebebeb;
+    --mx-menu-shortcut-backgroud-hover: #ebebeb;
+    --mx-menu-shortcut-backgroud-active: #ebebeb;
+    --mx-menu-shortcut-backgroud-open: #ebebeb;
+    --mx-menu-shortcut-backgroud-disabled: #fdfdfd;
+    --mx-menu-shortcut-text: #424242;
+    --mx-menu-shortcut-text-hover: #424242;
+    --mx-menu-shortcut-text-active: #424242;
+    --mx-menu-shortcut-text-open: #424242;
+    --mx-menu-shortcut-text-disabled: #a5a5a5;
+
+    //Focus border color
+    --mx-menu-focus-color: var(--vscode-focusBorder);
+
+    //Icon placeholder width
+    --mx-menu-placeholder-width: 24px;
+}
+
+.mx-context-menu-item {
+    border-radius: 5px;
+}
+
+.mx-context-menu-item-wrapper {
+    padding: 0px 5px;
+}

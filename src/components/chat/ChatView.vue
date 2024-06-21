@@ -79,10 +79,11 @@
                             v-html="message.answer">
                         </div>
                         <!-- 反馈-->
-                        <div class="code-chat-box-like-wrapper" v-if="message.done && false">
+                        <div class="code-chat-box-like-wrapper" v-if="message.done">
                             <div class="rating-panel">
                                 <button type="button" class="btn-like" title="赞" @click="onLikeClick(message)">
-                                    <span role="img" aria-label="like" size="12" class="anticon">
+                                    <span role="img" aria-label="like" size="12" class="anticon"
+                                        :class="{ 'anticon_checked': message.like }">
                                         <svg viewBox="64 64 896 896" focusable="false" data-icon="like" width="1em"
                                             height="1em" fill="currentColor" aria-hidden="true">
                                             <path
@@ -92,7 +93,8 @@
                                     </span>
                                 </button>
                                 <button type="button" class="btn-dislike" title="踩" @click="onDislikeClick(message)">
-                                    <span role="img" aria-label="dislike" size="12" class="anticon">
+                                    <span role="img" aria-label="dislike" size="12" class="anticon"
+                                        :class="{ 'anticon_checked': message.dislike }">
                                         <svg viewBox="64 64 896 896" focusable="false" data-icon="dislike" width="1em"
                                             height="1em" fill="currentColor" aria-hidden="true">
                                             <path
@@ -145,41 +147,10 @@
                     placeholder="输入一个问题..." @keydown.enter.prevent="onQuestionKeyEnter" v-model="questionInput"
                     :disabled="questionInputDisabled"></textarea>
             </div>
-            <div id="chat-button-wrapper"
-                class="absolute bottom-14 items-center more-menu right-8 border border-gray-200 shadow-xl text-xs"
-                data-license="isc-gnc" v-show="questionInputButtonsMoreVisible"
-                @click="questionInputButtonsMoreVisible = false">
-                <button type="button" class="flex gap-2 items-center justify-start p-2 w-full" id="clear-button"
-                    @click="onClearClick"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                        stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>&nbsp;新的聊天</button>
-                <!-- <button v-if="isVsCodeMode" class="flex gap-2 items-center justify-start p-2 w-full"
-                    id="settings-button"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                        stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>&nbsp;更新设置</button> -->
-                <button type="button" v-if="isVsCodeMode && qaData.list && qaData.list.length > 0"
-                    class="flex gap-2 items-center justify-start p-2 w-full" id="export-button"
-                    @click="onExportConversation"><svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                    </svg>&nbsp;导出markdown</button>
-                <!-- <button type="button" class="flex gap-2 items-center justify-start p-2 w-full" id="upload-button"
-                    @click="onUploadFile"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                        stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                    </svg>&nbsp;上传</button> -->
-            </div>
             <div id="question-input-buttons" class="p-0.5 flex  gap-2 send-erea-items-center"
                 v-show="questionInputButtonsVisible">
                 <button type="button" id="more-button" title="More actions" class="rounded-lg p-0.5"
-                    data-license="isc-gnc" @click="questionInputButtonsMoreVisible = true"
-                    ref="questionInputButtonsMore">
+                    data-license="isc-gnc" @click="onMoreButtonClick" ref="questionInputButtonsMore">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="w-5 h-5">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -187,7 +158,7 @@
                     </svg>
                 </button>
 
-                <button type="button" id="ask-button" title="提交提示" class="ask-button rounded-lg p-0.5"
+                <button type="button" id="ask-button" title="提交" class="ask-button rounded-lg p-0.5"
                     @click="onAskButtonClick" :disabled="!questionInput || questionInput.length === 0">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="w-5 h-5">
@@ -197,6 +168,18 @@
                 </button>
             </div>
         </div>
+        <context-menu v-model:show="moreContextMenu.show" :options="moreContextMenu.option">
+            <context-menu-item label="新的聊天" @click="onClearClick">
+                <template #icon>
+                    <IconPlusSvg />
+                </template>
+            </context-menu-item>
+            <context-menu-item label="导出markdown" v-if="isVsCodeMode" @click="onExportConversation" >
+                <template #icon>
+                    <IconDownloadSvg />
+                </template>
+            </context-menu-item>
+        </context-menu>
     </div>
 </template>
 <script>
@@ -246,12 +229,28 @@ html[data-code-theme="light"] {
     height: 100%;
     border: none;
     color: #999;
+    outline: 0px solid transparent !important;
+    ;
 }
+
+// .rating-panel .btn-like:hover,
+// .rating-panel .btn-dislike:hover {
+//     border-radius: 3px;
+//     background: var(--vscode-button-secondaryHoverBackground);
+//     transition: .3s;
+// }
+
+// .rating-panel .btn-like:active,
+// .rating-panel .btn-dislike:active {
+//     border-radius: 3px;
+//     background: var(--vscode-button-secondaryHoverBackground);
+//     transition: .3s;
+// }
 
 .rating-panel .anticon {
     display: inline-flex;
     align-items: center;
-    color: inherit;
+    color: var(--tc-chat-card-content-like-unchecked);
     font-style: normal;
     line-height: 0;
     text-align: center;
@@ -260,6 +259,10 @@ html[data-code-theme="light"] {
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+.rating-panel .anticon_checked {
+    color: var(--tc-chat-card-content-like-checked) !important;
 }
 
 .rating-panel .anticon svg {

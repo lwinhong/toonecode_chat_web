@@ -19,6 +19,7 @@ const $bus = new mitt()
 // axios.defaults.baseURL = '/api1';
 
 /************************ */
+import 'vue-amazing-ui/css'
 
 import plugins from './plugins/index.js';
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'

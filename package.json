@@ -13,7 +13,7 @@
     "@imengyu/vue3-context-menu": "^1.4.1",
     "axios": "^1.6.8",
     "clipboard-polyfill": "^4.1.0",
-    "element-plus": "^2.7.4",
+    "element-plus": "^2.7.5",
     "eventsource-parser": "^1.1.2",
     "file-saver": "^2.0.5",
     "highlight.js": "^11.9.0",
@@ -23,8 +23,8 @@
     "pinia": "^2.1.7",
     "turndown": "^7.2.0",
     "uuid": "^9.0.1",
-    "vue": "^3.4.27",
-    "vue-router": "^4.3.2"
+    "vue": "^3.4.29",
+    "vue-router": "^4.3.3"
   },
   "devDependencies": {
     "@vitejs/plugin-legacy": "^5.4.0",
@@ -40,6 +40,6 @@
     "unplugin-auto-import": "^0.17.6",
     "unplugin-element-plus": "^0.8.0",
     "unplugin-vue-components": "^0.27.0",
-    "vite": "^5.2.11"
+    "vite": "^5.3.1"
   }
 }

@@ -1,12 +1,10 @@
 <script setup>
 import { inject, ref } from 'vue'
-import ToolView from './ToolView.vue';
+import ToolView from '../ToolView.vue';
 import { Translate2j } from '@/util/translate2j.js'
 
 const $toast = inject('$toast');
 const fileUploadInputRef = ref(null);
-const acceptExt = ref(".sql")
-
 const onToolClick = (item) => {
     if (data.disabled) {
         $toast.loading('正在生成,请稍候...')
@@ -16,10 +14,9 @@ const onToolClick = (item) => {
 }
 
 let data = ref({
-    title: 'SQL转Java类',
-    subtitle: '根据SQL脚本生成Java类',
-    name: 'sql2java',
-    //click: onToolClick,
+    title: 'JSON转Java类',
+    subtitle: '根据JSON数据生成Java类',
+    name: 'json2java',
     disabled: false
 })
 
@@ -29,16 +26,16 @@ const onUploadFileChange = async (e) => {
         data.disabled = true;
         $toast.loading('正在生成,请稍候...')
 
-        const options =  { dbType: 'mysql' };
         //文件的方式上传
-        //await new Translate2j().excelFile2J(file, option);
+        // await new Translate2j().excelFile2J(file);
         // this.data.disabled = false;
 
         //读取text方式
         const reader = new FileReader()
         reader.onload = async () => {
             try {
-                await new Translate2j().sql2j(reader.result, options, file.name);
+                let option = { dataType: "json" };
+                await new Translate2j().sql2j(reader.result, option, file.name);
             } catch (e) {
                 $toast.error("SQL转java失败");
                 console.error(e)
@@ -63,8 +60,8 @@ const onUploadFileChange = async (e) => {
 </script>
 <template>
     <ToolView :data="data" @click="onToolClick">
-        <input ref="fileUploadInputRef" type="file" class="fileInput-hide" @change="onUploadFileChange"
-            :accept="acceptExt" required></input>
+        <input ref="fileUploadInputRef" type="file" class="fileInput-hide" @change="onUploadFileChange" accept=".json"
+            required></input>
     </ToolView>
 </template>
 <style scoped>

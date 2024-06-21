@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { rafTimeout, cancelRaf } from './index'
+import { rafTimeout, cancelRaf } from '../index'
 interface Props {
   duration?: number // 自动关闭的延时，单位ms
   top?: number | string // 消息距离顶部的位置，单位px
 }
 const props = withDefaults(defineProps<Props>(), {
-  duration: 3000,
+  duration: 2000,
   top: 30
 })
 enum ColorStyle { // 颜色主题对象
@@ -212,7 +212,7 @@ function onHideMessage(index: number) {
     .m-message-content {
       display: inline-flex;
       align-items: center;
-      padding: 9px 12px;
+      padding: 6px 12px;
       background: #fff;
       border-radius: 8px;
       box-shadow:
@@ -262,7 +262,7 @@ function onHideMessage(index: number) {
         display: inline-block;
         font-size: 14px;
         color: rgba(0, 0, 0, 0.88);
-        line-height: 22px;
+        line-height: 0px;
       }
     }
   }

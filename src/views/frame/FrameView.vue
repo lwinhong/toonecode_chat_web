@@ -32,6 +32,7 @@ const isToolsMode = computed(() => activeName.value === 'toolsTab');
         </div>
         <div v-show="isToolsMode" class="tabContent">
             <ToolsView></ToolsView>
+            <!-- <router-view></router-view> -->
         </div>
     </main>
 </template>

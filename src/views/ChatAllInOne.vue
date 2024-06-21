@@ -13,6 +13,7 @@ const store = useStore();
 
 onMounted(() => {
     getIDEType();
+    // useRouter().push('tools' );
 })
 function getIDEType() {
     const ide = useRoute().query.ide;

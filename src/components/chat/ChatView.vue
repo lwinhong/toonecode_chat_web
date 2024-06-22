@@ -143,13 +143,13 @@
             <div class="flex-1 textarea-wrapper">
                 <!-- <textarea type="text" rows="1" data-license="isc-gnc" id="question-input" placeholder="输入一个问题..."
                     onInput="this.parentNode.dataset.replicatedValue = this.value"></textarea> -->
-                <textarea ref="questionInputRef" type="text" rows="1" data-license="isc-gnc" id="question-input"
+                <textarea ref="questionInputRef" class="common-textarea" type="text" rows="1" data-license="isc-gnc" id="question-input"
                     placeholder="输入一个问题..." @keydown.enter.prevent="onQuestionKeyEnter" v-model="questionInput"
                     :disabled="questionInputDisabled"></textarea>
             </div>
             <div id="question-input-buttons" class="p-0.5 flex  gap-2 send-erea-items-center"
                 v-show="questionInputButtonsVisible">
-                <button type="button" id="more-button" title="More actions" class="rounded-lg p-0.5"
+                <button text type="button" id="more-button" title="更多" class="common-button rounded-lg p-0.5"
                     data-license="isc-gnc" @click="onMoreButtonClick" ref="questionInputButtonsMore">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="w-5 h-5">
@@ -158,7 +158,7 @@
                     </svg>
                 </button>
 
-                <button type="button" id="ask-button" title="提交" class="ask-button rounded-lg p-0.5"
+                <button text type="button" id="ask-button" title="提交" class="common-button ask-button rounded-lg p-0.5"
                     @click="onAskButtonClick" :disabled="!questionInput || questionInput.length === 0">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="w-5 h-5">

@@ -6,10 +6,10 @@ import {
     JSON2JavaTool,
     ColorTransferTool
 } from '@/components/tools/index.js';
+import { ElMessage } from 'element-plus';
 
-const $toast = inject('$toast')
 function soming(item) {
-    $toast.info('敬请期待')
+    ElMessage.info('敬请期待')
     // import(`@/components/chat/CodeToolBar`).then(m => {
     //     console.log(m)
     // });

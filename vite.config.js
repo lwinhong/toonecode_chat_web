@@ -6,7 +6,7 @@ import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import vue from '@vitejs/plugin-vue'
-//import ElementPlus from 'unplugin-element-plus/vite'
+// import ElementPlus from 'unplugin-element-plus/vite'
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => {
   return {
@@ -17,10 +17,19 @@ export default defineConfig(({ command, mode }) => {
         resolvers: [ElementPlusResolver()],
       }),
       Components({
-        resolvers: [ElementPlusResolver()],
+        resolvers: [ElementPlusResolver({ importStyle: 'sass' })],
       }),
-      //ElementPlus(),
+      // ElementPlus({
+      //   useSource: true,
+      // }),
     ],
+    // css: {
+    //   preprocessorOptions: {
+    //     scss: {
+    //       additionalData: `@use "@/styles/element/index.scss" as *;`,
+    //     },
+    //   },
+    // },
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url))

@@ -54,6 +54,6 @@ function newChatClick() {
             <span class="tab-extends-item" title="新的聊天" @click="newChatClick" v-show="!store.chatInProgress">
                 <IconPlusSvg></IconPlusSvg>
             </span>
-        </template>
+        </template> 
     </FrameView>
 </template>

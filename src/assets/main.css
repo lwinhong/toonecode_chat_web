@@ -89,8 +89,7 @@ h3,
 h4,
 h5,
 h6,
-hr,
-p {
+hr {
     margin-block-start: 1em !important;
     margin-block-end: 1em !important;
     margin-inline-start: 0px !important;
@@ -157,7 +156,7 @@ code {
     border-bottom-right-radius: 0px !important;
 }
 
-button {
+.common-button {
     border: none;
     padding: var(--input-padding-vertical) var(--input-padding-horizontal);
     text-align: center;
@@ -167,29 +166,29 @@ button {
     background: var(--vscode-button-secondaryBackground) !important;
 }
 
-button:hover {
+.common-button:hover {
     background: var(--vscode-button-secondaryHoverBackground) !important;
 }
 
-button:hover svg {
+.common-button:hover svg {
     stroke: var(--vscode-button-secondaryForeground) !important;
 }
 
-button:focus {
+.common-button:focus {
     outline-color: var(--vscode-focusBorder);
 }
 
-button.secondary {
+.common-button.secondary {
     color: var(--vscode-button-secondaryForeground);
     background: var(--vscode-button-secondaryBackground);
 }
 
-button.secondary:hover {
+.common-button.secondary:hover {
     background: var(--vscode-button-secondaryHoverBackground);
 }
 
-input:not([type='checkbox']),
-textarea {
+.common-input:not([type='checkbox']),
+.common-textarea {
     display: block;
     width: 100%;
     border: none;
@@ -200,8 +199,8 @@ textarea {
     background-color: var(--vscode-input-background);
 }
 
-input::placeholder,
-textarea::placeholder {
+.common-input::placeholder,
+.common-textarea::placeholder {
     color: var(--vscode-input-placeholderForeground);
 }
 
@@ -298,6 +297,13 @@ textarea::placeholder {
 
 .chat-card-bg {
     padding: 2px 6px;
+}
+
+.chat-card-bg p {
+    margin-block-start: 1em !important;
+    margin-block-end: 1em !important;
+    margin-inline-start: 0px !important;
+    margin-inline-end: 0px !important;
 }
 
 .chat-card-content-bg {

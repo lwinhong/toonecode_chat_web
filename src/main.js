@@ -7,8 +7,11 @@ import router from './router'
 import mitt from 'mitt'
 const $bus = new mitt()
 
-import ElementPlus from 'element-plus'
+//import './styles/element/index.scss'
 import 'element-plus/dist/index.css'
+// import 'element-plus/theme-chalk/dark/css-vars.css'
+//import ElementPlus from 'element-plus'
+
 
 /*********** axios ************* */
 

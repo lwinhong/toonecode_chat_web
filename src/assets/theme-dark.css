@@ -16,6 +16,7 @@
     --vscode-input-foreground: #cccccc;
     --vscode-input-border: #3c3c3c;
     --vscode-input-placeholderForeground: #989898;
+    --vscode-button-border: rgba(255, 255, 255, 0.07);
 
     --tc-chat-card-content-bg: rgb(255 255 255 / 4%);
     --tc-chat-card-content-like-unchecked: rgb(255 255 255 /30%);
@@ -26,4 +27,6 @@
     --input-padding-horizontal: 4px;
     --input-margin-vertical: 4px;
     --input-margin-horizontal: 0;
+
+    --el-color-primary: red
 }

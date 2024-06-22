@@ -1,16 +1,39 @@
 <template>
     <ToolView :data="data" @click="onToolClick">
-
     </ToolView>
+    <el-dialog v-model="dialogFormVisible" title="颜色转换器" width="400">
+        <el-form :model="form">
+            <el-form-item label="RGB" :label-width="formLabelWidth">
+                <el-input v-model="form.name" autocomplete="off" />
+            </el-form-item>
+            <el-form-item label="HEX" :label-width="formLabelWidth">
+                <el-input v-model="form.name" autocomplete="off" />
+            </el-form-item>
+        </el-form>
+    </el-dialog>
 </template>
 <script setup>
-import { ref, inject } from 'vue';
+import { ref, inject, reactive } from 'vue';
 import ToolView from '../ToolView.vue';
 const $toast = inject('$toast');
+const dialogFormVisible = ref(false)
+const formLabelWidth = '140px'
+const form = reactive({
+    name: '',
+    region: '',
+    date1: '',
+    date2: '',
+    delivery: false,
+    type: [],
+    resource: '',
+    desc: '',
+})
+
 
 let data = ref({ title: 'RGB 转 HEX', subtitle: '颜色RGB<-->HEX互转', name: 'rgb2hex', disabled: true })
 const onToolClick = (item) => {
     $toast.info('敬请期待')
+    dialogFormVisible.value = true;
 }
 /**
          * 将颜色值rgb格式转换为HEX的格式

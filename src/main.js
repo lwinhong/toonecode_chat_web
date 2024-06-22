@@ -7,8 +7,8 @@ import router from './router'
 import mitt from 'mitt'
 const $bus = new mitt()
 
-// import ElementPlus from 'element-plus'
-// import 'element-plus/dist/index.css'
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
 
 /*********** axios ************* */
 
@@ -19,8 +19,6 @@ const $bus = new mitt()
 // axios.defaults.baseURL = '/api1';
 
 /************************ */
-import 'vue-amazing-ui/css'
-
 import plugins from './plugins/index.js';
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
 import './plugins/vue3-context-menu/myContextMenu.scss'

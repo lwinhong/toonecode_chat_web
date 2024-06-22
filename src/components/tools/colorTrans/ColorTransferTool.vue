@@ -28,13 +28,13 @@
     </el-dialog>
 </template>
 <script setup>
-import { ref, inject, reactive, computed, watch } from 'vue';
+import { ref, reactive, computed, watch } from 'vue';
 import * as clipboard from "clipboard-polyfill";
 import ToolView from '../ToolView.vue';
 import { ElMessage } from 'element-plus'
 
 const dialogFormVisible = ref(false)
-const formLabelWidth = '140px'
+const formLabelWidth = '100px'
 const form = reactive({
     rgb: '106,90,205',
     hex: '#6a5acd',
@@ -46,11 +46,11 @@ const hex2rgbResult = computed(() => {
 
 let data = ref({ title: 'RGB 转 HEX', subtitle: '颜色RGB<-->HEX互转', name: 'rgb-hex', disabled: false })
 
-watch(() => form.rgb, (n, old) => {
+watch(() => form.rgb, (n) => {
     rgbToHexResult.value = rgbToHex(n);
 });
 
-const onToolClick = (item) => {
+const onToolClick = () => {
     dialogFormVisible.value = true;
 }
 const copy = (text) => {
@@ -110,6 +110,7 @@ function hexToRgb(hex) {
     /* 子元素水平居中 */
     align-items: center;
     /* 子元素垂直居中 */
+    flex-wrap: wrap;
 }
 
 .rgb2hex-color-highlight {

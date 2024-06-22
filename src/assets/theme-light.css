@@ -18,8 +18,8 @@
     --vscode-input-placeholderForeground: #767676;
     --vscode-button-border: rgba(0, 0, 0, 0.1);
 
-    --tc-chat-card-content-bg: rgb(0 0 0 / 4%);
-    --tc-chat-card-content-like-unchecked: rgb(59 59 59 /30%);
+    --tc-chat-card-content-bg: var(--vscode-button-secondaryBackground);
+    --tc-chat-card-content-like-unchecked: var(--vscode-badge-background);
     --tc-chat-card-content-like-checked: var(--vscode-foreground);
 
     --container-padding: 0;
@@ -27,4 +27,29 @@
     --input-padding-horizontal: 4px;
     --input-margin-vertical: 4px;
     --input-margin-horizontal: 0;
+}
+
+html.light {
+    color-scheme: light;
+}
+
+html.light .el-button {
+    --el-button-disabled-text-color: rgba(255, 255, 255, 0.5)
+}
+
+html.light .el-card {
+    --el-card-bg-color: var(--el-bg-color-overlay)
+}
+
+html.light .el-empty {
+    --el-empty-fill-color-0: var(--el-color-black);
+    --el-empty-fill-color-1: #4b4b52;
+    --el-empty-fill-color-2: #36383d;
+    --el-empty-fill-color-3: #1e1e20;
+    --el-empty-fill-color-4: #262629;
+    --el-empty-fill-color-5: #202124;
+    --el-empty-fill-color-6: #212224;
+    --el-empty-fill-color-7: #1b1c1f;
+    --el-empty-fill-color-8: #1c1d1f;
+    --el-empty-fill-color-9: #18181a
 }

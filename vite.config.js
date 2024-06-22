@@ -14,7 +14,7 @@ export default defineConfig(({ command, mode }) => {
       vue(),
       vueJsx(),
       AutoImport({
-        resolvers: [ElementPlusResolver()],
+        resolvers: [ElementPlusResolver({ importStyle: 'sass' })],
       }),
       Components({
         resolvers: [ElementPlusResolver({ importStyle: 'sass' })],

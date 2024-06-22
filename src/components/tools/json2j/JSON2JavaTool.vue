@@ -77,6 +77,7 @@ const doChanged = async () => {
     try {
         let option = { dataType: "json" };
         await new Translate2j().sql2j(jsonStr.value, option, "json2java.zip");
+        dialogFormVisible.value = false;
     } catch (e) {
         ElMessage.error("SQL转java失败");
         console.error(e)
@@ -98,16 +99,16 @@ const beforeClose = (done) => {
     <ToolView :data="data" @click="onToolClick"> </ToolView>
     <input ref="fileUploadInputRef" type="file" class="fileInput-hide" @change="onUploadFileChange" accept=".json"
         required />
-    <el-dialog v-loading="loading" v-model="dialogFormVisible" title="JSON转Java类" width="90%" destroy-on-close
+    <el-dialog v-model="dialogFormVisible" title="JSON转Java类" width="95%" destroy-on-close
         :close-on-click-modal="false" :before-close="beforeClose">
         <el-input type="textarea" placeholder="请键入JSON字符" :rows="10" v-model="jsonStr"
             :autosize="{ minRows: 10, maxRows: 20 }" :disabled="loading"></el-input>
 
         <el-row :gutter="20" justify="space-between" class="row-button-container">
-            <el-col :span="6">
+            <el-col :span="12">
                 <el-button @click="fileUploadInputRef.click()" :disabled="loading">选择文件</el-button>
             </el-col>
-            <el-col :span="5">
+            <el-col :span="12">
                 <div class="button-container">
                     <el-button @click="doChanged" :loading="loading" :disabled="loading || !jsonStr">转换</el-button>
                 </div>

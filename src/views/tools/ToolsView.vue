@@ -1,5 +1,5 @@
 <script setup>
-import { ref, inject } from 'vue';
+import { ref } from 'vue';
 import {
     SQL2JavaTool,
     ToolView,
@@ -8,7 +8,7 @@ import {
 } from '@/components/tools/index.js';
 import { ElMessage } from 'element-plus';
 
-function soming(item) {
+function soming() {
     ElMessage.info('敬请期待')
     // import(`@/components/chat/CodeToolBar`).then(m => {
     //     console.log(m)

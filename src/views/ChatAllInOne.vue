@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, inject } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useStore } from '@/stores/useStore';
 import FrameView from './frame/FrameView.vue';
 import ChatView from '@/components/chat/ChatView.vue'
@@ -36,6 +36,9 @@ function getIDEType() {
             }
             break;
     }
+    if (ideType.value === "vscode") {
+        document.documentElement.style.setProperty('--tc-caht-bg', 'transparent');
+    }
     console.log(ideType.value);
 }
 
@@ -54,6 +57,6 @@ function newChatClick() {
             <span class="tab-extends-item" title="新的聊天" @click="newChatClick" v-show="!store.chatInProgress">
                 <IconPlusSvg></IconPlusSvg>
             </span>
-        </template> 
+        </template>
     </FrameView>
 </template>

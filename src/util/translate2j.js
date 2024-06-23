@@ -90,6 +90,7 @@ export class Translate2j {
         url += `?fileId=${fileId}`;
         await this.downloadByUrl(url, saveName, fileHandler)
     }
+    
     async downloadByUrl(url, saveName, fileHandler) {
         if (saveName) {
             saveName = saveName.substring(0, saveName.lastIndexOf(".")) + ".zip";

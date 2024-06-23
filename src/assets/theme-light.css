@@ -9,6 +9,11 @@
     --vscode-textLink-foreground: #005fb8;
     --vscode-textLink-activeForeground: #005fb8;
     --vscode-editor-font-family: Consolas, 'Courier New', monospace;
+    --vscode-button-foreground: #ffffff;
+    --vscode-button-separator: rgba(255, 255, 255, 0.4);
+    --vscode-button-background: #005fb8;
+    --vscode-button-hoverBackground: #0258a8;
+    --vscode-button-border: rgba(0, 0, 0, 0.1);
     --vscode-button-secondaryForeground: #3b3b3b;
     --vscode-button-secondaryBackground: #e5e5e5;
     --vscode-button-secondaryHoverBackground: #cccccc;
@@ -16,25 +21,115 @@
     --vscode-input-foreground: #3b3b3b;
     --vscode-input-border: #cecece;
     --vscode-input-placeholderForeground: #767676;
-    --vscode-button-border: rgba(0, 0, 0, 0.1);
+    --vscode-editorHoverWidget-background: #f8f8f8;
+    --vscode-disabledForeground: rgba(97, 97, 97, 0.5);
+    --vscode-editorBracketMatch-border: #b9b9b9;
+    --vscode-editorHoverWidget-border: #c8c8c8;
+    --vscode-widget-border: #e5e5e5;
+    --vscode-editorOverviewRuler-border: #e5e5e5;
+    --vscode-textPreformat-background: rgba(0, 0, 0, 0.12);
+    --vscode-editor-inactiveSelectionBackground: #e5ebf1;
+    --vscode-editorStickyScrollHover-background: #f0f0f0;
+    --vscode-editorStickyScroll-background: #ffffff;
+    --vscode-widget-shadow: rgba(0, 0, 0, 0.16);
+    --vscode-toolbar-hoverBackground: rgba(184, 184, 184, 0.31);
 
-    --tc-chat-card-content-bg: var(--vscode-button-secondaryBackground);
+    --tc-chat-card-content-bg: var(--vscode-button-background);
     --tc-chat-card-content-like-unchecked: var(--vscode-badge-background);
     --tc-chat-card-content-like-checked: var(--vscode-foreground);
+    --tc-caht-bg: var(--vscode-editor-background);
 
     --container-padding: 0;
     --input-padding-vertical: 6px;
     --input-padding-horizontal: 4px;
     --input-margin-vertical: 4px;
     --input-margin-horizontal: 0;
-}
+    /* }
 
 html.light {
     color-scheme: light;
+    --el-color-primary: #409eff;
+    --el-color-primary-light-3: #79bbff;
+    --el-color-primary-light-5: #a0cfff;
+    --el-color-primary-light-7: #c6e2ff;
+    --el-color-primary-light-8: #d9ecff;
+    --el-color-primary-light-9: #ecf5ff;
+    --el-color-primary-dark-2: #337ecc;
+    --el-color-success: #67c23a;
+    --el-color-success-light-3: #95d475;
+    --el-color-success-light-5: #b3e19d;
+    --el-color-success-light-7: #d1edc4;
+    --el-color-success-light-8: #e1f3d8;
+    --el-color-success-light-9: #f0f9eb;
+    --el-color-success-dark-2: #529b2e;
+    --el-color-warning: #e6a23c;
+    --el-color-warning-light-3: #eebe77;
+    --el-color-warning-light-5: #f3d19e;
+    --el-color-warning-light-7: #f8e3c5;
+    --el-color-warning-light-8: #faecd8;
+    --el-color-warning-light-9: #fdf6ec;
+    --el-color-warning-dark-2: #b88230;
+    --el-color-danger: #f56c6c;
+    --el-color-danger-light-3: #f89898;
+    --el-color-danger-light-5: #fab6b6;
+    --el-color-danger-light-7: #fcd3d3;
+    --el-color-danger-light-8: #fde2e2;
+    --el-color-danger-light-9: #fef0f0;
+    --el-color-danger-dark-2: #c45656;
+    --el-color-error: #f56c6c;
+    --el-color-error-light-3: #f89898;
+    --el-color-error-light-5: #fab6b6;
+    --el-color-error-light-7: #fcd3d3;
+    --el-color-error-light-8: #fde2e2;
+    --el-color-error-light-9: #fef0f0;
+    --el-color-error-dark-2: #c45656;
+    --el-color-info: #909399;
+    --el-color-info-light-3: #b1b3b8;
+    --el-color-info-light-5: #c8c9cc;
+    --el-color-info-light-7: #dedfe0;
+    --el-color-info-light-8: #e9e9eb;
+    --el-color-info-light-9: #f4f4f5;
+    --el-color-info-dark-2: #73767a;
+    --el-color-info: #909399;
+    --el-color-info-light-3: #6b6d71;
+    --el-color-info-light-5: #525457;
+    --el-color-info-light-7: #393a3c;
+    --el-color-info-light-8: #2d2d2f;
+    --el-color-info-light-9: #202121;
+    --el-color-info-dark-2: #a6a9ad; */
+    /* --el-box-shadow: 0px 12px 32px 4px var(--vscode-widget-shadow), 0px 8px 20px rgba(0, 0, 0, 0.08);
+    --el-box-shadow-light: 0px 0px 12px rgba(0, 0, 0, 0.12);
+    --el-box-shadow-lighter: 0px 0px 6px rgba(0, 0, 0, 0.12);
+    --el-box-shadow-dark: 0px 16px 48px 16px rgba(0, 0, 0, 0.08), 0px 12px 32px rgba(0, 0, 0, 0.12), 0px 8px 16px -8px rgba(0, 0, 0, 0.16);
+    --el-bg-color-page: var(--vscode-editor-background);
+    --el-bg-color: var(--vscode-editor-background);
+    --el-bg-color-overlay: var(--vscode-editorHoverWidget-background);
+    --el-text-color-primary: var(--vscode-editor-foreground);
+    --el-text-color-regular: var(--vscode-editor-foreground);
+    --el-text-color-secondary: var(--vscode-button-secondaryForeground);
+    --el-text-color-placeholder: var(--vscode-input-placeholderForeground);
+    --el-text-color-disabled: var(--vscode-disabledForeground);
+    --el-border-color-darker: var(--vscode-editorBracketMatch-border);
+    --el-border-color-dark: var(--vscode-editorBracketMatch-border);
+    --el-border-color: var(--vscode-button-border);
+    --el-border-color-light: var(--vscode-editorHoverWidget-border);
+    --el-border-color-lighter: var(--vscode-widget-border);
+    --el-border-color-extra-light: var(--vscode-editorOverviewRuler-border);
+    --el-fill-color-darker: var(---vscode-textPreformat-background);
+    --el-fill-color-dark: var(--vscode-editor-inactiveSelectionBackground);
+    --el-fill-color: var(--vscode-editor-background);
+    --el-fill-color-light: var(--vscode-editorStickyScrollHover-background);
+    --el-fill-color-lighter: var(--vscode-editorStickyScroll-background);
+    --el-fill-color-extra-light: var(--vscode-editorHoverWidget-background);
+    --el-fill-color-blank: transparent;
+    --el-mask-color: var(--vscode-widget-shadow);
+    --el-mask-color-extra-light: var(--vscode-toolbar-hoverBackground);
+    --el-border-color-hover: var( --vscode-focusBorder) */
 }
 
-html.light .el-button {
+/* html.light .el-button {
     --el-button-disabled-text-color: rgba(255, 255, 255, 0.5)
+    
 }
 
 html.light .el-card {
@@ -52,4 +147,4 @@ html.light .el-empty {
     --el-empty-fill-color-7: #1b1c1f;
     --el-empty-fill-color-8: #1c1d1f;
     --el-empty-fill-color-9: #18181a
-}
+} */

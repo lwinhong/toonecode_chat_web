@@ -40,7 +40,7 @@ function handleClick(e) {
     border-radius: 4px;
     background: var(--tc-chat-card-content-bg);
     cursor: pointer;
-    border: 1px solid transparent;
+    border: 1px solid var(--vscode-button-border);
 }
 
 .prompt_block_disabled {
@@ -68,7 +68,7 @@ function handleClick(e) {
 
 .toolbox_prompt_subtitle {
     width: 100%;
-    color: var(--vscode-button-secondaryForeground);
+    color: var(--vscode-input-placeholderForeground);
     font-size: calc(var(--vscode-font-size) - 2px);
     font-weight: 400;
     display: -webkit-box;

@@ -3,33 +3,54 @@ import { ref } from 'vue'
 import ToolView from '../ToolView.vue';
 import { Translate2j } from '@/util/translate2j.js'
 import { ElMessage } from 'element-plus'
+import { readFileText } from '@/util/fileUtil.js'
 
 const dialogFormVisible = ref(false)
 const fileUploadInputRef = ref(null);
-const loading = ref(false);
+const inputJsonrRef = ref(null);
+const doing = ref(false);
 const jsonStr = ref("");
-const onToolClick = () => {
-    // if (data.disabled) {
-    //     ElMessage.warning('正在生成,请稍候...')
-    //     return;
-    // }
-    // fileUploadInputRef.value.click();
-    dialogFormVisible.value = true;
-}
-
-let data = ref({
+const data = ref({
     title: 'JSON转Java类',
     subtitle: '根据JSON数据生成Java类',
     name: 'json2java',
     disabled: false
 })
+const demo = ref(`[{
+        "table": {
+            "name": "md_project",
+            "comment": "项目"
+        },
+        "fields": [{
+                "name": "id",
+                "dataType": "varchar(64)",
+                "comment": ""
+            }, {
+                "name": "name",
+                "dataType": "varchar(255)",
+                "comment": "名称"
+            }, {
+                "name": "sex",
+                "dataType": "tinyint",
+                "comment": "性别"
+            }, {
+                "name": "birthday",
+                "dataType": "date",
+                "comment": "生日"
+            }
+        ]
+    }
+]`);
 
+const onToolClick = () => {
+    dialogFormVisible.value = true;
+    setTimeout(() => {
+        inputJsonrRef.value?.focus();
+    }, 200);
+}
 const onUploadFileChange = async (e) => {
     const file = e.target.files[0];
     try {
-        // data.value.disabled = true;
-        // ElMessage.info('正在生成,请稍候...')
-
         //文件的方式上传
         // await new Translate2j().excelFile2J(file);
         // this.data.disabled = false;
@@ -37,14 +58,6 @@ const onUploadFileChange = async (e) => {
         //读取text方式
         readFileText(file).then(async (result) => {
             jsonStr.value = result;
-            // try {
-            //     let option = { dataType: "json" };
-            //     await new Translate2j().sql2j(result, option, file.name);
-            // } catch (e) {
-            //     ElMessage.error("SQL转java失败");
-            //     console.error(e)
-            // }
-            // data.value.disabled = false;
         }).catch(e => {
             ElMessage.error("文件读取失败");
             console.error(e)
@@ -57,23 +70,10 @@ const onUploadFileChange = async (e) => {
         fileUploadInputRef.value.value = "";
     }
 }
-const readFileText = (file) => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = async () => {
-            resolve(reader.result);
-        }
-        reader.onerror = (e) => {
-            reject(e || "文件读取失败")
-        }
-        // text类型
-        reader.readAsText(file, 'utf-8')
-    })
-}
+
 const doChanged = async () => {
     data.value.disabled = true;
-    //const loadingInstance = ElLoading.service({ target: dialogElRef.value })
-    loading.value = true;
+    doing.value = true;
     try {
         let option = { dataType: "json" };
         await new Translate2j().sql2j(jsonStr.value, option, "json2java.zip");
@@ -83,34 +83,38 @@ const doChanged = async () => {
         console.error(e)
     }
     data.value.disabled = false;
-    loading.value = false;
+    doing.value = false;
 }
+
 const beforeClose = (done) => {
-    if (loading.value === true) {
+    if (doing.value === true) {
         return;
     }
     done?.();
     jsonStr.value = "";
-    loading.value = false;
+    doing.value = false;
 }
-
+const templateDownload = () => {
+    jsonStr.value = demo.value;
+}
 </script>
 <template>
     <ToolView :data="data" @click="onToolClick"> </ToolView>
     <input ref="fileUploadInputRef" type="file" class="fileInput-hide" @change="onUploadFileChange" accept=".json"
         required />
     <el-dialog v-model="dialogFormVisible" title="JSON转Java类" width="95%" destroy-on-close
-        :close-on-click-modal="false" :before-close="beforeClose">
-        <el-input type="textarea" placeholder="请键入JSON字符" :rows="10" v-model="jsonStr"
-            :autosize="{ minRows: 10, maxRows: 20 }" :disabled="loading"></el-input>
+        :close-on-click-modal="!doing" :before-close="beforeClose">
+        <el-input ref="inputJsonrRef" type="textarea" placeholder="请键入JSON字符" :rows="10" v-model="jsonStr"
+            :autosize="{ minRows: 10, maxRows: 20 }" :disabled="doing"></el-input>
 
         <el-row :gutter="20" justify="space-between" class="row-button-container">
-            <el-col :span="12">
-                <el-button @click="fileUploadInputRef.click()" :disabled="loading">选择文件</el-button>
+            <el-col :span="18">
+                <el-button @click="fileUploadInputRef.click()" :disabled="doing" title="打开JSON文件" link>选择文件</el-button>
+                <el-button @click="templateDownload" :disabled="doing" link title="来个Demo">来个Demo</el-button>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="6">
                 <div class="button-container">
-                    <el-button @click="doChanged" :loading="loading" :disabled="loading || !jsonStr">转换</el-button>
+                    <el-button @click="doChanged" :loading="doing" :disabled="doing || !jsonStr">转换</el-button>
                 </div>
             </el-col>
         </el-row>

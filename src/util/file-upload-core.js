@@ -26,7 +26,7 @@ export class FileHandlerCore {
         const data = await response.json();
         return data;
     }
-    async saveFileByFileId(fileId, filePath) {
+    async saveFileByFileId(url, fileId, filePath) {
         const response = await fetch(url, {
             method: 'POST',
             body: JSON.stringify({ fileId })
@@ -47,4 +47,5 @@ export class FileHandlerCore {
         const blob = await response.blob();
         saveAs(blob, filePath);
     }
+
 }

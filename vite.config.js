@@ -63,7 +63,7 @@ export default defineConfig(({ command, mode }) => {
           rewrite: (path) => path.replace(/^\/api1/, '')
         },
         '/api2': {
-          target: 'http://10.1.33.138:1235/generator',
+          target: 'http://codegen.t.vtoone.com/generator',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api2/, '')
         }

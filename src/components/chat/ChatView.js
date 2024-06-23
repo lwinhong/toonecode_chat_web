@@ -6,7 +6,7 @@ import { chatUtil } from "@/util/chatUtil"
 
 import { IconDownloadSvg, IconPlusSvg, IconAiSvg, IconPencilSvg, IconUserSvg } from "../icons";
 import { useStore } from '@/stores/useStore'
-import { mapState, mapActions } from 'pinia'
+import { mapState } from 'pinia'
 import { getLanguageExtByFilePath } from "@/util/languageExt"
 import { renderCodeAndToolBar } from "./CodeToolBar.jsx";
 
@@ -38,7 +38,7 @@ export default defineComponent({
         }
     },
     watch: {
-        isInProgress(n, o) {
+        isInProgress(n) {
             useStore().setChatInProgress(n);
         }
     },
@@ -329,7 +329,7 @@ export default defineComponent({
             }
             this.moreContextMenu.show = true;
             this.moreContextMenu.option.x = rect.x;
-            this.moreContextMenu.option.y = rect.y - (itemCount * 33 + 12 * 2) -20;
+            this.moreContextMenu.option.y = rect.y - (itemCount * 33 + 12 * 2) - 20;
         },
         codeToolbarClick(target, codeEl) {
             switch (target.id) {
@@ -342,37 +342,41 @@ export default defineComponent({
                     });
                     break;
                 case "insert-code":
-                    const data1 = {
-                        type: "editCode",
-                        value: codeEl.textContent,
-                    };
-                    if (this.isIdeaMode)
-                        util.postMessageToIdeaEditor(data1);
-                    else
-                        util.postMessageToCodeEditor(data1);
+                    {
+                        const data1 = {
+                            type: "editCode",
+                            value: codeEl.textContent,
+                        };
+                        if (this.isIdeaMode)
+                            util.postMessageToIdeaEditor(data1);
+                        else
+                            util.postMessageToCodeEditor(data1);
+                    }
                     break;
                 case "new-file":
-                    let first = codeEl;
-                    let value = codeEl?.textContent;
-                    let language;
-                    if (first) {
-                        for (let i = 0; i < first.classList.length; i++) {
-                            const c = first.classList[i];
-                            if (c.startsWith("language-")) {
-                                language = c.substring(c.indexOf('-') + 1);
-                                break;
+                    {
+                        let first = codeEl;
+                        let value = codeEl?.textContent;
+                        let language;
+                        if (first) {
+                            for (let i = 0; i < first.classList.length; i++) {
+                                const c = first.classList[i];
+                                if (c.startsWith("language-")) {
+                                    language = c.substring(c.indexOf('-') + 1);
+                                    break;
+                                }
                             }
                         }
+                        let data2 = {
+                            type: "openNew",
+                            value: value,
+                            language
+                        };
+                        if (this.isIdeaMode)
+                            util.postMessageToIdeaEditor(data2);
+                        else
+                            util.postMessageToCodeEditor(data2);
                     }
-                    let data2 = {
-                        type: "openNew",
-                        value: value,
-                        language
-                    };
-                    if (this.isIdeaMode)
-                        util.postMessageToIdeaEditor(data2);
-                    else
-                        util.postMessageToCodeEditor(data2);
                     break;
             }
         },
@@ -408,14 +412,16 @@ export default defineComponent({
                 case "selectedText":
                     break;
                 case "changeTheme":
-                    const handleThemeChange = (val) => {
-                        if (!val) {
-                            document.documentElement.setAttribute('theme', 'light')
-                        } else {
-                            document.documentElement.removeAttribute('theme')
+                    {
+                        const handleThemeChange = (val) => {
+                            if (!val) {
+                                document.documentElement.setAttribute('theme', 'light')
+                            } else {
+                                document.documentElement.removeAttribute('theme')
+                            }
                         }
+                        handleThemeChange(!(value || "").toLowerCase().includes("light"));
                     }
-                    handleThemeChange(!(value || "").toLowerCase().includes("light"));
                     break;
                 case "colorChanged":
                     this.colorChangedHandler(value);

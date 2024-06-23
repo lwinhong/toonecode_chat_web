@@ -9,6 +9,11 @@
     --vscode-textLink-foreground: #4daafc;
     --vscode-textLink-activeForeground: #4daafc;
     --vscode-editor-font-family: Consolas, 'Courier New', monospace;
+    --vscode-button-foreground: #ffffff;
+    --vscode-button-separator: rgba(255, 255, 255, 0.4);
+    --vscode-button-background: #0078d4;
+    --vscode-button-hoverBackground: #026ec1;
+    --vscode-button-border: rgba(255, 255, 255, 0.07);
     --vscode-button-secondaryForeground: #cccccc;
     --vscode-button-secondaryBackground: #313131;
     --vscode-button-secondaryHoverBackground: #3c3c3c;
@@ -16,12 +21,25 @@
     --vscode-input-foreground: #cccccc;
     --vscode-input-border: #3c3c3c;
     --vscode-input-placeholderForeground: #989898;
-    --vscode-button-border: rgba(255, 255, 255, 0.07);
+    
+    --vscode-editorHoverWidget-background: #202020;
+    --vscode-disabledForeground: rgba(204, 204, 204, 0.5);
+    --vscode-editorBracketMatch-border: #888888;
+    --vscode-editorHoverWidget-border: #454545;
+    --vscode-widget-border: #313131;
+    --vscode-editorOverviewRuler-border: #010409;
+    --vscode-textPreformat-background: #3c3c3c;
+    --vscode-editor-inactiveSelectionBackground: #3a3d41;
+    --vscode-editorStickyScrollHover-background: #2a2d2e;
+    --vscode-editorStickyScroll-background: #1f1f1f;
+    --vscode-widget-shadow: rgba(0, 0, 0, 0.36);
+    --vscode-toolbar-hoverBackground: rgba(90, 93, 94, 0.31);
 
-    --tc-chat-card-content-bg: var(--vscode-button-secondaryBackground);
+    --tc-chat-card-content-bg: var(--vscode-input-background);
     --tc-chat-card-content-like-unchecked: var(--vscode-badge-background);
     --tc-chat-card-content-like-checked: var(--vscode-foreground);
-
+    --tc-caht-bg: var(--vscode-editor-background);
+    
     --container-padding: 0;
     --input-padding-vertical: 6px;
     --input-padding-horizontal: 4px;
@@ -30,7 +48,7 @@
 
 }
 
-html.dark {
+/* html.dark {
     color-scheme: dark;
     --el-color-primary: #409eff;
     --el-color-primary-light-3: #3375b9;
@@ -74,36 +92,37 @@ html.dark {
     --el-color-info-light-8: #2d2d2f;
     --el-color-info-light-9: #202121;
     --el-color-info-dark-2: #a6a9ad;
-    --el-box-shadow: 0px 12px 32px 4px rgba(0, 0, 0, 0.36), 0px 8px 20px rgba(0, 0, 0, 0.72);
+    --el-box-shadow: 0px 12px 32px 4px var(--vscode-widget-shadow), 0px 8px 20px rgba(0, 0, 0, 0.72);
     --el-box-shadow-light: 0px 0px 12px rgba(0, 0, 0, 0.72);
     --el-box-shadow-lighter: 0px 0px 6px rgba(0, 0, 0, 0.72);
     --el-box-shadow-dark: 0px 16px 48px 16px rgba(0, 0, 0, 0.72), 0px 12px 32px #000000, 0px 8px 16px -8px #000000;
-    --el-bg-color-page: #0a0a0a;
+    --el-bg-color-page: var(--vscode-editor-background);
     --el-bg-color: var(--vscode-editor-background);
-    --el-bg-color-overlay: #1d1e1f;
-    --el-text-color-primary: #E5EAF3;
-    --el-text-color-regular: #CFD3DC;
-    --el-text-color-secondary: #A3A6AD;
-    --el-text-color-placeholder: #8D9095;
-    --el-text-color-disabled: #6C6E72;
-    --el-border-color-darker: #636466;
-    --el-border-color-dark: #58585B;
+    --el-bg-color-overlay: var(--vscode-editorHoverWidget-background);
+    --el-text-color-primary: var(--vscode-editor-foreground);
+    --el-text-color-regular: var(--vscode-editor-foreground);
+    --el-text-color-secondary: var(--vscode-button-secondaryForeground);
+    --el-text-color-placeholder: var(--vscode-input-placeholderForeground);
+    --el-text-color-disabled: var(--vscode-disabledForeground);
+    --el-border-color-darker: var(--vscode-editorBracketMatch-border);
+    --el-border-color-dark: var(--vscode-editorBracketMatch-border);
     --el-border-color: var(--vscode-button-border);
     --el-border-color-light: var(--vscode-editorHoverWidget-border);
-    --el-border-color-lighter: #363637;
-    --el-border-color-extra-light: #2B2B2C;
-    --el-fill-color-darker: #424243;
-    --el-fill-color-dark: #39393A;
+    --el-border-color-lighter: var(--vscode-widget-border);
+    --el-border-color-extra-light: var(--vscode-editorOverviewRuler-border);
+    --el-fill-color-darker: var(--vscode-textPreformat-background);
+    --el-fill-color-dark: var(--vscode-editor-inactiveSelectionBackground);
     --el-fill-color: var(--vscode-editor-background);
-    --el-fill-color-light: #262727;
-    --el-fill-color-lighter: #1D1D1D;
-    --el-fill-color-extra-light: #191919;
+    --el-fill-color-light: var(--vscode-editorStickyScrollHover-background);
+    --el-fill-color-lighter: var(--vscode-editorStickyScroll-background);
+    --el-fill-color-extra-light: var(--vscode-editorHoverWidget-background);
     --el-fill-color-blank: transparent;
-    --el-mask-color: rgba(0, 0, 0, 0.8);
-    --el-mask-color-extra-light: rgba(0, 0, 0, 0.3)
-}
+    --el-mask-color: var(--vscode-widget-shadow);
+    --el-mask-color-extra-light: var(--vscode-toolbar-hoverBackground);
+    --el-border-color-hover: var( --vscode-focusBorder)
+} */
 
-html.dark .el-button {
+/* html.dark .el-button {
     --el-button-disabled-text-color: rgba(255, 255, 255, 0.5)
 }
 
@@ -122,4 +141,4 @@ html.dark .el-empty {
     --el-empty-fill-color-7: #1b1c1f;
     --el-empty-fill-color-8: #1c1d1f;
     --el-empty-fill-color-9: #18181a
-}
+} */

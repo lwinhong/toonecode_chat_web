@@ -1,5 +1,5 @@
 <script setup>
-import { inject, ref } from 'vue'
+import {  ref } from 'vue'
 import ToolView from '../ToolView.vue';
 import { Translate2j } from '@/util/translate2j.js'
 import { ElMessage } from 'element-plus'
@@ -7,8 +7,8 @@ import { ElMessage } from 'element-plus'
 const fileUploadInputRef = ref(null);
 const acceptExt = ref(".sql")
 
-const onToolClick = (item) => {
-    if (data.disabled) {
+const onToolClick = () => {
+    if (data.value.disabled) {
         ElMessage.warning('正在生成,请稍候...')
         return;
     }
@@ -26,7 +26,7 @@ let data = ref({
 const onUploadFileChange = async (e) => {
     const file = e.target.files[0];
     try {
-        data.disabled = true;
+        data.value.disabled = true;
         ElMessage.info('正在生成,请稍候...')
 
         const options = { dbType: 'mysql' };
@@ -43,11 +43,11 @@ const onUploadFileChange = async (e) => {
                 ElMessage.error("SQL转java失败");
                 console.error(e)
             }
-            data.disabled = false;
+            data.value.disabled = false;
         }
         reader.onerror = () => {
             ElMessage.error("文件读取失败")
-            data.disabled = false;
+            data.value.disabled = false;
         }
         // text类型
         reader.readAsText(file, 'utf-8')
@@ -64,7 +64,7 @@ const onUploadFileChange = async (e) => {
 <template>
     <ToolView :data="data" @click="onToolClick"> </ToolView>
     <input ref="fileUploadInputRef" type="file" class="fileInput-hide" @change="onUploadFileChange" :accept="acceptExt"
-        required></input>
+        required/>
 </template>
 <style scoped>
 .fileInput-hide {

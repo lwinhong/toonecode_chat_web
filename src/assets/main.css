@@ -53,7 +53,7 @@ body {
     /*var(--vscode-editor-font-size); */
     font-weight: var(--vscode-font-weight);
     font-family: var(--vscode-font-family);
-    background-color: var(--vscode-editor-background);
+    background-color: var(--tc-caht-bg);
 }
 
 ol,

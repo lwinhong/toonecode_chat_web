@@ -143,9 +143,9 @@
             <div class="flex-1 textarea-wrapper">
                 <!-- <textarea type="text" rows="1" data-license="isc-gnc" id="question-input" placeholder="输入一个问题..."
                     onInput="this.parentNode.dataset.replicatedValue = this.value"></textarea> -->
-                <textarea ref="questionInputRef" class="common-textarea" type="text" rows="1" data-license="isc-gnc" id="question-input"
-                    placeholder="输入一个问题..." @keydown.enter.prevent="onQuestionKeyEnter" v-model="questionInput"
-                    :disabled="questionInputDisabled"></textarea>
+                <textarea ref="questionInputRef" class="common-textarea" type="text" rows="1" data-license="isc-gnc"
+                    id="question-input" placeholder="输入一个问题..." @keydown.enter.prevent="onQuestionKeyEnter"
+                    v-model="questionInput" :disabled="questionInputDisabled"></textarea>
             </div>
             <div id="question-input-buttons" class="p-0.5 flex  gap-2 send-erea-items-center"
                 v-show="questionInputButtonsVisible">
@@ -174,7 +174,8 @@
                     <IconPlusSvg />
                 </template>
             </context-menu-item>
-            <context-menu-item label="导出markdown" v-if="isVsCodeMode" @click="onExportConversation" >
+            <context-menu-item label="导出markdown" v-if="isVsCodeMode && qaData.list && qaData.list.length > 0"
+                @click="onExportConversation">
                 <template #icon>
                     <IconDownloadSvg />
                 </template>

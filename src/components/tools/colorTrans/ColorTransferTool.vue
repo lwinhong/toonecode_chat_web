@@ -3,17 +3,18 @@
     </ToolView>
     <el-dialog v-model="dialogFormVisible" title="RGB <--> HEX 转换" width="90%" destroy-on-close>
         <el-form :model="form" label-position="top">
-            <el-form-item label="RGB 颜色值" :label-width="formLabelWidth">
+            <el-form-item label="RGB --> HEX" :label-width="formLabelWidth">
                 <el-input size="large" v-model="form.rgb" autocomplete="off" />
             </el-form-item>
-            <el-form-item label="" :label-width="formLabelWidth">
+            <el-form-item label="" :label-width="formLabelWidth"
+                style="padding-bottom:10px;border-bottom: 1px dashed var(--el-border-color);">
                 <div class="rgb2hex-result-show">
                     <span class="rgb2hex-color-highlight" :style="{ 'background': rgbToHexResult }"></span>
                     <span class="p-3 rgb2hex-color-result">{{ rgbToHexResult }}</span>
                     <el-button @click="copy(rgbToHexResult)" link title="复制转换结果">复制</el-button>
                 </div>
             </el-form-item>
-            <el-form-item label="16进制颜色码" :label-width="formLabelWidth">
+            <el-form-item label="HEX --> RGB" :label-width="formLabelWidth">
                 <el-input size="large" v-model="form.hex" autocomplete="off" />
             </el-form-item>
             <el-form-item label="" :label-width="formLabelWidth">

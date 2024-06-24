@@ -10,6 +10,8 @@ const fileUploadInputRef = ref(null);
 const inputJsonrRef = ref(null);
 const doing = ref(false);
 const jsonStr = ref("");
+const fileName = ref("");
+
 const data = ref({
     title: 'JSON转Java类',
     subtitle: '根据JSON数据生成Java类',
@@ -54,7 +56,7 @@ const onUploadFileChange = async (e) => {
         //文件的方式上传
         // await new Translate2j().excelFile2J(file);
         // this.data.disabled = false;
-
+        fileName.value = file.name;
         //读取text方式
         readFileText(file).then(async (result) => {
             jsonStr.value = result;
@@ -76,12 +78,13 @@ const doChanged = async () => {
     doing.value = true;
     try {
         let option = { dataType: "json" };
-        await new Translate2j().sql2j(jsonStr.value, option, "json2java.zip");
+        await new Translate2j().sql2j(jsonStr.value, option, fileName.value || "json2java.zip");
         dialogFormVisible.value = false;
     } catch (e) {
-        ElMessage.error("SQL转java失败");
+        ElMessage.error("JSON转java失败");
         console.error(e)
     }
+    fileName.value = undefined;
     data.value.disabled = false;
     doing.value = false;
 }
@@ -110,11 +113,11 @@ const templateDownload = () => {
         <el-row :gutter="20" justify="space-between" class="row-button-container">
             <el-col :span="18">
                 <el-button @click="fileUploadInputRef.click()" :disabled="doing" title="打开JSON文件" link>选择文件</el-button>
-                <el-button @click="templateDownload" :disabled="doing" link title="来个Demo">来个Demo</el-button>
+                <el-button @click="templateDownload" :disabled="doing" link title="加载样例模板">模板</el-button>
             </el-col>
             <el-col :span="6">
                 <div class="button-container">
-                    <el-button @click="doChanged" :loading="doing" :disabled="doing || !jsonStr">转换</el-button>
+                    <el-button @click="doChanged" :loading="doing" :disabled="doing || !jsonStr">生成</el-button>
                 </div>
             </el-col>
         </el-row>

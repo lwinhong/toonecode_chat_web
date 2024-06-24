@@ -23,13 +23,13 @@ function getIDEType() {
             break;
         case 'idea':
             ideType.value = ide;
-            useStore().setIdeaMode(true);
+            store.setIdeaMode(true);
             break;
         default:
             try {
                 const vscode = window.acquireVsCodeApi();
                 window.vscodeInstance = vscode;
-                useStore().setVsCodeMode(vscode ? true : false);
+                store.setVsCodeMode(vscode ? true : false);
                 ideType.value = "vscode";
             } catch (error) {
                 console.log("不在vscode内:" + error);

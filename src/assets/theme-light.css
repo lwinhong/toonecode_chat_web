@@ -32,9 +32,9 @@
     --vscode-editorStickyScrollHover-background: #f0f0f0;
     --vscode-editorStickyScroll-background: #ffffff;
     --vscode-widget-shadow: rgba(0, 0, 0, 0.16);
-    --vscode-toolbar-hoverBackground: rgba(184, 184, 184, 0.31);
+    --vscode-toolbar-hoverBackground: rgba(184, 184, 184, 0.25);
 
-    --tc-chat-card-content-bg: var(--vscode-button-background);
+    --tc-chat-card-content-bg: var(--vscode-toolbar-hoverBackground);
     --tc-chat-card-content-like-unchecked: var(--vscode-badge-background);
     --tc-chat-card-content-like-checked: var(--vscode-foreground);
     --tc-caht-bg: var(--vscode-editor-background);

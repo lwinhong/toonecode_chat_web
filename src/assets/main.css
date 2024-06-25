@@ -291,8 +291,8 @@ code {
 }
 
 .pre-code-element:not(:last-child) {
-    margin-bottom: 2rem;
-    word-break: break-word;
+    margin-bottom: 1rem;
+    /* word-break: break-word; */
 }
 
 .chat-card-bg {
@@ -311,13 +311,13 @@ code {
     border-radius: 4px;
 }
 
-.chat-card-bg pre {
+/* .chat-card-bg pre {
     word-break: break-word;
 }
 
 .hljs {
     white-space: pre-wrap;
-}
+} */
 
 .code-actions-wrapper {
     opacity: 0.70;
@@ -500,6 +500,8 @@ code {
 .u-viewsBd .tabContent {
     flex: 1;
     display: flex;
+    width: 100%;
+    position: relative;
 }
 
 .u-header {
@@ -556,3 +558,10 @@ code {
 }
 
 /*********以上是工具箱样式*********/
+
+.chat-box-600 {
+    display: flex;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}

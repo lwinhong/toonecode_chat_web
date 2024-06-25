@@ -11,9 +11,10 @@ const $bus = inject('$bus')
 const ideType = ref("chatOnly");
 const store = useStore();
 
+
 onMounted(() => {
     getIDEType();
-    // useRouter().push('tools' );
+    store.setIdeType(ideType.value);
 })
 function getIDEType() {
     const ide = useRoute().query.ide;
@@ -48,7 +49,7 @@ function newChatClick() {
 </script>
 
 <template>
-    <FrameView>
+    <FrameView :class="{ 'chat-box-600': ideType === 'chatOnly' }">
         <template v-slot:ai>
             <ChatView v-if="ideType === 'chatOnly' || ideType === 'idea'"></ChatView>
             <ChatVsCode v-else-if="ideType === 'vscode'"></ChatVsCode>

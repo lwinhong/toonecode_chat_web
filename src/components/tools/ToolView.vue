@@ -63,7 +63,7 @@ function handleClick(e) {
 }
 
 .toolbox_prompt_title_disabled {
-    color: rgba(128, 128, 128, .8) !important;
+    color: rgba(128, 128, 128, .7) !important;
 }
 
 .toolbox_prompt_subtitle {

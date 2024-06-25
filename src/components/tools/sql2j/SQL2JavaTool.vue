@@ -13,6 +13,10 @@ const doing = ref(false);
 const sqlStr = ref("");
 const fileName = ref("");
 
+const defaultSqlType = "mysql";
+const sqlTypeOption = ref([defaultSqlType, "oracle", "postgresql", "sqlserver"]);
+const sqlType = ref(defaultSqlType);
+
 const data = ref({
     title: 'SQL转Java类',
     subtitle: '根据SQL脚本生成Java类',
@@ -65,7 +69,7 @@ const onUploadFileChange = async (e) => {
 const doGenerate = async () => {
     data.value.disabled = true;
     doing.value = true;
-    const options = { dbType: 'mysql', dataType: "sql" };
+    const options = { dbType: sqlType.value || defaultSqlType, dataType: "sql" };
     try {
         await new Translate2j().sql2j(sqlStr.value, options, fileName.value || "sql2java.zip");
         dialogFormVisible.value = false;
@@ -88,6 +92,7 @@ const beforeClose = (done) => {
 }
 const templateDownload = () => {
     sqlStr.value = demo.value;
+    sqlType.value = defaultSqlType;
 }
 </script>
 <template>
@@ -96,9 +101,18 @@ const templateDownload = () => {
         required />
     <el-dialog v-model="dialogFormVisible" title="SQL转Java类" width="95%" destroy-on-close :close-on-click-modal="!doing"
         :before-close="beforeClose">
-        <el-input ref="inputSqlRef" type="textarea" placeholder="请键入SQL脚本" :rows="10" v-model="sqlStr"
-            :autosize="{ minRows: 10, maxRows: 20 }" :disabled="doing"></el-input>
 
+        <el-form>
+            <el-form-item label="数据库">
+                <el-select v-model="sqlType" placeholder="Select">
+                    <el-option v-for="item in sqlTypeOption" :key="item" :label="item" :value="item" />
+                </el-select>
+            </el-form-item>
+            <el-form-item>
+                <el-input ref="inputSqlRef" type="textarea" placeholder="请键入SQL脚本或选择文件" :rows="10" v-model="sqlStr"
+                    :autosize="{ minRows: 10, maxRows: 20 }" :disabled="doing"></el-input>
+            </el-form-item>
+        </el-form>
         <el-row :gutter="20" justify="space-between" class="row-button-container">
             <el-col :span="18">
                 <el-button @click="fileUploadInputRef.click()" :disabled="doing" title="打开JSON文件" link>选择文件</el-button>
@@ -106,7 +120,8 @@ const templateDownload = () => {
             </el-col>
             <el-col :span="6">
                 <div class="button-container">
-                    <el-button @click="doGenerate" :loading="doing" :disabled="doing || !sqlStr">生成</el-button>
+                    <el-button @click="doGenerate" :loading="doing" :disabled="doing || !sqlStr" plain
+                        type="primary">生成</el-button>
                 </div>
             </el-col>
         </el-row>
@@ -118,7 +133,7 @@ const templateDownload = () => {
 }
 
 .row-button-container {
-    padding-top: 8px;
+    padding-top: 0px;
 }
 
 .row-button-container .button-container {

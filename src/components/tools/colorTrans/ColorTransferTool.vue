@@ -1,7 +1,7 @@
 <template>
     <ToolView :data="data" @click="onToolClick">
     </ToolView>
-    <el-dialog v-model="dialogFormVisible" title="RGB <--> HEX 转换" width="90%" destroy-on-close>
+    <el-dialog v-model="dialogFormVisible" title="颜色转换" width="95%" destroy-on-close>
         <el-form :model="form" label-position="top">
             <el-form-item label="RGB --> HEX" :label-width="formLabelWidth">
                 <el-input size="large" v-model="form.rgb" autocomplete="off" />
@@ -117,12 +117,12 @@ function hexToRgb(hex) {
 .rgb2hex-color-highlight {
     display: inline-block;
     line-height: 35px;
-    width: 60px;
-    height: 35px;
+    width: 42px;
+    height: 32px;
     border: 1px solid rgb(128 128 128 / 28%)
 }
 
 .rgb2hex-color-result {
-    width: 100px;
+    width: 110px;
 }
 </style>

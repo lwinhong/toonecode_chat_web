@@ -198,13 +198,6 @@ html[data-code-theme="light"] {
     @include meta.load-css("highlight.js/styles/atom-one-light.css");
 }
 
-.chat-box-600 {
-    display: flex;
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
 .code-chat-box-like-wrapper {
     margin-top: 7px;
     display: flex;
@@ -216,7 +209,6 @@ html[data-code-theme="light"] {
     display: flex;
     justify-content: flex-end;
 }
-
 
 .rating-panel .btn-like,
 .rating-panel .btn-dislike {

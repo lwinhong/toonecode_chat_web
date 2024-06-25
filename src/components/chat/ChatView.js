@@ -1,4 +1,4 @@
-import { defineComponent, ref } from 'vue'
+import { defineComponent, nextTick, ref } from 'vue'
 import * as clipboard from "clipboard-polyfill";
 import { v4 as uuidv4 } from "uuid";
 import { util, clipboardSvg, checkSvg } from "@/util/index"
@@ -24,7 +24,6 @@ export default defineComponent({
             questionInputDisabled: false,
             showStopButton: false,
             questionInputButtonsVisible: true,
-            // questionInputButtonsMoreVisible: false,
             moreContextMenu: {
                 show: false,
                 theme: "dark",
@@ -35,6 +34,7 @@ export default defineComponent({
                     y: 200
                 }
             },
+            userWheeled: false
         }
     },
     watch: {
@@ -177,7 +177,7 @@ export default defineComponent({
 
             await this.showInProgress({ showStopButton: true, inProgress: true });
 
-            this.addQuestion(message)
+            await this.addQuestion(message)
             this.abortController?.abort();
             this.abortController = new AbortController();
             let history = withHistory && chatUtil.buildHistories(this.qaData.list);
@@ -207,7 +207,7 @@ export default defineComponent({
                 console.log(error);
             }
         },
-        addQuestion(message) {
+        async addQuestion(message) {
             this.stopClick = undefined;
             this.currentViewType = viewType.qa;
             this.qaId = message.qaId ?? uuidv4();
@@ -237,7 +237,9 @@ export default defineComponent({
                 like: undefined,
                 dislike: undefined,
             });
-            setTimeout(() => { util.autoScrollToBottom(this.qaElementList); }, 100);
+            this.userWheeled = false;
+            await nextTick();
+            util.autoScrollToBottom(this.qaElementList);
         },
         addResponse(message) {
             this.addResponseCore(message)
@@ -282,8 +284,10 @@ export default defineComponent({
                     preCodeList.forEach((preCode) => {
                         renderCodeAndToolBar(preCode.parentNode, preCode, this.isInCodeIDE, { onclick: this.codeToolbarClick })
                     });
-                    util.autoScrollToBottom(list);
-                    this.questionInputRef?.focus();
+                    nextTick(() => {
+                        //util.autoScrollToBottom(list);
+                        this.questionInputRef?.focus();
+                    });
                 };
 
                 if (!message.isStop) {
@@ -292,9 +296,14 @@ export default defineComponent({
                 } else {
                     setTimeout(buildCodeButton, 100);
                 }
+                //this.userWheeled = false;
             }
-            if (message.autoScroll) {
-                util.autoScrollToBottom(list);
+            if (message.autoScroll && !this.userWheeled) {
+                nextTick(() => {
+                    //list.scrollTop = list.scrollHeight;
+                    util.autoScrollToBottom(list);
+                })
+                //util.autoScrollToBottom(list);
             }
         },
         addError(message) {
@@ -380,16 +389,6 @@ export default defineComponent({
                     break;
             }
         },
-        documnetClickHandler(e) {
-            // const targetButton = e.target.closest('button');
-            // if (targetButton?.classList?.contains("resend-element-ext")) {
-            //     targetButton.classList.add("hidden");
-            //     return;
-            // }
-
-            // if (targetButton !== this.questionInputButtonsMore)
-            //     this.questionInputButtonsMoreVisible = false;
-        },
         async busEventHandler(data) {
             let { cmd, value } = data;
             switch (cmd) {
@@ -450,13 +449,20 @@ export default defineComponent({
         }
     },
     mounted() {
-        document.removeEventListener("click", this.documnetClickHandler)
-        document.addEventListener("click", this.documnetClickHandler);
 
         this.$bus.off("executeCmd", this.busEventHandler)
         this.$bus.on("executeCmd", this.busEventHandler)
         if (!import.meta.env.PROD) {
             this.questionInput = "生成一个python排序算法"
         }
+
+        if (this.qaElementList) {
+            this.qaElementList.addEventListener('wheel', (e) => {
+                this.userWheeled = true;
+            })
+        }
+    },
+    unmounted() {
+        this.$bus.off("executeCmd", this.busEventHandler);
     }
 })

@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, inject } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useStore } from '@/stores/useStore';
 import FrameView from './frame/FrameView.vue';
 import ChatView from '@/components/chat/ChatView.vue'
@@ -11,9 +11,10 @@ const $bus = inject('$bus')
 const ideType = ref("chatOnly");
 const store = useStore();
 
+
 onMounted(() => {
     getIDEType();
-    // useRouter().push('tools' );
+    store.setIdeType(ideType.value);
 })
 function getIDEType() {
     const ide = useRoute().query.ide;
@@ -23,18 +24,21 @@ function getIDEType() {
             break;
         case 'idea':
             ideType.value = ide;
-            useStore().setIdeaMode(true);
+            store.setIdeaMode(true);
             break;
         default:
             try {
                 const vscode = window.acquireVsCodeApi();
                 window.vscodeInstance = vscode;
-                useStore().setVsCodeMode(vscode ? true : false);
+                store.setVsCodeMode(vscode ? true : false);
                 ideType.value = "vscode";
             } catch (error) {
                 console.log("不在vscode内:" + error);
             }
             break;
+    }
+    if (ideType.value === "vscode") {
+        document.documentElement.style.setProperty('--tc-caht-bg', 'transparent');
     }
     console.log(ideType.value);
 }
@@ -45,7 +49,7 @@ function newChatClick() {
 </script>
 
 <template>
-    <FrameView>
+    <FrameView :class="{ 'chat-box-600': ideType === 'chatOnly' }">
         <template v-slot:ai>
             <ChatView v-if="ideType === 'chatOnly' || ideType === 'idea'"></ChatView>
             <ChatVsCode v-else-if="ideType === 'vscode'"></ChatVsCode>

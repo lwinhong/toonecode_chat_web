@@ -6,8 +6,12 @@ export const useStore = defineStore('useStore', {
     isIdeaMode: false,
     isInCodeIDE: false,
     chatInProgress: false,
+    IdeType: ""
   }),
   actions: {
+    setIdeType(type) {
+      this.IdeType = type;
+    },
     setChatInProgress(ing) {
       this.chatInProgress = ing;
     },

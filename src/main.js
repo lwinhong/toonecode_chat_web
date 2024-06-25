@@ -7,8 +7,13 @@ import router from './router'
 import mitt from 'mitt'
 const $bus = new mitt()
 
-// import ElementPlus from 'element-plus'
-// import 'element-plus/dist/index.css'
+
+import 'element-plus/dist/index.css'
+// import '@/styles/element/index.scss'
+
+// import 'element-plus/theme-chalk/dark/css-vars.css'
+//import ElementPlus from 'element-plus'
+
 
 /*********** axios ************* */
 
@@ -37,16 +42,17 @@ app.provide("$bus", $bus)
 app.config.globalProperties.$bus = $bus
 app.mount('#app')
 
-
 window.exportVar = function (data) {
     $bus.emit('executeCmd', data)
 }
 //变更代码主题
 window.changeTheme = (val) => {
     if (!val) {
+        document.documentElement.setAttribute('class', 'light')
         document.documentElement.setAttribute('theme', 'light')
         document.getElementsByTagName('html')[0].dataset.codeTheme = 'light';
     } else {
+        document.documentElement.setAttribute('class', 'dark')
         document.documentElement.removeAttribute('theme')
         document.getElementsByTagName('html')[0].dataset.codeTheme = 'dark';
     }

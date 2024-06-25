@@ -6,7 +6,7 @@ import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import vue from '@vitejs/plugin-vue'
-//import ElementPlus from 'unplugin-element-plus/vite'
+// import ElementPlus from 'unplugin-element-plus/vite'
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => {
   return {
@@ -14,13 +14,22 @@ export default defineConfig(({ command, mode }) => {
       vue(),
       vueJsx(),
       AutoImport({
-        resolvers: [ElementPlusResolver()],
+        resolvers: [ElementPlusResolver({ importStyle: 'sass' })],
       }),
       Components({
-        resolvers: [ElementPlusResolver()],
+        resolvers: [ElementPlusResolver({ importStyle: 'sass' })],
       }),
-      //ElementPlus(),
+      // ElementPlus({
+      //   useSource: true,
+      // }),
     ],
+    // css: {
+    //   preprocessorOptions: {
+    //     scss: {
+    //       additionalData: `@use "@/styles/element/index.scss" as *;`,
+    //     },
+    //   },
+    // },
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url))
@@ -32,6 +41,8 @@ export default defineConfig(({ command, mode }) => {
       assetsDir: "assets", //指定静态资源存放路径
       sourcemap: false, //是否构建source map 文件
       minify: false,//是否压缩，在生产环境中使用压缩更省资源
+      // sourcemap: true, //是否构建source map 文件
+      // minify: true,//是否压缩，在生产环境中使用压缩更省资源
       rollupOptions: {
         output: {
           // 块文件名

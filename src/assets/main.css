@@ -292,11 +292,12 @@ code {
 
 .pre-code-element:not(:last-child) {
     margin-bottom: 1rem;
-    /* word-break: break-word; */
+    word-break: break-word;
 }
 
 .chat-card-bg {
     padding: 2px 6px;
+    min-width: 0;
 }
 
 .chat-card-bg p {
@@ -309,15 +310,16 @@ code {
 .chat-card-content-bg {
     background-color: var(--tc-chat-card-content-bg);
     border-radius: 4px;
+    word-wrap: break-word;
 }
 
-/* .chat-card-bg pre {
+.chat-card-bg pre {
     word-break: break-word;
 }
 
 .hljs {
     white-space: pre-wrap;
-} */
+}
 
 .code-actions-wrapper {
     opacity: 0.70;
@@ -502,6 +504,7 @@ code {
     display: flex;
     width: 100%;
     position: relative;
+    min-width: 0;
 }
 
 .u-header {

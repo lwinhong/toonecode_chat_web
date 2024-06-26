@@ -1,8 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
 import ChatAllInOne from '@/views/ChatAllInOne.vue';
-// import ToolHandlerContainer from '@/views/tools/ToolHandlerContainer.vue';
-// import ToolsView from '@/views/tools/ToolsView.vue';
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),

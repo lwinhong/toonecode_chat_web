@@ -1,24 +1,30 @@
 import { defineComponent, nextTick, ref } from 'vue'
 import * as clipboard from "clipboard-polyfill";
 import { v4 as uuidv4 } from "uuid";
+import { mapState } from 'pinia'
+
+import ChatViewWelcome from "./ChatViewWelcome.vue"
+import ChatViewSpinner from './ChatViewSpinner.vue';
+import { Plus, Download, User } from '@element-plus/icons-vue'
+import { IconAiSvg, IconPencilSvg } from "../icons";
+import { renderCodeAndToolBar } from "./CodeToolBar.jsx";
+
 import { util, clipboardSvg, checkSvg } from "@/util/index"
 import { chatUtil } from "@/util/chatUtil"
 
-import { Plus, Download, Setting, Select } from '@element-plus/icons-vue'
-import { IconDownloadSvg, IconPlusSvg, IconAiSvg, IconPencilSvg, IconUserSvg } from "../icons";
 import { useStore } from '@/stores/useStore'
-import { mapState } from 'pinia'
 import { getLanguageExtByFilePath } from "@/util/languageExt"
-import { renderCodeAndToolBar } from "./CodeToolBar.jsx";
 import { calcTextareaHeight } from "@/util/textarea/textareaUtil";
 
 const viewType = { introduction: "introduction", qa: "qa" }
 
 export default defineComponent({
     name: "ChatView",
-    components: { IconUserSvg, IconPencilSvg, IconAiSvg, IconPlusSvg, IconDownloadSvg,
-        Plus
-     },
+    components: {
+        ChatViewWelcome, ChatViewSpinner,
+        IconPencilSvg, IconAiSvg,
+        Plus, User, Download
+    },
     data() {
         return {
             currentViewType: viewType.introduction,
@@ -46,7 +52,7 @@ export default defineComponent({
             useStore().setChatInProgress(n);
         },
         questionInput() {
-            nextTick(this.adjustTextareaSize);
+            nextTick(this.onQuestionInputChnaged);
         }
     },
     computed: {
@@ -58,7 +64,7 @@ export default defineComponent({
         },
         isQAMode() {
             return this.currentViewType == viewType.qa;
-        }
+        },
     },
     setup() {
         let qaElementList = ref();
@@ -156,6 +162,30 @@ export default defineComponent({
             }
             e.preventDefault();
             this.addFreeTextQuestion();
+        },
+        onQuestionInputChnaged() {
+            if (this.questionInput !== '/') {
+                this.adjustTextareaSize();
+                if (this.expressMenu && !this.expressMenu.isClosed()) {
+                    this.expressMenu.closeMenu();
+                    this.expressMenu = undefined;
+                }
+                return;
+            }
+
+            let items = [{ label: "/ 新的对话", onClick: this.onClearClick }]
+            let rect = this.questionInputRef.getBoundingClientRect();
+            this.expressMenu = this.$contextmenu({
+                x: rect.x,
+                y: rect.y - (items.length * 29 + 16),
+                preserveIconWidth: false,
+                minWidth: this.questionInputRef.offsetWidth,
+                items,
+                customClass: 'mx-context-menu-express',
+                onClose: () => {
+                    this.expressMenu = undefined
+                }
+            })
         },
         adjustTextareaSize() {
             let textarea = this.questionInputRef

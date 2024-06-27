@@ -2,60 +2,24 @@
     <el-container direction="vertical">
         <el-main id="qaMainId">
             <!--介绍 / 简介 / 引言 / 概述 -->
-            <div id="introduction" v-if="isIntroduction"
-                class="flex flex-col justify-between h-full justify-center px-6 w-full relative login-screen overflow-auto">
-                <div data-license="isc-gnc-hi-there" class="flex items-start text-center features-block my-5">
-                    <div class="flex flex-col gap-3.5 flex-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" aria-hidden="true" class="w-6 h-6 m-auto">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"></path>
-                        </svg>
-                        <h2>特性</h2>
-                        <ul class="flex flex-col gap-3.5 text-xs">
-                            <li class="features-li w-full border border-zinc-700 p-3 rounded-md">改进你的代码，生成测试</li>
-                            <li class="features-li w-full border border-zinc-700 p-3 rounded-md">解析和注释代码</li>
-                            <li class="features-li w-full border border-zinc-700 p-3 rounded-md">自动复制或创建新文件</li>
-                            <!--<li class="features-li w-full border border-zinc-700 p-3 rounded-md">语法高亮与自动语言检测</li>-->
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
+            <ChatViewWelcome v-if="isIntroduction" />
             <!--问答list-->
-            <div class="flex-1 overflow-y-auto" ref="qaElementList" id="qa-list" data-license="isc-gnc"
-                v-show="isQAMode">
+            <div class="flex-1 overflow-y-auto" ref="qaElementList" id="qa-list" v-show="isQAMode">
                 <template v-for="(message, index) in qaData.list" :key="index">
                     <!-- 问题 -->
                     <div class="chat-card-bg">
                         <div class="p-2 self-end question-element-ext relative chat-card-content-bg">
-                            <h2 class="mb-5 flex" data-license="isc-gnc">
-                                <IconUserSvg />你
+                            <h2 class="mb-5 flex">
+                                <el-icon :size="20" class="mr-2">
+                                    <User />
+                                </el-icon>你
                             </h2>
-                            <!-- <div class="mb-2 flex items-center" data-license="isc-gnc">
-                            <button title="编辑并重新提问" @click="onResendClick(message)"
-                                class="resend-element-ext p-1.5 flex items-center rounded-lg absolute right-6 top-6">
-                                <IconPencilSvg />
-                            </button>
-                            <div class="send-cancel-elements-ext flex gap-2" v-show="resenEditdVisible">
-                                <button title="发送这个提示" class="send-element-ext p-1 pr-2 flex items-center"
-                                    @click="onResendSendClick(message.question)">
-                                    <IconSendSvg />&nbsp;发送
-                                </button>
-                                <button title="取消" @click="onResendCancelClick"
-                                    class="cancel-element-ext p-1 pr-2 flex items-center">
-                                    <IconCancelSvg />&nbsp;取消
-                                </button>
-                            </div>
-                        </div> -->
-                            <!-- <div class="overflow-y-auto">{{ message.question }}</div> -->
                             <div class="overflow-y-auto" v-html="message.question"></div>
                         </div>
                     </div>
                     <!-- 回答 -->
                     <div class="chat-card-bg">
-                        <div v-if="message.answer" data-license="isc-gnc"
-                            class="p-2 self-end answer-element-ext chat-card-content-bg">
+                        <div v-if="message.answer" class="p-2 self-end answer-element-ext chat-card-content-bg">
                             <h2 class="mb-5 flex">
                                 <IconAiSvg style="margin-right: 0.5rem;" />TooneCode
                             </h2>
@@ -92,7 +56,7 @@
                             </div>
                         </div>
                         <!-- <div v-if="message.error" class="p-2 self-end answer-element-ext chat-card-content-bg"
-                        data-license="isc-gnc">
+                        >
                         <h2 class="mb-5 flex">
                             <IconAiSvg />AI
                         </h2>
@@ -104,33 +68,19 @@
         </el-main>
         <el-footer :height="'auto'">
             <!-- 正式思考动画 -->
-            <div class="pl-4 pt-2 flex items-center" data-license="isc-gnc" v-if="isInProgress">
-                <div class="typing">正在思考</div>
-                <div class="spinner">
-                    <div class="bounce1"></div>
-                    <div class="bounce2"></div>
-                    <div class="bounce3"></div>
-                </div>
-                <button id="stop-button" type="button" class="btn btn-primary flex items-end p-1 pr-2 rounded-md ml-5"
-                    v-show="showStopButton" @click="onStopClick">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="w-5 h-5 mr-2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>停止</button>
-            </div>
-            <!-- 提问框 -->
-            <div class="p-3 flex items-center pt-2" data-license="isc-gnc">
+            <ChatViewSpinner v-if="isInProgress" :showStopButton="showStopButton" @stopClick="onStopClick" />
+            <!-- 提问框 输入你的问题, 或用'/'调用快捷命令-->
+            <div class="p-3 flex items-center pt-2">
                 <div class="flex-1 textarea-wrapper">
-            
-                    <textarea ref="questionInputRef" class="common-textarea" type="text" rows="1" data-license="isc-gnc"
-                        id="question-input" placeholder="输入一个问题..." @keydown.enter.prevent="onQuestionKeyEnter"
-                        v-model="questionInput" :disabled="questionInputDisabled"></textarea>
+                    <textarea ref="questionInputRef" class="common-textarea" type="text" rows="1" id="question-input"
+                        placeholder="输入你的问题" @keydown.enter.prevent="onQuestionKeyEnter"
+                        v-model="questionInput" :disabled="questionInputDisabled" autocomplete="on"></textarea>
+
                 </div>
                 <div id="question-input-buttons" class="p-0.5 flex  gap-2 send-erea-items-center"
                     v-show="questionInputButtonsVisible">
                     <button text type="button" id="more-button" title="更多" class="common-button rounded-lg p-0.5"
-                        data-license="isc-gnc" @click="onMoreButtonClick" ref="questionInputButtonsMore">
+                        @click="onMoreButtonClick" ref="questionInputButtonsMore">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="w-5 h-5">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -152,7 +102,7 @@
         </el-footer>
     </el-container>
     <context-menu v-model:show="moreContextMenu.show" :options="moreContextMenu.option">
-        <context-menu-item label="新的聊天" @click="onClearClick">
+        <context-menu-item label="新的对话" @click="onClearClick">
             <template #icon>
                 <el-icon>
                     <Plus />
@@ -162,7 +112,9 @@
         <context-menu-item label="导出markdown" v-if="isVsCodeMode && qaData.list && qaData.list.length > 0"
             @click="onExportConversation">
             <template #icon>
-                <IconDownloadSvg />
+                <el-icon>
+                    <Download />
+                </el-icon>
             </template>
         </context-menu-item>
     </context-menu>
@@ -242,5 +194,15 @@ html[data-code-theme="light"] {
 
 .rating-panel .anticon>* {
     line-height: 1;
+}
+
+.mx-context-menu-express {
+    padding: 4px 0px !important;
+    --mx-menu-placeholder-width: 0px;
+    --mx-menu-backgroud-radius: 3px;
+}
+
+.mx-context-menu-express .mx-context-menu-item {
+    padding: 4px 8px !important;
 }
 </style>

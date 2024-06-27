@@ -79,7 +79,7 @@ const themeClick = (theme) => {
             <ChatVsCode v-else-if="store.isVsCodeMode"></ChatVsCode>
         </template>
         <template v-slot:aiExt>
-            <span class="tab-extends-item" title="新的聊天" @click="newChatClick" v-show="!store.chatInProgress">
+            <span class="tab-extends-item" title="新的对话" @click="newChatClick" v-show="!store.chatInProgress">
                 <el-icon>
                     <Plus />
                 </el-icon>

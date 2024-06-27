@@ -1,4 +1,4 @@
-import { createVNode, render } from 'vue'
+// import { createVNode, render } from 'vue'
 // import message from './vue-amazing-ui/message/Message.vue'
 
 

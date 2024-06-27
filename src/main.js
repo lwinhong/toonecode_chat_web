@@ -8,12 +8,29 @@ import mitt from 'mitt'
 const $bus = new mitt()
 
 
-import 'element-plus/dist/index.css'
+// import 'element-plus/dist/index.css'
+import 'element-plus/theme-chalk/el-message.css'
 // import '@/styles/element/index.scss'
 
 // import 'element-plus/theme-chalk/dark/css-vars.css'
 //import ElementPlus from 'element-plus'
 
+window.exportVar = function (data) {
+    $bus.emit('executeCmd', data)
+}
+
+//变更代码主题
+window.changeTheme = (theme) => {
+    if (!theme)
+        theme = localStorage.getItem('codeTheme') || "dark"
+
+    document.documentElement.setAttribute('class', theme)
+    document.documentElement.setAttribute('theme', theme)
+    document.getElementsByTagName('html')[0].dataset.codeTheme = theme;
+
+    localStorage.setItem('codeTheme', theme)
+    return theme;
+}
 
 /*********** axios ************* */
 
@@ -42,19 +59,4 @@ app.provide("$bus", $bus)
 app.config.globalProperties.$bus = $bus
 app.mount('#app')
 
-window.exportVar = function (data) {
-    $bus.emit('executeCmd', data)
-}
-//变更代码主题
-window.changeTheme = (val) => {
-    if (!val) {
-        document.documentElement.setAttribute('class', 'light')
-        document.documentElement.setAttribute('theme', 'light')
-        document.getElementsByTagName('html')[0].dataset.codeTheme = 'light';
-    } else {
-        document.documentElement.setAttribute('class', 'dark')
-        document.documentElement.removeAttribute('theme')
-        document.getElementsByTagName('html')[0].dataset.codeTheme = 'dark';
-    }
-}
-window.changeTheme(true);
+// window.changeTheme();

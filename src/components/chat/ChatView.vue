@@ -177,7 +177,7 @@
             <context-menu-item label="导出markdown" v-if="isVsCodeMode && qaData.list && qaData.list.length > 0"
                 @click="onExportConversation">
                 <template #icon>
-                    <IconDownloadSvg />
+                    <el-icon><Download /></el-icon>
                 </template>
             </context-menu-item>
         </context-menu>

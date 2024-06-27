@@ -1,5 +1,5 @@
 <script>
-import ChatView from '@/components/chat/ChatView.vue';
+import ChatView from '@/components/chat/ChatViewEl.vue';
 import { useStore } from '@/stores/useStore';
 
 export default {
@@ -39,6 +39,10 @@ export default {
                     break;
                 case "chat_code":
                 case "ask":
+                    message.cmd = message.type;
+                    this.busEventHandler(message);
+                    break;
+                default:
                     message.cmd = message.type;
                     this.busEventHandler(message);
                     break;

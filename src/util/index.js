@@ -56,10 +56,21 @@ export const util = {
             value: markdown,
             language: "markdown"
         };
+        util.sendMsg2Ide(param);
+    },
+    openSetting() {
+        util.sendMsg2Ide({
+            type: "openSettings",
+        });
+    },
+    sendMsg2Ide(data) {
         if (util.getUseStore().isIdeaMode) {
-            util.postMessageToIdeaEditor(param)
+            util.postMessageToIdeaEditor(data)
         } else if (util.getUseStore().isVsCodeMode) {
-            util.postMessageToCodeEditor(param)
+            util.postMessageToCodeEditor(data)
+        }
+        else {
+            console.log("没发出去：" + JSON.stringify(data ?? {}))
         }
     },
     throttle(fn, delay = 300) {

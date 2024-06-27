@@ -4,17 +4,21 @@ import { v4 as uuidv4 } from "uuid";
 import { util, clipboardSvg, checkSvg } from "@/util/index"
 import { chatUtil } from "@/util/chatUtil"
 
+import { Plus, Download, Setting, Select } from '@element-plus/icons-vue'
 import { IconDownloadSvg, IconPlusSvg, IconAiSvg, IconPencilSvg, IconUserSvg } from "../icons";
 import { useStore } from '@/stores/useStore'
 import { mapState } from 'pinia'
 import { getLanguageExtByFilePath } from "@/util/languageExt"
 import { renderCodeAndToolBar } from "./CodeToolBar.jsx";
+import { calcTextareaHeight } from "@/util/textarea/textareaUtil";
 
 const viewType = { introduction: "introduction", qa: "qa" }
 
 export default defineComponent({
     name: "ChatView",
-    components: { IconUserSvg, IconPencilSvg, IconAiSvg, IconPlusSvg, IconDownloadSvg },
+    components: { IconUserSvg, IconPencilSvg, IconAiSvg, IconPlusSvg, IconDownloadSvg,
+        Plus
+     },
     data() {
         return {
             currentViewType: viewType.introduction,
@@ -40,6 +44,9 @@ export default defineComponent({
     watch: {
         isInProgress(n) {
             useStore().setChatInProgress(n);
+        },
+        questionInput() {
+            nextTick(this.adjustTextareaSize);
         }
     },
     computed: {
@@ -60,7 +67,7 @@ export default defineComponent({
         return { qaElementList, questionInputRef, questionInputButtonsMore }
     },
     methods: {
-        // ...mapActions(useStore, [setChatInProgress]),
+        // ...mapActions(useStore, ['setChatInProgress']),
         onLikeClick(messageData) {
             this.saveLike(messageData, "like", "dislike");
         },
@@ -143,8 +150,31 @@ export default defineComponent({
             this.questionInputRef?.focus();
         },
         onQuestionKeyEnter(e) {
+            if (e.keyCode === 13 && (e.ctrlKey || e.metaKey)) {
+                this.questionInput += "\n"; //ctrl + enter 换行
+                return;
+            }
             e.preventDefault();
             this.addFreeTextQuestion();
+        },
+        adjustTextareaSize() {
+            let textarea = this.questionInputRef
+            // textarea.style.height = 'auto';
+            // const height = textarea.scrollHeight;
+
+            // if (height) { // 改变textarea高度达到自适应
+            //     textarea.style.height = height + "px";
+            // }
+
+            const textareaStyle = calcTextareaHeight(textarea, 1, 8);
+            textarea.style.height = textareaStyle.height_px;
+
+            // nextTick(() => {
+            //     // NOTE: Force repaint to make sure the style set above is applied.
+            //     // textarea.offsetHeight
+            //     // textarea.style.height = textarea.scrollHeight;
+            //     textarea.scrollIntoView()
+            // })
         },
         onExportConversation() {
             util.exportConversation(this.qaElementList);
@@ -174,10 +204,9 @@ export default defineComponent({
         },
         //本地模式
         async addFreeTextQuestion4Local(message, withHistory = true) {
-
             await this.showInProgress({ showStopButton: true, inProgress: true });
-
             await this.addQuestion(message)
+
             this.abortController?.abort();
             this.abortController = new AbortController();
             let history = withHistory && chatUtil.buildHistories(this.qaData.list);
@@ -285,7 +314,6 @@ export default defineComponent({
                         renderCodeAndToolBar(preCode.parentNode, preCode, this.isInCodeIDE, { onclick: this.codeToolbarClick })
                     });
                     nextTick(() => {
-                        //util.autoScrollToBottom(list);
                         this.questionInputRef?.focus();
                     });
                 };
@@ -300,10 +328,8 @@ export default defineComponent({
             }
             if (message.autoScroll && !this.userWheeled) {
                 nextTick(() => {
-                    //list.scrollTop = list.scrollHeight;
-                    util.autoScrollToBottom(list);
+                    util.autoScrollToBottom(this.qaMainElement);
                 })
-                //util.autoScrollToBottom(list);
             }
         },
         addError(message) {
@@ -428,6 +454,10 @@ export default defineComponent({
                 case "newChat":
                     this.onClearClick();
                     break;
+                case "appId":
+                    useStore().setAppId(value);
+                    console.log("appId:" + value);
+                    break;
                 default:
                     break;
             }
@@ -449,15 +479,14 @@ export default defineComponent({
         }
     },
     mounted() {
-
         this.$bus.off("executeCmd", this.busEventHandler)
         this.$bus.on("executeCmd", this.busEventHandler)
         if (!import.meta.env.PROD) {
             this.questionInput = "生成一个python排序算法"
         }
-
-        if (this.qaElementList) {
-            this.qaElementList.addEventListener('wheel', (e) => {
+        this.qaMainElement = document.getElementById("qaMainId");
+        if (this.qaMainElement) {
+            this.qaMainElement.addEventListener('wheel', (e) => {
                 this.userWheeled = true;
             })
         }

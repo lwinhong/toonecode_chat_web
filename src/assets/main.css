@@ -277,7 +277,7 @@ code {
 
 .textarea-wrapper>textarea {
     resize: none;
-    overflow: hidden;
+    /* overflow: hidden; */
     max-height: 20rem;
 }
 
@@ -310,16 +310,16 @@ code {
 .chat-card-content-bg {
     background-color: var(--tc-chat-card-content-bg);
     border-radius: 4px;
-    word-wrap: break-word;
+    /* word-wrap: break-word; */
 }
 
-.chat-card-bg pre {
+/* .chat-card-bg pre {
     word-break: break-word;
 }
 
 .hljs {
     white-space: pre-wrap;
-}
+} */
 
 .code-actions-wrapper {
     opacity: 0.70;
@@ -497,6 +497,7 @@ code {
     display: flex;
     padding-top: 8px;
     overflow: auto;
+    height: 100%;
 }
 
 .u-viewsBd .tabContent {
@@ -546,6 +547,8 @@ code {
 .tab-extends-item {
     cursor: pointer;
     padding: 4px;
+    width: 24px ;
+    height: 24px;
 }
 
 .tab-extends-item:active {
@@ -567,4 +570,12 @@ code {
     width: 100%;
     max-width: 600px;
     margin: 0 auto;
+    /* border-left: 1px solid;
+    border-right: 1px solid; */
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.01);
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.5);
+
+    margin-top: 8px;
+    height: 98vh;
 }

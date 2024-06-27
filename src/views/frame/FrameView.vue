@@ -34,5 +34,6 @@ const isToolsMode = computed(() => activeName.value === 'toolsTab');
             <ToolsView></ToolsView>
             <!-- <router-view></router-view> -->
         </div>
+        <slot></slot>
     </main>
 </template>

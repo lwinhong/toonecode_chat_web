@@ -18,8 +18,7 @@ const router = createRouter({
     //     component: ToolHandlerContainer
     //   }
     // ]
-  },
-  ]
+  }]
 })
 
 export default router

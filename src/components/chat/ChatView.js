@@ -158,7 +158,10 @@ export default defineComponent({
         onQuestionKeyEnter(e) {
             if (e.keyCode === 13 && (e.ctrlKey || e.metaKey)) {
                 this.questionInput += "\n"; //ctrl + enter 换行
-                
+                nextTick(() => {
+                    this.questionInputRef.blur()
+                    this.questionInputRef.focus()
+                });
                 return;
             }
             e.preventDefault();
@@ -181,7 +184,7 @@ export default defineComponent({
 
             // 命令菜单
             let items = [{ label: "/ 新的对话", onClick: () => this.commandMenuItemClick(this.onClearClick) },
-            // { label: "/ 新的对话2", onClick: () => this.commandMenuItemClick(this.onClearClick) }
+                // { label: "/ 新的对话2", onClick: () => this.commandMenuItemClick(this.onClearClick) }
             ]
             let rect = this.questionInputRef.getBoundingClientRect();
             this.commandMenu = this.$contextmenu({
@@ -196,9 +199,8 @@ export default defineComponent({
                 }
             })
             // nextTick(() => {
-
             //     var KeyboardEventInit = { key: "Down Arrow", code: 40, location: 0, repeat: false, isComposing: false };
-            //     var evtObj = new KeyboardEvent("keydown", KeyboardEventInit);
+            //     var evtObj = new KeyboardEvent("keyup", KeyboardEventInit);
             //     this.questionInputRef.dispatchEvent(evtObj);
             // })
         },
@@ -210,7 +212,6 @@ export default defineComponent({
             // if (height) { // 改变textarea高度达到自适应
             //     textarea.style.height = height + "px";
             // }
-
             const textareaStyle = calcTextareaHeight(textarea, 1, 8);
             textarea.style.height = textareaStyle.height_px;
         },

@@ -40,9 +40,9 @@ export default defineConfig(({ command, mode }) => {
       outDir: "dist",
       assetsDir: "assets", //指定静态资源存放路径
       // sourcemap: false, //是否构建source map 文件
-      minify: false,//是否压缩，在生产环境中使用压缩更省资源
+      //minify: false,//是否压缩，在生产环境中使用压缩更省资源
       sourcemap: true, //是否构建source map 文件
-      //minify: true,//是否压缩，在生产环境中使用压缩更省资源
+      minify: true,//是否压缩，在生产环境中使用压缩更省资源
       rollupOptions: {
         output: {
           // 块文件名

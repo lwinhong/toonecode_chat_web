@@ -158,24 +158,33 @@ export default defineComponent({
         onQuestionKeyEnter(e) {
             if (e.keyCode === 13 && (e.ctrlKey || e.metaKey)) {
                 this.questionInput += "\n"; //ctrl + enter 换行
+                
                 return;
             }
             e.preventDefault();
-            this.addFreeTextQuestion();
+            if (this.questionInput !== '/')
+                this.addFreeTextQuestion();
+        },
+        commandMenuItemClick(handler) {
+            this.questionInput = "";
+            handler?.();
         },
         onQuestionInputChnaged() {
             if (this.questionInput !== '/') {
                 this.adjustTextareaSize();
-                if (this.expressMenu && !this.expressMenu.isClosed()) {
-                    this.expressMenu.closeMenu();
-                    this.expressMenu = undefined;
+                if (this.commandMenu && !this.commandMenu.isClosed()) {
+                    this.commandMenu.closeMenu();
+                    this.commandMenu = undefined;
                 }
                 return;
             }
 
-            let items = [{ label: "/ 新的对话", onClick: this.onClearClick }]
+            // 命令菜单
+            let items = [{ label: "/ 新的对话", onClick: () => this.commandMenuItemClick(this.onClearClick) },
+            // { label: "/ 新的对话2", onClick: () => this.commandMenuItemClick(this.onClearClick) }
+            ]
             let rect = this.questionInputRef.getBoundingClientRect();
-            this.expressMenu = this.$contextmenu({
+            this.commandMenu = this.$contextmenu({
                 x: rect.x,
                 y: rect.y - (items.length * 29 + 16),
                 preserveIconWidth: false,
@@ -183,9 +192,15 @@ export default defineComponent({
                 items,
                 customClass: 'mx-context-menu-express',
                 onClose: () => {
-                    this.expressMenu = undefined
+                    this.commandMenu = undefined
                 }
             })
+            // nextTick(() => {
+
+            //     var KeyboardEventInit = { key: "Down Arrow", code: 40, location: 0, repeat: false, isComposing: false };
+            //     var evtObj = new KeyboardEvent("keydown", KeyboardEventInit);
+            //     this.questionInputRef.dispatchEvent(evtObj);
+            // })
         },
         adjustTextareaSize() {
             let textarea = this.questionInputRef
@@ -198,13 +213,6 @@ export default defineComponent({
 
             const textareaStyle = calcTextareaHeight(textarea, 1, 8);
             textarea.style.height = textareaStyle.height_px;
-
-            // nextTick(() => {
-            //     // NOTE: Force repaint to make sure the style set above is applied.
-            //     // textarea.offsetHeight
-            //     // textarea.style.height = textarea.scrollHeight;
-            //     textarea.scrollIntoView()
-            // })
         },
         onExportConversation() {
             util.exportConversation(this.qaElementList);
@@ -486,7 +494,7 @@ export default defineComponent({
                     break;
                 case "appId":
                     useStore().setAppId(value);
-                    console.log("appId:" + value);
+                    console.log("appId:" + JSON.stringify(value));
                     break;
                 default:
                     break;

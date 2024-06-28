@@ -198,8 +198,9 @@ html[data-code-theme="light"] {
 
 .mx-context-menu-express {
     padding: 4px 0px !important;
-    --mx-menu-placeholder-width: 0px;
+    // --mx-menu-placeholder-width: 0px;
     --mx-menu-backgroud-radius: 3px;
+    border: 1px solid var(--vscode-input-border)
 }
 
 .mx-context-menu-express .mx-context-menu-item {

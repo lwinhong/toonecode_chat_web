@@ -9,14 +9,16 @@ export const useStore = defineStore('useStore', {
     chatInProgress: false,//是否回答聊天中
     IdeType: "",//IDE类型
     theme: "dark",//主题
-    appId: ""
+    appId: "",
+    appInfo: undefined
   }),
   actions: {
     setTheme(theme) {
       this.theme = theme;
-    }, 
-    setAppId(appId) {
-      this.appId = appId;
+    },
+    setAppInfo(appInfo) {
+      this.appInfo = appInfo;
+      this.appId = appInfo?.appId;
     },
     setIdeType(type) {
       this.IdeType = type;

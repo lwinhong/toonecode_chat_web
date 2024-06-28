@@ -3,6 +3,7 @@ import { onMounted, ref, inject, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from '@/stores/useStore';
 import { util } from '@/util';
+import { v4 as uuidv4 } from "uuid";
 
 import FrameView from './frame/FrameView.vue';
 import ChatView from '@/components/chat/ChatViewEl.vue'
@@ -34,13 +35,11 @@ const getIDEType = () => {
             break;
         case 'idea':
             ideType.value = ide;
-            //store.setIdeaMode(true);
             break;
         default:
             try {
                 const vscode = window.acquireVsCodeApi();
                 window.vscodeInstance = vscode;
-                //store.setVsCodeMode(vscode ? true : false);
                 ideType.value = "vscode";
             } catch (error) {
                 console.log("不在vscode内:" + error);
@@ -53,6 +52,18 @@ const getIDEType = () => {
         document.documentElement.style.setProperty('--tc-caht-bg', 'transparent');
     } else if (store.isChatOnlyMode) {
         document.getElementById("app")?.classList.add("chat-box-600");
+        setTimeout(() => {
+            try {
+                let id = localStorage.getItem("toonecodechatappId")
+                if (!id) {
+                    id = uuidv4();
+                    localStorage.setItem("toonecodechatappId", id);
+                }
+                $bus.emit('executeCmd', { cmd: "appInfo", value: { appId: id, ide: navigator.appVersion || "web broswer" } })
+            } catch (e) {
+                console.error(e);
+            }
+        }, 1000);
     }
 }
 
@@ -84,8 +95,7 @@ const themeClick = (theme) => {
                     <Plus />
                 </el-icon>
             </span>
-            <span class="tab-extends-item" title="更多" @click="moreChatClick"
-                v-show="store.isChatOnlyMode">
+            <span class="tab-extends-item" title="更多" @click="moreChatClick" v-show="store.isChatOnlyMode">
                 <el-icon>
                     <More />
                 </el-icon>

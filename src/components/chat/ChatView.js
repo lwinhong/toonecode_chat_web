@@ -15,7 +15,7 @@ import { chatUtil } from "@/util/chatUtil"
 import { useStore } from '@/stores/useStore'
 import { getLanguageExtByFilePath } from "@/util/languageExt"
 import { calcTextareaHeight } from "@/util/textarea/textareaUtil";
-
+import { TelemetryService } from "@/util/telemetryService";
 const viewType = { introduction: "introduction", qa: "qa" }
 
 export default defineComponent({
@@ -493,9 +493,10 @@ export default defineComponent({
                 case "newChat":
                     this.onClearClick();
                     break;
-                case "appId":
-                    useStore().setAppId(value);
-                    console.log("appId:" + JSON.stringify(value));
+                case "appInfo":
+                    useStore().setAppInfo(value);
+                    console.log("appInfo:" + JSON.stringify(value));
+                    TelemetryService.pluginStatistics();
                     break;
                 default:
                     break;

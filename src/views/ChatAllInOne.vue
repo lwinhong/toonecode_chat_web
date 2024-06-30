@@ -118,6 +118,16 @@ const themeClick = (theme) => {
                                 <el-icon><Select /></el-icon>
                             </template>
                         </context-menu-item>
+                        <!-- <context-menu-item label="红色" @click="themeClick('red')">
+                            <template #icon v-if="store.theme === 'red'">
+                                <el-icon><Select /></el-icon>
+                            </template>
+                        </context-menu-item>
+                        <context-menu-item label="紫色" @click="themeClick('purple')">
+                            <template #icon v-if="store.theme === 'purple'">
+                                <el-icon><Select /></el-icon>
+                            </template>
+                        </context-menu-item> -->
                     </context-menu-group>
                 </context-menu>
             </span>

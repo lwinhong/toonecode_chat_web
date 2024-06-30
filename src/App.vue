@@ -14,5 +14,7 @@ onMounted(() => {
 <style>
 @import "./assets/theme-dark.css";
 @import "./assets/theme-light.css";
+/* @import "./assets/theme-red.css";
+@import "./assets/theme-purple.css"; */
 @import "./assets/main.css";
 </style>

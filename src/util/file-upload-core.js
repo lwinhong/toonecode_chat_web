@@ -1,5 +1,6 @@
 //如果文件太大，大于500m，可以使用https://github.com/jimmywarting/StreamSaver.js
 import { saveAs } from "file-saver";
+import { TelemetryService } from "./telemetryService";
 
 export class FileHandlerCore {
     async uploadFile(url, file, options, dataType) {
@@ -13,6 +14,7 @@ export class FileHandlerCore {
         formData.append('file', file);
         formData.append('options', JSON.stringify(options));
         formData.append('dataType', dataType);
+        formData.append('appInfo', TelemetryService.getAppInfo());
 
         const response = await fetch(url, {
             method: 'POST',

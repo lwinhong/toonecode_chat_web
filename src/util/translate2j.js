@@ -17,12 +17,14 @@ export const defaltOption = {
 }
 
 import { FileHandlerCore } from "./file-upload-core"
+import { TelemetryService } from "./telemetryService";
 
 export class Translate2j {
     async sql2j(sqlContent, options, fileName) {
         const param = {
             tableSql: sqlContent,
-            options: this.mergeOptions(options)
+            options: this.mergeOptions(options),
+            appInfo: TelemetryService.getAppInfo()
         }
         let url = "/code/generate4SQL";
         if (import.meta.env.PROD) {
@@ -90,7 +92,7 @@ export class Translate2j {
         url += `?fileId=${fileId}`;
         await this.downloadByUrl(url, saveName, fileHandler)
     }
-    
+
     async downloadByUrl(url, saveName, fileHandler) {
         if (saveName) {
             saveName = saveName.substring(0, saveName.lastIndexOf(".")) + ".zip";
